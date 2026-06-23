@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>(function(){try{var t=localStorage.getItem("vistex-theme")||"light";document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+<title>Industries We Serve — Vistex Chemicals Ltd</title>
+<meta name="description" content="Vistex provides tailored hygiene systems for hotels, hospitals, schools, commercial laundries and food & beverage plants across East Africa.">
+<link rel="icon" type="image/png" href="images/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet" onerror="this.remove()">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/motion.css">
+<link rel="stylesheet" href="css/home.css">
+</head>
+<body data-page="industries">
+<div id="vx-loader" aria-hidden="true"><div class="vx-loader-bubbles" id="vxLoaderBubbles"></div><div class="vx-loader-inner">
+  <img class="vx-loader-logo l-light" src="images/logo/vistex-logo-color-on-white.png" alt="Vistex Chemicals">
+  <img class="vx-loader-logo l-dark" src="images/logo/vistex-logo-white-on-blue.png" alt="Vistex Chemicals">
+  <div class="vx-drops"><span></span><span></span><span></span></div>
+  <div class="vx-loader-bar"><span></span></div>
+  <div class="vx-loader-text">Pure hygiene, loading…</div>
+</div></div>
+<main id="main">
+
+  <!-- Header -->
+  <section class="section vx-decor" data-blobs="2" data-drops="2">
+    <div class="container">
+      <span class="eyebrow">Industries we serve</span>
+      <h1 class="h-display" data-anim="up">Built for places that can’t compromise on hygiene</h1>
+      <p class="lede measure" data-anim="up" style="margin-top:14px">From five-star resorts to mission hospitals, we tailor complete hygiene systems to the demands of each environment.</p>
+      <div id="indNav" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:26px"></div>
+    </div>
+  </section>
+
+  <!-- Detailed industry sections (injected) -->
+  <div id="indSections"></div>
+
+  <!-- CTA -->
+  <section class="section">
+    <div class="container">
+      <div class="card center" data-anim="up" style="padding:clamp(28px,5vw,52px)">
+        <h2 class="h-section">Not sure which system you need?</h2>
+        <p class="lede measure" style="margin:12px auto 0">Tell us about your facility and we’ll recommend the right hygiene program.</p>
+        <div class="hero-ctas" style="justify-content:center;margin-top:24px;display:flex;gap:12px;flex-wrap:wrap">
+          <a class="btn btn-primary" href="contact.html">Talk to our team</a>
+          <a class="btn btn-wa" id="indWa" href="#" target="_blank" rel="noreferrer">WhatsApp us</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script src="js/data.js"></script>
+<script src="js/icons.js"></script>
+<script src="js/partials.js"></script>
+<script src="js/cart.js"></script>
+<script>
+(function(){
+  var V = window.VISTEX, ic = window.icon;
+
+  // Quick-nav chips
+  document.getElementById('indNav').innerHTML = V.industries.map(function(ind){
+    return '<a class="chip chip--blue" href="#ind-'+ind.key+'">'+ic(ind.icon,15)+' '+ind.name+'</a>';
+  }).join('');
+
+  // Detailed sections (alternating)
+  document.getElementById('indSections').innerHTML = V.industries.map(function(ind, idx){
+    var odd = idx % 2 === 1;
+    var points = ind.points.map(function(p){
+      return '<li><span class="fi">'+ic('check',15)+'</span><span>'+p+'</span></li>';
+    }).join('');
+    var sysChips = ind.systems.map(function(k){
+      var s = V.getSystem(k);
+      return '<a class="chip chip--blue" href="systems.html?system='+k+'">'+ic(s.icon,15)+' '+s.short+'</a>';
+    }).join('');
+    var clients = ind.clients.length
+      ? '<p style="margin-top:18px;font-size:13.5px;color:var(--text-3)"><strong style="color:var(--text-2)">Trusted by:</strong> '+ind.clients.join(' · ')+'</p>'
+      : '<p style="margin-top:18px;font-size:13.5px;color:var(--text-3)">References available on request.</p>';
+
+    return '<section id="ind-'+ind.key+'" class="section '+(odd?'section--tint ':'')+'vx-decor" data-blobs="2">' +
+      '<div class="container split '+(odd?'reverse':'')+'">' +
+        '<div class="split-media" data-anim="'+(odd?'right':'left')+'">' +
+          '<figure class="photo" style="--ar: 4 / 3">' +
+            '<img src="'+ind.img+'" alt="'+ind.name+'" loading="lazy" onerror="this.remove()">' +
+            '<figcaption class="photo-ph"><span class="ph-ico">'+ic('image',30)+'</span>' +
+              '<b>'+ind.name+'</b><small>'+ind.imgHint+'</small></figcaption>' +
+          '</figure>' +
+        '</div>' +
+        '<div class="split-copy" data-anim="'+(odd?'left':'right')+'">' +
+          '<span class="eyebrow">'+ind.name+'</span>' +
+          '<h2 class="h-section">'+ind.headline+'</h2>' +
+          '<p class="lede">'+ind.blurb+'</p>' +
+          '<ul class="feature-list">'+points+'</ul>' +
+          '<div style="margin-top:22px;display:flex;flex-wrap:wrap;gap:8px;align-items:center">' +
+            '<span style="font-size:13px;font-weight:700;color:var(--text-3)">Systems:</span>'+sysChips+'</div>' +
+          clients +
+        '</div>' +
+      '</div>' +
+    '</section>';
+  }).join('');
+
+  document.getElementById('indWa').href = 'https://wa.me/'+V.company.phoneIntl +
+    '?text=' + encodeURIComponent('Hello Vistex — I would like advice on the right hygiene system for my facility.');
+})();
+</script>
+<script src="js/motion.js"></script>
+</body>
+</html>

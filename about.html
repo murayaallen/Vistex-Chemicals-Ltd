@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>(function(){try{var t=localStorage.getItem("vistex-theme")||"light";document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+<title>About Vistex Chemicals Ltd — Hygiene Systems Partner</title>
+<meta name="description" content="Vistex Chemicals Ltd is a Kenyan-owned hygiene and cleaning solutions company founded in 2019, serving hotels, hospitals and institutions across East Africa.">
+<link rel="icon" type="image/png" href="images/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet" onerror="this.remove()">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/motion.css">
+<link rel="stylesheet" href="css/home.css">
+</head>
+<body data-page="about">
+<div id="vx-loader" aria-hidden="true"><div class="vx-loader-bubbles" id="vxLoaderBubbles"></div><div class="vx-loader-inner">
+  <img class="vx-loader-logo l-light" src="images/logo/vistex-logo-color-on-white.png" alt="Vistex Chemicals">
+  <img class="vx-loader-logo l-dark" src="images/logo/vistex-logo-white-on-blue.png" alt="Vistex Chemicals">
+  <div class="vx-drops"><span></span><span></span><span></span></div>
+  <div class="vx-loader-bar"><span></span></div>
+  <div class="vx-loader-text">Pure hygiene, loading…</div>
+</div></div>
+<main id="main">
+
+  <section class="section section--brand" style="position:relative;overflow:hidden">
+    <div class="bubbles" data-count="12"></div>
+    <div class="container" style="position:relative;z-index:2;display:grid;grid-template-columns:1.2fr .8fr;gap:40px;align-items:center">
+      <div>
+        <span class="eyebrow">About us</span>
+        <h1 class="h-display" style="color:#fff" data-anim="up">Who we are</h1>
+        <p class="lede" id="aboutIntro" data-anim="up" style="margin-top:18px"></p>
+        <p style="margin-top:16px;font-weight:700;color:var(--aqua-2)" id="aboutMeta"></p>
+      </div>
+      <div class="center" data-anim="scale">
+        <img src="images/logo/vistex-logo-white-on-blue.png" alt="Vistex Chemicals Ltd" style="max-width:280px;margin-inline:auto">
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid grid-2">
+      <div class="card" data-anim="up" style="padding:32px;border-top:4px solid var(--blue)">
+        <h2 class="h-section sys-title" style="font-size:1.6rem">Our Mission</h2>
+        <p style="margin-top:12px;color:var(--text-2)" id="mission"></p>
+      </div>
+      <div class="card" data-anim="up" style="padding:32px;border-top:4px solid var(--red)">
+        <h2 class="h-section" style="font-size:1.6rem;color:var(--red)">Our Vision</h2>
+        <p style="margin-top:12px;color:var(--text-2)" id="vision"></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tint">
+    <div class="container">
+      <div class="center"><span class="eyebrow" style="justify-content:center">The Vistex difference</span>
+        <h2 class="h-section" data-anim="up">Why hotels stay with us</h2></div>
+      <div class="grid grid-3 reveal-parent" id="diffGrid" style="margin-top:40px"></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container center">
+      <span class="eyebrow" style="justify-content:center">Our clients</span>
+      <h2 class="h-section" data-anim="up">Trusted across East Africa</h2>
+      <p class="lede measure" style="margin:12px auto 0">References available on request.</p>
+      <div class="grid grid-3" id="clientGroups" style="margin-top:36px;text-align:left"></div>
+    </div>
+  </section>
+
+</main>
+
+<script src="js/data.js"></script>
+<script src="js/icons.js"></script>
+<script src="js/partials.js"></script>
+<script src="js/cart.js"></script>
+<script>
+(function(){var V=window.VISTEX,co=V.company,$=function(id){return document.getElementById(id);};
+  $('aboutIntro').textContent = co.intro;
+  $('aboutMeta').textContent = 'Founded '+co.founded+' · Nairobi, Kenya';
+  $('mission').textContent = co.mission;
+  $('vision').textContent = co.vision;
+  $('diffGrid').innerHTML = V.differentiators.map(function(d){
+    return '<div class="card diff-card" data-anim="up" style="padding:24px"><div class="ico">'+window.icon(d.icon,26)+'</div>'+
+    '<h3 style="margin-top:12px;font-size:17px;font-family:var(--head)">'+d.title+'</h3>'+
+    '<p style="margin-top:8px;color:var(--text-3);font-size:14px">'+d.text+'</p></div>';
+  }).join('');
+  function group(title,list){
+    return '<div data-anim="up"><h3 class="sys-title" style="font-size:18px;font-family:var(--head)">'+title+'</h3>'+
+      '<ul style="list-style:none;margin-top:12px;display:grid;gap:8px">'+
+      list.map(function(c){return '<li style="color:var(--text-2);font-size:14.5px">• '+c+'</li>';}).join('')+'</ul></div>';
+  }
+  $('clientGroups').innerHTML = group('Hotels & Resorts',V.clients.hotels)+
+    group('Hospitals & Clinics',V.clients.hospitals)+group('And more',V.clients.others);
+})();
+</script>
+<script src="js/motion.js"></script>
+</body>
+</html>

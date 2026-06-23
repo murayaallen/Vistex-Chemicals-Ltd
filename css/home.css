@@ -1,0 +1,323 @@
+/* ==========================================================
+   VISTEX — Home / landing page styles
+   ========================================================== */
+
+/* ---------- HERO ---------- */
+.hero { position: relative; background: var(--hero-grad); overflow: hidden; border-bottom: 1px solid var(--border); }
+.hero-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; opacity: .14; }
+[data-theme="dark"] .hero-bg { opacity: .22; }
+.hero-grid {
+  position: relative; z-index: 2;
+  display: grid; grid-template-columns: 1.05fr .95fr; gap: clamp(24px,5vw,64px);
+  align-items: center; padding-block: clamp(48px,7vw,96px);
+}
+@media (max-width: 900px){ .hero-grid { grid-template-columns: 1fr; text-align: center; } }
+
+.hero h1 { font-size: clamp(2.3rem,6vw,4rem); font-weight: 800; }
+.hero h1 .line { display: block; overflow: hidden; }
+.hero h1 .line i {
+  display: inline-block; font-style: normal;
+  transform: translateY(110%); animation: heroline .9s var(--anim-ease) forwards;
+}
+.hero h1 .line:nth-child(2) i { animation-delay: .12s; }
+.hero h1 .line:nth-child(3) i { animation-delay: .24s; }
+@keyframes heroline { to { transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce){ .hero h1 .line i { transform:none; animation:none; } }
+
+/* rotating sector word */
+.hero-rotator { position: relative; display: inline-block; overflow: hidden; vertical-align: bottom; min-width: 4.5ch; }
+.hero-rotator .w {
+  display: inline-block;
+  background: linear-gradient(100deg,var(--blue),var(--aqua));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  transition: transform .45s var(--anim-ease), opacity .45s var(--anim-ease);
+}
+.hero-rotator .w.out { transform: translateY(-90%); opacity: 0; }
+.hero-rotator .w.in  { transform: translateY(90%);  opacity: 0; }
+@media (prefers-reduced-motion: reduce){ .hero-rotator .w { transition: none; } }
+
+.hero-lede { margin-top: 22px; max-width: 42ch; }
+@media (max-width:900px){ .hero-lede { margin-inline:auto; } }
+.hero-ctas { margin-top: 30px; display: flex; gap: 12px; flex-wrap: wrap; }
+@media (max-width:900px){ .hero-ctas { justify-content: center; } }
+.hero-trust { margin-top: 28px; display: flex; align-items: center; gap: 14px; color: var(--text-3); font-size: 13.5px; }
+@media (max-width:900px){ .hero-trust { justify-content: center; } }
+.hero-trust strong { color: var(--text); }
+
+/* hero visual */
+.hero-visual { position: relative; display: grid; place-items: center; }
+.hero-card {
+  position: relative; width: min(360px,80%); border-radius: var(--radius-xl);
+  background: var(--surface); box-shadow: var(--shadow-3); border: 1px solid var(--border);
+  overflow: hidden;
+}
+.hero-card img { width: 100%; display: block; }
+.hero-floats { position: absolute; inset: 0; pointer-events: none; }
+.hero-chip {
+  position: absolute; background: var(--surface); border: 1px solid var(--border);
+  box-shadow: var(--shadow-2); border-radius: 14px; padding: 12px 16px; font-size: 13px; font-weight: 700;
+}
+.hero-chip small { display:block; font-weight:600; color: var(--text-3); font-size: 11px; }
+.hero-chip.c1 { top: 6%; left: -6%; }
+.hero-chip.c2 { bottom: 10%; right: -8%; }
+.hero-chip .big { color: var(--blue); font-size: 18px; }
+[data-theme="dark"] .hero-chip .big { color: var(--aqua-2); }
+.hero-drop { position: absolute; top: -10px; right: 14%; }
+
+/* soft hygiene ring behind the product card */
+.hero-ring {
+  position: absolute; width: 116%; aspect-ratio: 1; border-radius: 50%;
+  border: 1.5px dashed rgba(0,166,230,.35);
+  background: radial-gradient(circle, rgba(0,166,230,.10), transparent 62%);
+  animation: spin 40s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce){ .hero-ring { animation: none; } }
+
+/* floating sector chips around the hero card */
+.hero-sector {
+  position: absolute; display: inline-flex; align-items: center; gap: 7px;
+  background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow-2);
+  border-radius: 999px; padding: 9px 14px; font-size: 13px; font-weight: 700; white-space: nowrap;
+}
+.hero-sector span { color: var(--blue); }
+[data-theme="dark"] .hero-sector span { color: var(--aqua-2); }
+.hero-sector.s1 { top: 4%; left: -8%; }
+.hero-sector.s2 { top: 28%; right: -12%; }
+.hero-sector.s3 { bottom: 20%; left: -12%; }
+.hero-sector.s4 { bottom: 2%; right: -6%; }
+@media (max-width: 1100px){ .hero-sector.s2,.hero-sector.s3 { right: -2%; left: auto; } .hero-sector.s3{ left:-2%; right:auto; } }
+@media (max-width: 900px){
+  .hero-sector.s1{ left: 0; } .hero-sector.s2{ right: 0; }
+  .hero-sector.s3{ left: 0; } .hero-sector.s4{ right: 0; }
+}
+@media (max-width: 560px){ .hero-sector { font-size: 12px; padding: 7px 11px; } }
+
+.scroll-cue-wrap { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); z-index: 3; }
+
+/* ---------- problem / solution ---------- */
+.ps-card { padding: 22px; }
+.ps-card .p { color: var(--red); font-weight: 700; font-size: 14px; }
+.ps-card .s { margin-top: 8px; font-weight: 700; }
+.ps-card .s::before { content:"→ "; color: var(--blue); }
+
+/* ---------- systems ---------- */
+.sys-card { padding: 28px; display:flex; flex-direction:column; height:100%; }
+.sys-icon { font-size: 30px; }
+.sys-card h3 { margin-top: 14px; color: var(--blue); font-size: 20px; }
+[data-theme="dark"] .sys-card h3 { color: var(--text); }
+.sys-card p { margin-top: 10px; color: var(--text-3); font-size: 14.5px; flex:1; }
+.sys-card .more { margin-top: 16px; font-weight: 700; color: var(--blue); font-size: 14px; }
+[data-theme="dark"] .sys-card .more { color: var(--aqua-2); }
+
+/* ---------- stats ---------- */
+.stats { display:grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
+@media (max-width:680px){ .stats { grid-template-columns: repeat(2,1fr); } }
+.stat { text-align:center; padding: 24px 12px; }
+.stat .n { font-family: var(--head); font-weight: 800; font-size: clamp(1.8rem,4vw,2.6rem); color:#fff; }
+.stat .l { margin-top: 6px; color: rgba(255,255,255,.78); font-size: 13.5px; }
+
+/* ---------- differentiators ---------- */
+.diff-card { padding: 24px; }
+.diff-card .ico { font-size: 24px; }
+.diff-card h3 { margin-top: 12px; font-size: 17px; }
+.diff-card p { margin-top: 8px; color: var(--text-3); font-size: 14px; }
+
+/* ---------- clients ---------- */
+.client-row { display:flex; flex-wrap:wrap; gap: 10px; justify-content:center; margin-top: 28px; }
+
+/* ---------- CTA ---------- */
+.cta-band { border-radius: var(--radius-xl); padding: clamp(36px,6vw,64px); text-align:center; position:relative; overflow:hidden; }
+.cta-band h2 { color:#fff; font-size: clamp(1.6rem,3.4vw,2.4rem); }
+.cta-band p { color: rgba(255,255,255,.85); margin-top: 12px; }
+.cta-band .hero-ctas { justify-content:center; }
+
+/* ==========================================================
+   HOME v2 — photo slots, split sections, showcase, steps
+   ========================================================== */
+
+/* Photo slot: real <img> over a labelled placeholder.
+   If the image is missing, onerror removes it and the label shows. */
+.photo {
+  position: relative; overflow: hidden; border-radius: var(--radius-xl);
+  aspect-ratio: var(--ar, 4 / 3);
+  background: linear-gradient(155deg, var(--surface-3), var(--bg-2));
+  border: 1px solid var(--border); box-shadow: var(--shadow-2);
+}
+.photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 2; }
+.photo-ph {
+  position: absolute; inset: 0; z-index: 1; display: grid; place-content: center; gap: 8px;
+  text-align: center; padding: 22px; color: var(--text-3);
+}
+.photo-ph .ph-ico { color: var(--blue); opacity: .5; margin-inline: auto; }
+[data-theme="dark"] .photo-ph .ph-ico { color: var(--aqua-2); }
+.photo-ph b { font-family: var(--head); font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--blue); }
+[data-theme="dark"] .photo-ph b { color: var(--aqua-2); }
+.photo-ph small { font-size: 12.5px; max-width: 32ch; margin-inline: auto; line-height: 1.45; }
+
+/* Split section */
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(28px, 5vw, 64px); align-items: center; }
+.split.reverse .split-media { order: 2; }
+@media (max-width: 860px){ .split { grid-template-columns: 1fr; } .split.reverse .split-media { order: 0; } }
+.split-copy .lede { margin-top: 16px; }
+.feature-list { list-style: none; margin-top: 22px; display: grid; gap: 12px; }
+.feature-list li { display: flex; gap: 12px; align-items: flex-start; font-weight: 600; }
+.feature-list .fi { flex: none; width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center;
+  background: rgba(46,57,149,.1); color: var(--blue); }
+[data-theme="dark"] .feature-list .fi { background: rgba(40,185,255,.14); color: var(--aqua-2); }
+
+/* Systems showcase cards (image-topped) */
+.sys-card2 { padding: 0; overflow: hidden; display: flex; flex-direction: column; height: 100%; }
+.sys-card2 .photo { border-radius: 0; border: none; box-shadow: none; aspect-ratio: 16 / 10; }
+.sys-card2-body { padding: 22px; display: flex; flex-direction: column; flex: 1; position: relative; }
+.sys-card2 .sys-badge {
+  position: absolute; top: -26px; left: 20px; width: 52px; height: 52px; border-radius: 14px;
+  display: grid; place-items: center; background: var(--surface); box-shadow: var(--shadow-2);
+  border: 1px solid var(--border); color: var(--blue); z-index: 3;
+}
+[data-theme="dark"] .sys-card2 .sys-badge { color: var(--aqua-2); }
+.sys-card2-body h3 { margin-top: 14px; font-size: 19px; }
+.sys-card2-body p { margin-top: 8px; color: var(--text-3); font-size: 14px; flex: 1; }
+.sys-card2-body .more { margin-top: 16px; font-weight: 700; color: var(--blue); font-size: 14px; }
+[data-theme="dark"] .sys-card2-body .more { color: var(--aqua-2); }
+
+/* Steps */
+.steps { display: grid; gap: 20px; margin-top: 10px; }
+.step { display: flex; gap: 16px; align-items: flex-start; }
+.step-n { flex: none; width: 44px; height: 44px; border-radius: 13px; display: grid; place-items: center;
+  font-family: var(--head); font-weight: 800; font-size: 17px;
+  background: linear-gradient(155deg, var(--blue), var(--swift)); color: #fff; box-shadow: var(--shadow-1); }
+.step h4 { font-size: 16px; }
+.step p { margin-top: 4px; color: var(--text-3); font-size: 14px; }
+
+/* Section background image (stats / cta) */
+.has-bg { position: relative; isolation: isolate; }
+.section-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; opacity: .22; }
+.has-bg > .container, .has-bg > .scroll-cue-wrap { position: relative; z-index: 2; }
+.has-bg::after { content: ""; position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(180deg, rgba(35,44,115,.35), rgba(35,44,115,.65)); }
+
+/* Pull-quote */
+.pullquote { text-align: center; max-width: 52rem; margin-inline: auto; }
+.pullquote .qmark { font-family: var(--head); font-size: 64px; line-height: .6; color: var(--blue); opacity: .25; }
+[data-theme="dark"] .pullquote .qmark { color: var(--aqua-2); }
+.pullquote q { quotes: none; font-family: var(--head); font-weight: 700;
+  font-size: clamp(1.4rem, 3.2vw, 2.1rem); line-height: 1.3; }
+.pullquote .qby { margin-top: 18px; color: var(--text-3); font-weight: 600; font-size: 14px; }
+
+/* Hero: product mini card overlapping the photo */
+.hero-photo { width: min(420px, 92%); margin-inline: auto; }
+.hero-mini {
+  position: absolute; bottom: -22px; left: -18px; width: 140px; border-radius: 16px; overflow: hidden;
+  background: var(--surface); box-shadow: var(--shadow-3); border: 1px solid var(--border); z-index: 4;
+}
+.hero-mini img { width: 100%; display: block; }
+@media (max-width: 900px){ .hero-mini { left: 2%; bottom: -16px; width: 110px; } }
+
+/* ==========================================================
+   WATER THEME — liquid orb, water card headers, wave swishes
+   ========================================================== */
+
+/* ---- Hero liquid orb ---- */
+.water-orb {
+  position: relative; width: min(420px, 90%); aspect-ratio: 1; margin-inline: auto;
+  border-radius: 50%; overflow: hidden;
+  background: radial-gradient(circle at 36% 30%, #dff6ff 0%, var(--aqua) 42%, var(--swift) 88%);
+  box-shadow: 0 34px 80px -22px rgba(0,71,156,.55),
+              inset 0 -26px 60px rgba(0,40,90,.45),
+              inset 0 22px 46px rgba(255,255,255,.5);
+}
+.orb-liquid {
+  position: absolute; left: -55%; top: 34%; width: 210%; height: 210%;
+  background: rgba(255,255,255,.16); border-radius: 42% 44% 46% 43%;
+  animation: orb-swirl 11s linear infinite;
+}
+.orb-liquid.two { top: 40%; background: rgba(255,255,255,.10); border-radius: 46% 42% 44% 45%;
+  animation-duration: 8s; animation-direction: reverse; }
+@keyframes orb-swirl { to { transform: rotate(360deg); } }
+.orb-gloss {
+  position: absolute; top: 12%; left: 18%; width: 36%; height: 22%; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,.85), transparent 70%); filter: blur(2px);
+}
+.orb-emblem { position: absolute; inset: 0; display: grid; place-items: center; z-index: 4; color: #fff; }
+.orb-emblem svg { filter: drop-shadow(0 6px 16px rgba(0,30,70,.35)); opacity: .95; }
+.water-orb .bubbles { z-index: 3; }
+@media (prefers-reduced-motion: reduce){ .orb-liquid { animation: none; } }
+
+/* ---- Water-filled system card header (replaces photo) ---- */
+.sys-water {
+  position: relative; aspect-ratio: 16 / 10; overflow: hidden;
+  background: linear-gradient(150deg, var(--aqua), var(--swift));
+}
+.sys-water .sys-emblem {
+  position: absolute; inset: 0; display: grid; place-items: center; z-index: 1; color: #fff;
+}
+.sys-water .sys-emblem svg { width: 52px; height: 52px; filter: drop-shadow(0 5px 14px rgba(0,20,60,.3)); }
+.sys-water .bubbles { z-index: 1; }
+/* product photo layer (covers the water header when the file exists) */
+.sys-shot { position: absolute; inset: 0; z-index: 2; }
+.sys-shot img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.sys-tint { position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(0,71,156,0) 45%, rgba(0,71,156,.4)); }
+/* animated wave along the bottom that blends into the card body */
+.sys-wave { position: absolute; left: 0; bottom: -1px; width: 200%; height: 32px; z-index: 4;
+  color: var(--surface); animation: swish 7s linear infinite; }
+.sys-wave svg { width: 100%; height: 100%; display: block; }
+@keyframes swish { to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce){ .sys-wave { animation: none; } }
+
+/* ---- Decorative water panel (approach section) ---- */
+.water-panel {
+  position: relative; aspect-ratio: 4 / 3; overflow: hidden; border-radius: var(--radius-xl);
+  background: linear-gradient(150deg, var(--aqua), var(--swift)); box-shadow: var(--shadow-2);
+}
+.water-panel .panel-emblem { position: absolute; inset: 0; display: grid; place-items: center; z-index: 2; color: #fff; }
+.water-panel .panel-emblem svg { width: 72px; height: 72px; filter: drop-shadow(0 6px 16px rgba(0,20,60,.3)); }
+.water-panel .bubbles { z-index: 1; }
+
+/* ==========================================================
+   HERO — "The Drop" (water droplet + radiating ripples)
+   ========================================================== */
+.thedrop { position: relative; width: min(360px, 78%); aspect-ratio: 1; margin-inline: auto;
+  display: grid; place-items: center; }
+.drop-glow { position: absolute; width: 86%; height: 86%; border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,166,230,.28), transparent 64%); filter: blur(12px); }
+[data-theme="dark"] .drop-glow { background: radial-gradient(circle, rgba(40,185,255,.32), transparent 64%); }
+
+/* radiating ripples */
+.ripple { position: absolute; inset: 0; margin: auto; width: 60%; height: 60%; border-radius: 50%;
+  border: 2.5px solid rgba(0,166,230,.5); animation: dropripple 3.6s ease-out infinite; }
+[data-theme="dark"] .ripple { border-color: rgba(40,185,255,.5); }
+.ripple.r2 { animation-delay: 1.2s; } .ripple.r3 { animation-delay: 2.4s; }
+@keyframes dropripple { 0% { transform: scale(.5); opacity: .75; } 100% { transform: scale(2.5); opacity: 0; } }
+
+/* the droplet (point up, round bottom — Swift motif) */
+.drop-body { position: relative; width: 46%; height: 46%;
+  background: radial-gradient(circle at 36% 26%, #eafaff 0%, var(--aqua) 40%, var(--swift) 90%);
+  border-radius: 0 50% 50% 50%; transform: rotate(45deg);
+  box-shadow: inset -7px -9px 20px rgba(0,40,90,.4), inset 7px 9px 18px rgba(255,255,255,.55),
+              0 22px 44px -12px rgba(0,71,156,.55);
+  animation: dropbob 5s ease-in-out infinite;
+}
+.drop-body::after { content: ""; position: absolute; top: 24%; left: 26%; width: 26%; height: 20%;
+  background: radial-gradient(circle, rgba(255,255,255,.9), transparent 70%); border-radius: 50%;
+  transform: rotate(-45deg); }
+@keyframes dropbob { 0%,100% { transform: rotate(45deg) translate(0,0); } 50% { transform: rotate(45deg) translate(0,-8px); } }
+@media (prefers-reduced-motion: reduce){ .ripple, .drop-body { animation: none; } }
+
+/* ==========================================================
+   HERO — wash-away rotating sector word (single element, no jump)
+   ========================================================== */
+.hero-rotator { display: inline-block; min-width: 7em; overflow: visible; vertical-align: bottom; }
+.hero-rotator .w { display: inline-block;
+  transition: opacity .5s ease, transform .5s ease, filter .5s ease; }
+/* "wash away": fade + downward drip + blur + slight vertical stretch */
+.hero-rotator .w.washing { opacity: 0; transform: translateY(.4em) scaleY(1.18); filter: blur(7px); }
+@media (prefers-reduced-motion: reduce){ .hero-rotator .w { transition: none; } }
+
+/* ---- Hero product stage (product-directed) ---- */
+.hero-stage { position: relative; width: min(400px, 86%); aspect-ratio: 1; margin-inline: auto; display: grid; place-items: center; }
+.hero-product { position: relative; z-index: 2; width: 82%; border-radius: 22px; overflow: hidden;
+  box-shadow: var(--shadow-3); border: 1px solid var(--border); background: var(--surface); }
+.hero-product img { width: 100%; display: block; }
+.hero-drop-accent { position: absolute; top: 4%; right: 6%; z-index: 3; width: 22px; height: 22px; }
