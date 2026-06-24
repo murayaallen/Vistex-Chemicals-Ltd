@@ -2,7 +2,13 @@
 
 A plain static website (no framework, no build step) for **Vistex Chemicals Ltd**.
 Bright "clinical clean" art direction with a light/dark theme toggle, scroll
-animations, and a WhatsApp enquiry cart. Inspired by the Cloud Paints V2 build.
+animations, and a WhatsApp enquiry cart.
+
+## Deploy (GitHub Pages)
+This repo is the site root. Enable **Settings → Pages → Deploy from a branch →
+`main` / `(root)`**. A `.nojekyll` file is included so Pages serves the files
+as-is. All paths are relative, so it also works under a project sub-path
+(`username.github.io/<repo>/`) or any sub-folder on normal hosting.
 
 ## How it works (no React, but still DRY)
 - Every page is plain HTML with `<body data-page="...">`.
