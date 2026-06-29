@@ -321,3 +321,30 @@
   box-shadow: var(--shadow-3); border: 1px solid var(--border); background: var(--surface); }
 .hero-product img { width: 100%; display: block; }
 .hero-drop-accent { position: absolute; top: 4%; right: 6%; z-index: 3; width: 22px; height: 22px; }
+
+/* ==========================================================
+   HERO — iridescent soap-bubble cluster (no product)
+   ========================================================== */
+.soap-cluster { position: relative; width: min(440px, 92%); aspect-ratio: 1; margin-inline: auto; }
+.soap-cluster .drop-glow { width: 92%; height: 92%; }
+.soap {
+  position: absolute; border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 26%, rgba(255,255,255,.95), rgba(255,255,255,0) 22%),
+    radial-gradient(circle at 72% 78%, rgba(0,166,230,.20), transparent 46%),
+    conic-gradient(from 200deg, rgba(255,90,170,.16), rgba(80,200,255,.16), rgba(120,255,190,.16), rgba(255,225,90,.16), rgba(255,90,170,.16));
+  border: 1px solid rgba(255,255,255,.55);
+  box-shadow: inset 0 0 26px rgba(255,255,255,.45), inset -8px -10px 30px rgba(0,71,156,.12), 0 12px 36px -8px rgba(0,71,156,.28);
+  -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px);
+  animation: soapfloat 8s ease-in-out infinite;
+}
+.soap::after { content: ""; position: absolute; top: 12%; left: 16%; width: 26%; height: 18%;
+  border-radius: 50%; background: rgba(255,255,255,.85); filter: blur(2px); transform: rotate(-18deg); }
+[data-theme="dark"] .soap { border-color: rgba(180,230,255,.55); box-shadow: inset 0 0 26px rgba(180,230,255,.3), inset -8px -10px 30px rgba(0,40,90,.4), 0 12px 36px -8px rgba(0,0,0,.5); }
+.soap.b1 { width: 58%; left: 20%; top: 12%; }
+.soap.b2 { width: 30%; left: 0;   top: 46%; animation-delay: -2s; animation-duration: 9s; }
+.soap.b3 { width: 24%; right: 4%; top: 56%; left: auto; animation-delay: -4s; animation-duration: 7s; }
+.soap.b4 { width: 18%; left: 32%; top: 0;   animation-delay: -1s; animation-duration: 6.5s; }
+.soap.b5 { width: 13%; right: 16%; top: 22%; left: auto; animation-delay: -3s; animation-duration: 7.5s; }
+@keyframes soapfloat { 0%,100% { transform: translate(0,0); } 50% { transform: translate(6px,-14px); } }
+@media (prefers-reduced-motion: reduce){ .soap { animation: none; } }

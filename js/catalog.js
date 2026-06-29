@@ -25,20 +25,21 @@
   V.systems.forEach(function (s){ tabs.push(tab('systems.html?system='+s.key, s.short, key===s.key)); });
   $('catTabs').innerHTML = tabs.join('');
 
-  // Body
+  // Body — each system is a sector-image band with liquid-glass product cards
   function block(s) {
     var items = V.bySystem(s.key);
-    var benefits = s.benefits.map(function (b){ return '<span class="chip chip--blue">✓ '+b+'</span>'; }).join('');
+    var benefits = s.benefits.map(function (b){ return '<span class="chip glass-chip">✓ '+b+'</span>'; }).join('');
     var cards = items.map(function (p){ return window.productCardHtml(p); }).join('');
     return (
-      '<section style="margin-top:48px">' +
-        '<div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:8px;border-bottom:1px solid var(--border);padding-bottom:14px">' +
-          '<div><h2 class="h-section sys-title" style="font-size:1.6rem;display:flex;align-items:center;gap:10px">'+window.icon(s.icon,26)+'<span>'+s.name+'</span></h2>' +
-          '<p style="color:var(--text-3);font-size:14.5px;margin-top:4px">'+s.tagline+'</p></div>' +
-          '<span style="color:var(--text-3);font-size:14px">'+items.length+' products</span>' +
+      '<section class="syscat" data-anim="up">' +
+        '<div class="syscat-bg" style="background-image:url(\''+s.img+'\')"></div>' +
+        '<div class="syscat-head">' +
+          '<div><h2 class="syscat-title">'+window.icon(s.icon,28)+'<span>'+s.name+'</span></h2>' +
+          '<p class="syscat-tag">'+s.tagline+'</p></div>' +
+          '<span class="syscat-count">'+items.length+' products</span>' +
         '</div>' +
-        '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:16px">'+benefits+'</div>' +
-        '<div class="grid grid-4 reveal-parent" style="margin-top:22px">'+cards+'</div>' +
+        '<div class="syscat-benefits">'+benefits+'</div>' +
+        '<div class="grid grid-4 glass-grid reveal-parent">'+cards+'</div>' +
       '</section>'
     );
   }
