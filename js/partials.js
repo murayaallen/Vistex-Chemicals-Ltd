@@ -125,6 +125,15 @@
     if (el) el.innerHTML = icon(t === 'dark' ? 'sun' : 'moon', 18);
   })();
 
+  // ---------- Header solidify on scroll (home overlay nav) ----------
+  (function () {
+    var hdr = document.querySelector('.site-header');
+    if (!hdr) return;
+    function onScroll() { hdr.classList.toggle('scrolled', window.scrollY > 40); }
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+  })();
+
   // ---------- Mobile nav ----------
   var navToggle = document.getElementById('navToggle');
   var navLinks = document.getElementById('navLinks');
