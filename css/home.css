@@ -348,3 +348,7 @@
 .soap.b5 { width: 13%; right: 16%; top: 22%; left: auto; animation-delay: -3s; animation-duration: 7.5s; }
 @keyframes soapfloat { 0%,100% { transform: translate(0,0); } 50% { transform: translate(6px,-14px); } }
 @media (prefers-reduced-motion: reduce){ .soap { animation: none; } }
+
+/* Product images: show the whole product (with its label) — never crop */
+.photo.product-figure { background: var(--surface); }
+.photo.product-figure img { object-fit: contain; }
