@@ -1,25 +1,51 @@
 <!doctype html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<script>(function(){try{var t=localStorage.getItem("vistex-theme")||"light";document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
+<script>(function(){try{var d=document.documentElement,t=localStorage.getItem('vx-theme')||'dark';d.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();</script>
+
 <title>Product — Vistex Chemicals Ltd</title>
-<meta name="description" content="Professional hygiene product by Vistex Chemicals Ltd. Add to your enquiry and request a quote.">
+<meta name="description" content="Professional hygiene product manufactured by Vistex Chemicals Ltd in Nairobi. Add to your enquiry and request a costed programme.">
+<link rel="canonical" href="https://www.vistexchemicals.co.ke/product.html">
+<meta name="theme-color" content="#2E3995" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#070a16" media="(prefers-color-scheme: dark)">
+
+<meta property="og:type" content="product">
+<meta property="og:site_name" content="Vistex Chemicals Ltd">
+<meta property="og:title" content="Product — Vistex Chemicals Ltd">
+<meta property="og:description" content="Professional hygiene product manufactured by Vistex Chemicals Ltd in Nairobi.">
+<meta property="og:image" content="https://www.vistexchemicals.co.ke/images/logo/vistex-logo-color-on-white.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://www.vistexchemicals.co.ke/images/logo/vistex-logo-color-on-white.png">
+
 <link rel="icon" type="image/png" href="images/favicon.png">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet" onerror="this.remove()">
-<link rel="stylesheet" href="css/main.css">
+<link rel="manifest" href="site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Fonts load async: a render-blocking third-party stylesheet stalls first
+     paint (and with it the CSS animation clock) whenever the CDN is slow. -->
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'" onerror="this.remove()">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/components.css">
 <link rel="stylesheet" href="css/motion.css">
+<link rel="stylesheet" href="css/pages.css">
+<link rel="stylesheet" href="css/responsive.css">
 </head>
+
 <body data-page="product">
-<div id="vx-loader" aria-hidden="true"><div class="vx-loader-bubbles" id="vxLoaderBubbles"></div><div class="vx-loader-inner">
-  <img class="vx-loader-logo l-light" src="images/logo/vistex-logo-color-on-white.png" alt="Vistex Chemicals">
-  <img class="vx-loader-logo l-dark" src="images/logo/vistex-logo-white-on-blue.png" alt="Vistex Chemicals">
-  <div class="vx-drops"><span></span><span></span><span></span></div>
-  <div class="vx-loader-bar"><span></span></div>
-  <div class="vx-loader-text">Pure hygiene, loading…</div>
-</div></div>
-<main id="main" class="section">
+<noscript>
+  <div style="background:#2E3995;color:#fff;padding:16px 20px;text-align:center;font:15px/1.5 system-ui,sans-serif">
+    This site needs JavaScript to display its catalogue.
+    Reach us directly on <a href="tel:+254739446655" style="color:#99dff9;font-weight:600">0739 446 655</a>
+    or <a href="mailto:info@vistexchemicals.co.ke" style="color:#99dff9;font-weight:600">info@vistexchemicals.co.ke</a>.
+  </div>
+</noscript>
+
+<main id="main" class="section page-fade">
   <div class="container" id="productRoot"></div>
 </main>
 

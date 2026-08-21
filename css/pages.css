@@ -1,0 +1,939 @@
+/* ============================================================
+   VISTEX — Page compositions
+   home · systems catalog · product · industries · about · contact
+   ============================================================ */
+
+/* ============================================================
+   HOME — HERO
+   ============================================================ */
+.hero {
+  position: relative; isolation: isolate; overflow: hidden;
+  min-height: min(94svh, 940px);
+  display: flex; align-items: center;
+  /* the nav is fixed and transparent over this section, so the top padding has
+     to clear it while the artwork still runs to the top of the viewport */
+  padding-block: calc(var(--header-h) + clamp(40px, 9vh, 120px)) clamp(64px, 10vh, 120px);
+  background:
+    radial-gradient(120% 80% at 78% 8%, color-mix(in srgb, var(--aqua-100) 70%, transparent), transparent 60%),
+    linear-gradient(168deg, var(--n-0) 0%, var(--n-50) 48%, var(--blue-50) 100%);
+}
+[data-theme="dark"] .hero {
+  background:
+    radial-gradient(120% 80% at 78% 8%, color-mix(in srgb, var(--blue-800) 70%, transparent), transparent 62%),
+    linear-gradient(168deg, #050a18 0%, #070d1f 46%, #0a1330 100%);
+}
+/* The photograph reads as a photograph — no washed-out blend mode. Legibility
+   is protected by an explicit scrim over the copy side instead of by hiding
+   the image, so the picture stays present and the text stays readable. */
+.hero-bg {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; z-index: -2;
+  opacity: 1;               /* full strength — it runs edge to edge, top included */
+}
+/* Dark theme still knocks it back so the deep-ink page background reads through */
+[data-theme="dark"] .hero-bg { opacity: .5; }
+
+.hero::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    /* anchored over the copy, NOT across the top — the photo reaches the very
+       top edge of the viewport and the nav sits directly on the artwork */
+    radial-gradient(ellipse 88% 78% at 10% 66%,
+      color-mix(in srgb, var(--n-0) 30%, transparent) 0%,
+      color-mix(in srgb, var(--n-0) 16%, transparent) 45%,
+      transparent 72%),
+    linear-gradient(180deg, transparent 62%, color-mix(in srgb, var(--bg) 88%, transparent) 100%);
+}
+[data-theme="dark"] .hero::before {
+  background:
+    radial-gradient(ellipse 88% 78% at 10% 66%,
+      color-mix(in srgb, #050a18 34%, transparent) 0%,
+      color-mix(in srgb, #050a18 18%, transparent) 45%,
+      transparent 72%),
+    linear-gradient(180deg, transparent 62%, color-mix(in srgb, var(--bg) 90%, transparent) 100%);
+}
+@media (max-width: 980px) {
+  /* Stacked layout: protect the copy from below the nav downward, top stays clear */
+  .hero::before {
+    background: linear-gradient(180deg,
+      transparent 0%,
+      transparent calc(var(--header-h) - 8px),
+      color-mix(in srgb, var(--n-0) 34%, transparent) calc(var(--header-h) + 90px),
+      color-mix(in srgb, var(--n-0) 44%, transparent) 60%,
+      color-mix(in srgb, var(--bg) 92%, transparent) 100%);
+  }
+  [data-theme="dark"] .hero::before {
+    background: linear-gradient(180deg,
+      transparent 0%,
+      transparent calc(var(--header-h) - 8px),
+      color-mix(in srgb, #050a18 38%, transparent) calc(var(--header-h) + 90px),
+      color-mix(in srgb, #050a18 48%, transparent) 60%,
+      color-mix(in srgb, var(--bg) 94%, transparent) 100%);
+  }
+}
+
+/* Copy left, product stage right. */
+.hero-grid {
+  position: relative; z-index: 2;
+  display: grid; grid-template-columns: 0.92fr 1.08fr;
+  gap: clamp(24px, 4vw, 56px); align-items: center;
+}
+@media (max-width: 980px) { .hero-grid { grid-template-columns: 1fr; gap: var(--s-8); } }
+
+.hero-copy {
+  display: grid; gap: var(--s-6); justify-items: start;
+  max-width: min(58ch, 100%);
+}
+/* Measured against the un-scrimmed photo: --text-2 lands at 2.58:1 (fails),
+   --text at 6.31:1. So the copy is darkened rather than the picture lightened. */
+.hero-lede { color: var(--text); }
+.hero-trust { color: var(--text); border-top-color: color-mix(in srgb, var(--text) 22%, transparent); }
+.hero-trust strong { color: var(--text); }
+/* The copy column is ~558px in the two-column hero; --step-7 tops out at
+   101px there, which wrapped the headline to three lines 409px tall. */
+.hero .h-hero {
+  font-size: clamp(2.6rem, 4.6vw, 4.4rem);
+  line-height: 1.0;
+  max-width: 13ch;
+}
+.hero-lede { max-width: 46ch; }
+
+/* Sector word rotator — mask + slide, no layout jump */
+.hero-rotator {
+  position: relative; display: inline-grid;
+  vertical-align: baseline; overflow: hidden;
+  padding-bottom: .1em; margin-bottom: -.1em;
+}
+.hero-rotator .w {
+  grid-area: 1 / 1;
+  transition: transform .42s var(--ease-out), opacity .2s linear, filter .2s linear;
+}
+.hero-rotator .w.out { transform: translateY(-88%); opacity: 0; filter: blur(6px); }
+.hero-rotator .w.in  { transform: translateY(88%);  opacity: 0; filter: blur(6px); }
+
+.hero-ctas { display: flex; flex-wrap: wrap; gap: var(--s-3); }
+
+/* ============================================================
+   HERO PRODUCT STAGE  —  A1 Cascade Shelf  +  B1 Hero Lift
+   ============================================================ */
+.hero-visual {
+  position: relative;
+  /* The query container must be the PARENT: an element cannot match a
+     @container rule against itself. cqw units inside resolve against this. */
+  container-type: inline-size;
+  container-name: pstage;
+}
+@media (max-width: 980px) { .hero-visual { max-width: 620px; margin-inline: auto; width: 100%; } }
+
+.pstage {
+  position: relative;
+  /* Shorter than 5/4: a single row of ten cannot fill a tall box, and the
+     leftover air read as a mistake. This height is set by the hero-lift state
+     (the sustained one), with just enough headroom for the float. */
+  /* width MUST be definite. With width:auto, `aspect-ratio` + `min-height`
+     resolve the other way round — a 350px column produced a 500px-wide stage
+     that overflowed and clipped the products on mobile. */
+  width: 100%;
+  max-width: 100%;
+  aspect-ratio: 5 / 3.2;
+  min-height: 300px;
+
+  /* ONE width for every product. The cut-outs share an identical frame, so a
+     single width already reproduces true relative scale — the bucket's ink
+     fills 85% of its frame, the jerrican's 76%. Giving jerricans a smaller
+     width would shrink them a second time. */
+  /* Two tiers. Ten products in ONE row could not be read at hero size — each
+     was only 88px on a 570px stage and vanished against the water. Jerricans
+     take the back tier (narrower silhouette reads better behind), buckets the
+     front. Both are still true relative scale within their own tier. */
+  --pw-front: 21.5%; /* 6 buckets   */
+  --pw-back:  19%;   /* 4 jerricans, smaller for depth */
+  --hero-scale: 1.85;
+}
+/* Container queries, not viewport: the stage sizes off its own column. */
+@container pstage (max-width: 520px) { .pstage { --pw-front: 26%; --pw-back: 21%; --hero-scale: 1.72; } }
+@container pstage (max-width: 400px) { .pstage { --pw-front: 30%; --pw-back: 24%; --hero-scale: 1.58; } }
+@media (max-width: 620px) { .pstage { min-height: 250px; aspect-ratio: 5 / 3.4; } }
+/* the shelf line every product lands on */
+.pstage-floor {
+  position: absolute; left: 3%; right: 3%; bottom: 15%; height: 1px;
+  background: linear-gradient(90deg, transparent,
+    color-mix(in srgb, var(--blue-600) 26%, transparent), transparent);
+  opacity: 0; transition: opacity .6s var(--ease-out);
+}
+.pstage.lined .pstage-floor { opacity: 1; }
+/* aqua pool that appears under the featured product in stage 2 */
+.pstage-pool {
+  position: absolute; left: var(--pool-x, 50%); bottom: 11%;
+  width: 46%; height: 52px; transform: translateX(-50%) scaleX(.7);
+  transition: left .6s var(--ease-out), opacity .7s var(--ease-out), transform .7s var(--ease-out);
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center,
+    color-mix(in srgb, var(--aqua-400) 40%, transparent), transparent 70%);
+  filter: blur(12px); opacity: 0;
+  transition: opacity .7s var(--ease-out), transform .7s var(--ease-out);
+}
+.pstage.featuring .pstage-pool { opacity: .85; transform: translateX(-50%) scaleX(1); }
+
+/* The hero photograph is a high-contrast water swirl. Without this the
+   products fight it for attention; a soft halo lifts them off the background
+   without putting a visible panel on top of the image. */
+.pstage::before {
+  content: ""; position: absolute; inset: -6% -4% -10% -4%;
+  background: radial-gradient(ellipse 62% 58% at 50% 62%,
+    color-mix(in srgb, var(--bg) 62%, transparent) 0%,
+    color-mix(in srgb, var(--bg) 30%, transparent) 45%,
+    transparent 72%);
+  pointer-events: none;
+}
+
+.pstage-items { position: absolute; inset: 0; }
+
+.pitem {
+  position: absolute;
+  transform-origin: 50% 100%;
+  will-change: transform, opacity;
+}
+/* front tier — buckets, on the shelf line */
+.pitem.tier-front {
+  bottom: 15%;
+  width: var(--pw-front); margin-left: calc(var(--pw-front) * -0.5);
+}
+/* back tier — jerricans, raised and set back */
+.pitem.tier-back {
+  /* high enough that the jerricans clear the bucket rims — at 31% only their
+     caps showed, which defeated having two tiers at all */
+  bottom: 44%;
+  width: var(--pw-back); margin-left: calc(var(--pw-back) * -0.5);
+}
+.pitem.tier-back img { filter: drop-shadow(0 10px 14px rgba(20,32,72,.24)); }
+.pitem img {
+  width: 100%; height: auto; display: block;
+  filter: drop-shadow(0 16px 20px rgba(20,32,72,.26));
+}
+.pitem.is-hero img {
+  filter: drop-shadow(0 26px 30px rgba(20,32,72,.42)) drop-shadow(0 6px 10px rgba(20,32,72,.25));
+}
+/* dimmed group members transition smoothly rather than snapping */
+.pitem { transition: filter .45s var(--ease-out); }
+
+/* caption for the featured product */
+.pstage-cap {
+  position: absolute; left: 0; right: 0; bottom: 2%;
+  text-align: center; opacity: 0; pointer-events: none;
+  transition: opacity .4s var(--ease-out);
+}
+.pstage.featuring .pstage-cap { opacity: 1; pointer-events: auto; }
+.pstage-cap b {
+  display: block; font-family: var(--font-display); font-weight: 600;
+  font-size: var(--step-0); letter-spacing: var(--tr-tight); color: var(--text);
+}
+.pstage-cap span {
+  display: inline-block; margin-top: 4px;
+  font-family: var(--font-mono); font-size: var(--step--2);
+  letter-spacing: var(--tr-label); text-transform: uppercase; color: var(--text-3);
+}
+.pstage-cap:hover b { color: var(--accent); }
+
+/* progress dots for the slideshow */
+.pstage-dots {
+  position: absolute; left: 50%; transform: translateX(-50%); bottom: -14px;
+  display: flex; gap: 6px; opacity: 0; transition: opacity .4s var(--ease-out);
+}
+.pstage.featuring .pstage-dots { opacity: 1; }
+.pstage-dots i {
+  width: 5px; height: 5px; border-radius: 999px; display: block;
+  background: color-mix(in srgb, var(--text) 22%, transparent);
+  transition: all var(--t-mid);
+}
+.pstage-dots i.on { background: var(--accent); width: 18px; }
+
+.hero-trust {
+  display: flex; align-items: center; gap: var(--s-4);
+  padding-top: var(--s-5); border-top: 1px solid var(--border);
+  width: 100%; max-width: 44ch;
+  font-size: var(--step--1); color: var(--text-3);
+}
+.hero-trust strong { color: var(--text); font-weight: 600; }
+.drop-mark {
+  flex: none; width: 24px; height: 24px; border-radius: 50% 50% 50% 4px;
+  transform: rotate(-45deg);
+  background: linear-gradient(140deg, var(--aqua-400), var(--blue-600));
+  box-shadow: 0 6px 18px -8px var(--aqua-500);
+}
+
+.scroll-cue-wrap {
+  position: absolute; left: 50%; bottom: 26px; transform: translateX(-50%); z-index: 3;
+}
+@media (max-height: 720px) { .scroll-cue-wrap { display: none; } }
+
+/* ============================================================
+   PHOTO BAND — the product shot IS the background
+   A product photo used full-bleed will fight the copy, so it is anchored to
+   the free side, scaled up, softly blurred and desaturated into the brand
+   palette, then covered by a directional scrim. It reads as atmosphere, and
+   the bucket still resolves on the right where nothing overlaps it.
+   ============================================================ */
+.band-photo {
+  position: relative; isolation: isolate; overflow: hidden;
+  background: linear-gradient(160deg, var(--bg) 0%, var(--bg-sunk) 60%, var(--blue-50) 100%);
+}
+[data-theme="dark"] .band-photo {
+  background: linear-gradient(160deg, var(--bg) 0%, #080d1e 60%, #0b1330 100%);
+}
+.band-photo-bg {
+  position: absolute; z-index: -2;
+  /* The shot has its own pale studio background, so a plain rectangle left a
+     hard vertical seam against the page. Dissolve every edge so it reads as
+     part of the section rather than a pasted image. */
+  -webkit-mask-image: radial-gradient(ellipse 74% 76% at 58% 50%, #000 34%, rgba(0,0,0,.55) 62%, transparent 82%);
+  mask-image: radial-gradient(ellipse 74% 76% at 58% 50%, #000 34%, rgba(0,0,0,.55) 62%, transparent 82%);
+  /* Centred with auto margins, NOT translateY(-50%): this element also carries
+     data-parallax, and motion.js writes to `transform` — a transform used for
+     layout here would be overwritten and the image would drop out of frame. */
+  right: -4%; top: 0; bottom: 0; margin-block: auto;
+  /* capped at the native 1280px source so it is never upscaled, even at 2x */
+  width: min(58%, 640px); height: auto; aspect-ratio: 1 / 1;
+  object-fit: contain;
+  filter: saturate(.9) contrast(1.02);
+}
+/* tint it into the palette + fade its edges so it has no hard boundary */
+.band-photo::before {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background:
+    linear-gradient(95deg,
+      var(--bg) 0%,
+      color-mix(in srgb, var(--bg) 92%, transparent) 38%,
+      color-mix(in srgb, var(--bg) 55%, transparent) 58%,
+      transparent 78%),
+    radial-gradient(90% 70% at 78% 50%,
+      color-mix(in srgb, var(--aqua-200) 34%, transparent), transparent 68%);
+}
+[data-theme="dark"] .band-photo::before {
+  background:
+    linear-gradient(95deg,
+      var(--bg) 0%,
+      color-mix(in srgb, var(--bg) 92%, transparent) 38%,
+      color-mix(in srgb, var(--bg) 58%, transparent) 58%,
+      transparent 78%),
+    radial-gradient(90% 70% at 78% 50%,
+      color-mix(in srgb, var(--blue-700) 46%, transparent), transparent 68%);
+}
+.band-photo-inner { position: relative; z-index: 1; }
+.band-photo-inner .split-copy { max-width: 52ch; }
+.band-photo-credit {
+  margin-top: var(--s-8);
+  font-family: var(--font-mono); font-size: var(--step--2);
+  letter-spacing: var(--tr-label); text-transform: uppercase; color: var(--text-4);
+}
+@media (max-width: 900px) {
+  /* stacked: push the photo behind as a soft wash so the copy stays first */
+  .band-photo-bg { right: -18%; width: 90%; opacity: .5; }
+  .band-photo::before {
+    background:
+      linear-gradient(180deg, var(--bg) 0%, color-mix(in srgb, var(--bg) 82%, transparent) 55%, color-mix(in srgb, var(--bg) 92%, transparent) 100%),
+      radial-gradient(90% 60% at 70% 60%, color-mix(in srgb, var(--aqua-200) 26%, transparent), transparent 70%);
+  }
+  .band-photo-inner .split-copy { max-width: 100%; }
+}
+
+/* ============================================================
+   HOME — PROOF STRIP
+   ============================================================ */
+.proof-strip {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  border: 1px solid var(--border); border-radius: var(--r-lg);
+  background: var(--surface); overflow: hidden;
+}
+.proof-strip > div {
+  padding: var(--s-6) var(--s-5); text-align: center;
+  border-right: 1px solid var(--border-2);
+}
+.proof-strip > div:last-child { border-right: 0; }
+.proof-strip .n {
+  font-family: var(--font-display); font-size: var(--step-3);
+  font-weight: 600; letter-spacing: var(--tr-display); line-height: 1;
+}
+.proof-strip .l {
+  margin-top: 8px; font-family: var(--font-mono); font-size: var(--step--2);
+  letter-spacing: var(--tr-label); text-transform: uppercase; color: var(--text-3);
+}
+@media (max-width: 760px) {
+  .proof-strip { grid-template-columns: 1fr 1fr; }
+  .proof-strip > div:nth-child(2n) { border-right: 0; }
+  .proof-strip > div:nth-child(-n+2) { border-bottom: 1px solid var(--border-2); }
+}
+
+/* ============================================================
+   RIPPLE BAND — "End-to-end hygiene"
+   The upload was warm orange; it is shipped duotoned into the brand ramp so
+   the water texture survives but the colour belongs here. The band flips to
+   ink so the light type and the photo cards read as one dark composition.
+   ============================================================ */
+.section--ripple {
+  position: relative; isolation: isolate; overflow: hidden;
+  background: linear-gradient(165deg, var(--blue-900), var(--blue-950) 60%, #070b1c);
+  color: #fff;
+  --text: #fff;
+  --text-2: rgba(255,255,255,.78);
+  --text-3: rgba(255,255,255,.6);
+  --text-4: rgba(255,255,255,.44);
+  --border: rgba(255,255,255,.14);
+  --accent: var(--aqua-300);
+}
+.ripple-bg {
+  position: absolute; inset: 0; z-index: -2;
+  width: 100%; height: 100%; object-fit: cover;
+  opacity: .5;
+}
+/* keep the middle calm so the headline and cards sit on quiet ground */
+.section--ripple::before {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background:
+    radial-gradient(120% 80% at 50% 40%,
+      color-mix(in srgb, var(--blue-950) 78%, transparent) 0%,
+      color-mix(in srgb, var(--blue-950) 46%, transparent) 45%,
+      transparent 80%),
+    linear-gradient(180deg, var(--blue-950) 0%, transparent 22%, transparent 78%, var(--blue-950) 100%);
+}
+/* the section it butts against should melt into the band, not hard-edge */
+.section--ripple + .section, .section--ripple { --seam: 0; }
+
+/* ============================================================
+   HOME — SYSTEMS SHOWCASE
+   ============================================================ */
+.sys-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--s-5); }
+/* 5 cards: 2 wide on the first row, 3 on the second */
+.sys-card:nth-child(1), .sys-card:nth-child(2) { grid-column: span 3; }
+.sys-card:nth-child(3), .sys-card:nth-child(4), .sys-card:nth-child(5) { grid-column: span 2; }
+@media (max-width: 900px) {
+  .sys-grid { grid-template-columns: repeat(2, 1fr); }
+  .sys-card { grid-column: span 1 !important; }
+}
+@media (max-width: 600px) { .sys-grid { grid-template-columns: 1fr; } }
+
+.sys-card {
+  position: relative; isolation: isolate; overflow: hidden;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  min-height: 340px; padding: var(--s-6);
+  border-radius: var(--r-xl); border: 1px solid var(--border);
+  color: #fff; box-shadow: var(--shadow-1);
+  transition: transform var(--t-mid), box-shadow var(--t-mid);
+}
+.sys-card:nth-child(1), .sys-card:nth-child(2) { min-height: 400px; }
+.sys-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-3); }
+.sys-card-img {
+  position: absolute; inset: 0; z-index: -2;
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform 1.3s var(--ease-out);
+}
+.sys-card:hover .sys-card-img { transform: scale(1.07); }
+.sys-card::after {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background:
+    linear-gradient(180deg, transparent 8%, color-mix(in srgb, var(--blue-950) 30%, transparent) 44%, color-mix(in srgb, var(--blue-950) 90%, transparent) 100%);
+  transition: opacity var(--t-mid);
+}
+.sys-card-top {
+  position: absolute; top: var(--s-6); left: var(--s-6); right: var(--s-6);
+  display: flex; align-items: center; justify-content: space-between; gap: var(--s-3);
+}
+.sys-emblem {
+  width: 46px; height: 46px; display: grid; place-items: center;
+  border-radius: var(--r-md);
+  background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.26);
+  backdrop-filter: blur(10px); color: #fff;
+}
+.sys-count {
+  font-family: var(--font-mono); font-size: var(--step--2);
+  letter-spacing: var(--tr-label); color: rgba(255,255,255,.82);
+  padding: 6px 11px; border-radius: var(--r-full);
+  background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
+  backdrop-filter: blur(10px);
+}
+.sys-card h3 { font-size: var(--step-2); color: #fff; }
+.sys-card p {
+  margin-top: 9px; font-size: var(--step--1); line-height: 1.6;
+  color: rgba(255,255,255,.8); max-width: 42ch;
+}
+.sys-more {
+  margin-top: var(--s-5); display: inline-flex; align-items: center; gap: 8px;
+  font-family: var(--font-mono); font-size: var(--step--2);
+  letter-spacing: var(--tr-label); text-transform: uppercase; color: var(--aqua-200);
+}
+.sys-more svg { width: 15px; height: 15px; transition: transform var(--t-mid); }
+.sys-card:hover .sys-more svg { transform: translateX(5px); }
+
+/* Water line at the base of each card */
+.sys-wave { position: absolute; left: 0; right: 0; bottom: -1px; z-index: -1; opacity: .5; color: var(--aqua-400); }
+.sys-wave svg { width: 200%; height: 46px; animation: wave-drift 11s linear infinite; }
+@keyframes wave-drift { to { transform: translateX(-50%); } }
+
+/* ============================================================
+   HOME — PROCESS SCROLLYTELLING
+   ============================================================ */
+.process { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: clamp(32px, 6vw, 88px); align-items: start; }
+@media (max-width: 900px) { .process { grid-template-columns: 1fr; } }
+
+/* A photo stage rather than an abstract diagram — the image cross-fades to the
+   step you are reading, with the numeral and label sitting over it. */
+.process-visual {
+  position: sticky; top: calc(var(--header-h) + 6vh);
+  aspect-ratio: 4/5; border-radius: var(--r-2xl); overflow: hidden;
+  border: 1px solid var(--border); box-shadow: var(--shadow-3);
+  background: linear-gradient(160deg, var(--blue-700), var(--blue-950));
+  display: grid; place-items: center; isolation: isolate;
+}
+@media (max-width: 900px) {
+  .process-visual { position: relative; top: 0; aspect-ratio: 16/10; margin-bottom: var(--s-8); }
+}
+
+.pv-shot {
+  position: absolute; inset: 0; z-index: 0;
+  opacity: 0; transform: scale(1.08);
+  transition: opacity .7s var(--ease-out), transform 1.6s var(--ease-out);
+}
+.pv-shot.active { opacity: 1; transform: scale(1); }
+.pv-shot img { width: 100%; height: 100%; object-fit: cover; }
+
+.process-visual::after {
+  content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--blue-950) 42%, transparent) 0%,
+    color-mix(in srgb, var(--blue-950) 26%, transparent) 40%,
+    color-mix(in srgb, var(--blue-950) 88%, transparent) 100%);
+}
+
+.process-visual .pv-num {
+  position: relative; z-index: 2;
+  font-family: var(--font-display);
+  font-size: clamp(4.5rem, 13vw, 9rem); font-weight: 600; color: #fff;
+  letter-spacing: -0.06em; line-height: 1;
+  text-shadow: 0 12px 40px rgba(0,0,0,.45);
+  transition: opacity .3s var(--ease-out), transform .45s var(--ease-out);
+}
+.process-visual .pv-label {
+  position: absolute; z-index: 2; bottom: 10%; left: 0; right: 0; text-align: center;
+  font-family: var(--font-mono); font-size: var(--step--2);
+  letter-spacing: var(--tr-label); text-transform: uppercase; color: var(--aqua-200);
+}
+/* progress pips down the side of the stage */
+.pv-pips {
+  position: absolute; z-index: 2; right: 18px; top: 50%;
+  transform: translateY(-50%); display: grid; gap: 8px;
+}
+.pv-pips span {
+  width: 6px; height: 6px; border-radius: var(--r-full);
+  background: rgba(255,255,255,.32); transition: all var(--t-mid);
+}
+.pv-pips span.on { background: var(--aqua-300); height: 22px; }
+
+.process-steps { display: grid; gap: var(--s-4); }
+.pstep {
+  position: relative; padding: var(--s-6) var(--s-6) var(--s-6) var(--s-8);
+  border-radius: var(--r-lg); border: 1px solid var(--border);
+  background: var(--surface);
+  transition: border-color var(--t-mid), background var(--t-mid), transform var(--t-mid), box-shadow var(--t-mid);
+}
+.pstep::before {
+  content: ""; position: absolute; left: 0; top: 18px; bottom: 18px; width: 3px;
+  border-radius: var(--r-full); background: var(--border);
+  transition: background var(--t-mid);
+}
+.pstep.active {
+  border-color: var(--border-lit); box-shadow: var(--shadow-2);
+  transform: translateX(4px);
+}
+.pstep.active::before { background: linear-gradient(var(--aqua-400), var(--blue-600)); }
+.pstep .pn {
+  font-family: var(--font-mono); font-size: var(--step--2);
+  letter-spacing: var(--tr-label); color: var(--text-4);
+}
+.pstep.active .pn { color: var(--accent); }
+.pstep h4 { margin-top: 6px; font-size: var(--step-1); }
+.pstep p { margin-top: 8px; color: var(--text-3); font-size: var(--step--1); line-height: 1.65; }
+
+/* ============================================================
+   HOME — STATS BAND
+   ============================================================ */
+.stats-band {
+  position: relative; isolation: isolate; overflow: hidden;
+  background: linear-gradient(150deg, var(--blue-700) 0%, var(--blue-900) 55%, var(--blue-950) 100%);
+  color: #fff;
+}
+.stats-band .band-bg,
+.stats-band .band-video {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; z-index: -2;
+  opacity: 0; transition: opacity .9s var(--ease-out);
+}
+.stats-band .band-video { opacity: .42; }
+.stats-band.video-live .band-video { opacity: .62; }
+/* keep the numbers legible over moving footage */
+.stats-band::after {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(90% 70% at 50% 50%, color-mix(in srgb, var(--blue-950) 52%, transparent), transparent 78%),
+    linear-gradient(180deg, color-mix(in srgb, var(--blue-950) 62%, transparent), transparent 30%,
+                    transparent 70%, color-mix(in srgb, var(--blue-950) 62%, transparent));
+}
+.stats {
+  position: relative; z-index: 2;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-6);
+}
+@media (max-width: 820px) { .stats { grid-template-columns: 1fr 1fr; gap: var(--s-8); } }
+.stat { text-align: center; }
+.stat .n {
+  font-family: var(--font-display); font-size: var(--step-6);
+  font-weight: 600; letter-spacing: var(--tr-display); line-height: 1;
+  background: linear-gradient(180deg, #fff 30%, var(--aqua-200));
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.stat .l {
+  margin-top: var(--s-3); font-family: var(--font-mono);
+  font-size: var(--step--2); letter-spacing: var(--tr-label);
+  text-transform: uppercase; color: rgba(255,255,255,.66);
+}
+
+/* ============================================================
+   HOME — BENTO DIFFERENTIATORS
+   ============================================================ */
+.bento { display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--s-5); }
+.bento > * { grid-column: span 2; }
+.bento > *:nth-child(1) { grid-column: span 3; }
+.bento > *:nth-child(2) { grid-column: span 3; }
+@media (max-width: 900px) { .bento { grid-template-columns: repeat(2, 1fr); } .bento > * { grid-column: span 1 !important; } }
+@media (max-width: 560px) { .bento { grid-template-columns: 1fr; } }
+
+.diff-card {
+  padding: var(--s-6); display: grid; gap: var(--s-3); align-content: start;
+  border-radius: var(--r-lg);
+}
+.diff-card .ico {
+  width: 48px; height: 48px; display: grid; place-items: center;
+  border-radius: var(--r-md);
+  background: var(--accent-soft); color: var(--accent);
+  border: 1px solid var(--border-lit);
+  transition: transform var(--t-mid), background var(--t-mid);
+}
+.diff-card:hover .ico { transform: translateY(-3px) rotate(-4deg); }
+.diff-card h3 { font-size: var(--step-1); }
+.diff-card p { color: var(--text-3); font-size: var(--step--1); line-height: 1.65; }
+
+/* ============================================================
+   PROBLEM → SOLUTION LEDGER
+   ============================================================ */
+.ledger-layout {
+  display: grid; grid-template-columns: 0.82fr 1.18fr;
+  gap: clamp(32px, 6vw, 80px); align-items: start;
+}
+@media (max-width: 900px) {
+  .ledger-layout { grid-template-columns: 1fr; gap: var(--s-8); }
+  .ledger-aside .photo { display: none; }   /* the list is the point on a phone */
+}
+.ledger { border-top: 1px solid var(--border); }
+
+/* Each row is a little ledger entry: a mono index, the complaint set quietly,
+   an aqua arrow, then the answer in the display face and brand blue. A blue
+   rail grows down the left edge on hover to tie the palette through. */
+.ledger-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 1.1fr);
+  gap: var(--s-5);
+  align-items: center;
+  padding: var(--s-6) var(--s-5) var(--s-6) var(--s-6);
+  border-bottom: 1px solid var(--border-2);
+  transition: background var(--t-mid);
+}
+.ledger-row::before {
+  content: ""; position: absolute; left: 0; top: 50%; bottom: 50%; width: 3px;
+  border-radius: var(--r-full);
+  background: linear-gradient(var(--aqua-400), var(--blue-600));
+  transition: top var(--t-mid), bottom var(--t-mid);
+}
+.ledger-row:hover { background: var(--accent-soft); }
+.ledger-row:hover::before { top: 14px; bottom: 14px; }
+
+.ledger-n {
+  font-family: var(--font-mono); font-size: var(--step--2);
+  letter-spacing: var(--tr-mono);
+  color: var(--blue-300);
+  padding-top: 2px;
+}
+[data-theme="dark"] .ledger-n { color: var(--aqua-700); }
+.ledger-row:hover .ledger-n { color: var(--accent); }
+
+.ledger-tag {
+  display: block; margin-bottom: 6px;
+  font-family: var(--font-mono); font-size: 10px; font-weight: 500;
+  letter-spacing: var(--tr-label); text-transform: uppercase;
+}
+.ledger-p .ledger-tag { color: var(--text-4); }
+.ledger-s .ledger-tag { color: var(--aqua-600); }
+[data-theme="dark"] .ledger-s .ledger-tag { color: var(--aqua-400); }
+
+.ledger-p {
+  font-size: var(--step-0); color: var(--text-3);
+  font-weight: 400;
+}
+.ledger-s {
+  font-family: var(--font-display);
+  font-size: var(--step-1); font-weight: 600;
+  letter-spacing: var(--tr-tight);
+  color: var(--blue-700);
+}
+[data-theme="dark"] .ledger-s { color: var(--aqua-200); }
+
+.ledger-arrow {
+  flex: none; width: 34px; height: 34px;
+  display: grid; place-items: center; border-radius: var(--r-full);
+  background: var(--accent-soft); color: var(--accent);
+  border: 1px solid var(--border-lit);
+  transition: transform var(--t-mid), background var(--t-mid);
+}
+.ledger-row:hover .ledger-arrow {
+  transform: translateX(4px);
+  background: var(--accent); color: var(--on-accent); border-color: transparent;
+}
+.ledger-arrow svg { width: 17px; height: 17px; }
+
+@media (max-width: 780px) {
+  .ledger-row {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: var(--s-3) var(--s-4);
+    padding: var(--s-5) var(--s-3) var(--s-5) var(--s-5);
+  }
+  .ledger-n { grid-row: 1 / span 3; align-self: start; }
+  .ledger-arrow { transform: rotate(90deg); justify-self: start; width: 28px; height: 28px; }
+  .ledger-row:hover .ledger-arrow { transform: rotate(90deg) translateX(3px); }
+  .ledger-s { font-size: var(--step-0); }
+}
+
+/* ============================================================
+   PULL QUOTE
+   ============================================================ */
+.pullquote { position: relative; text-align: center; max-width: 30ch; margin-inline: auto; }
+.pullquote q {
+  display: block; quotes: none;
+  font-family: var(--font-quote); font-weight: 300;
+  font-size: var(--step-4); line-height: 1.2; letter-spacing: -0.03em;
+  color: var(--text);
+}
+.pullquote .qby {
+  margin-top: var(--s-6); font-family: var(--font-mono);
+  font-size: var(--step--2); letter-spacing: var(--tr-label);
+  text-transform: uppercase; color: var(--text-3);
+}
+.pullquote .qmark {
+  font-family: var(--font-quote); font-weight: 500;
+  font-size: 7rem; line-height: .62;
+  color: var(--water); opacity: .2; margin-bottom: -.08em;
+}
+
+/* ============================================================
+   CLIENTS
+   ============================================================ */
+.client-row { display: flex; flex-wrap: wrap; gap: var(--s-3); justify-content: center; }
+
+/* Four-up sector strip — the sectors named above, shown */
+.photo-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-4); }
+.photo-strip .photo { box-shadow: var(--shadow-2); }
+.photo-strip .photo:nth-child(even) { transform: translateY(clamp(14px, 2.6vw, 34px)); }
+@media (max-width: 780px) {
+  .photo-strip { grid-template-columns: repeat(2, 1fr); gap: var(--s-3); }
+}
+@media (max-width: 420px) {
+  .photo-strip .photo:nth-child(even) { transform: none; }
+}
+
+/* ============================================================
+   CTA BAND
+   ============================================================ */
+.cta-band {
+  position: relative; isolation: isolate; overflow: hidden;
+  border-radius: var(--r-2xl); text-align: center; color: #fff;
+  padding: clamp(44px, 8vw, 92px) clamp(24px, 5vw, 64px);
+  background: linear-gradient(150deg, var(--blue-600), var(--blue-900));
+  box-shadow: var(--shadow-3);
+}
+.cta-band .band-bg {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; z-index: -2; opacity: .2; mix-blend-mode: luminosity;
+}
+.cta-band h2 { font-size: var(--step-5); color: #fff; letter-spacing: var(--tr-display); }
+.cta-band p { margin: var(--s-4) auto 0; color: rgba(255,255,255,.8); max-width: 50ch; }
+.cta-band .hero-ctas { justify-content: center; margin-top: var(--s-7); }
+
+/* ============================================================
+   EDITORIAL PHOTO FRAME
+   ============================================================ */
+.photo {
+  position: relative; overflow: hidden;
+  border-radius: var(--r-xl); border: 1px solid var(--border);
+  box-shadow: var(--shadow-2); background: var(--surface-3);
+  aspect-ratio: var(--ar, 4/3);
+}
+.photo img { width: 100%; height: 100%; object-fit: cover; }
+.photo--parallax img { height: 118%; margin-top: -9%; }
+.photo-caption {
+  position: absolute; left: var(--s-4); bottom: var(--s-4);
+  padding: 8px 14px; border-radius: var(--r-full);
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+  backdrop-filter: blur(12px); border: 1px solid var(--border);
+  font-family: var(--font-mono); font-size: var(--step--2);
+  letter-spacing: var(--tr-mono); color: var(--text-2);
+}
+
+/* ============================================================
+   CATALOG (systems.html)
+   ============================================================ */
+.cat-toolbar {
+  position: sticky; top: var(--header-h); z-index: 20;
+  padding-block: var(--s-4);
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: var(--s-8);
+}
+.cat-toolbar-inner { display: grid; grid-template-columns: minmax(200px, 340px) 1fr; gap: var(--s-4); align-items: center; }
+@media (max-width: 820px) { .cat-toolbar-inner { grid-template-columns: 1fr; } }
+.cat-filters { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+.cat-meta {
+  font-family: var(--font-mono); font-size: var(--step--2);
+  letter-spacing: var(--tr-label); text-transform: uppercase; color: var(--text-3);
+}
+
+.syscat { position: relative; margin-bottom: var(--s-11); scroll-margin-top: calc(var(--header-h) + 90px); }
+.syscat-head {
+  position: relative; isolation: isolate; overflow: hidden;
+  border-radius: var(--r-xl); padding: clamp(26px, 4vw, 42px);
+  color: #fff; margin-bottom: var(--s-6);
+  border: 1px solid var(--border);
+}
+.syscat-bg {
+  position: absolute; inset: 0; z-index: -2;
+  background-size: cover; background-position: center;
+  transform: scale(1.04);
+}
+.syscat-head::after {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: linear-gradient(120deg, color-mix(in srgb, var(--blue-950) 88%, transparent), color-mix(in srgb, var(--blue-800) 55%, transparent));
+}
+.syscat-head-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s-4); }
+.syscat-title { display: flex; align-items: center; gap: var(--s-4); font-size: var(--step-3); color: #fff; }
+.syscat-title .sys-emblem { flex: none; }
+.syscat-tag { margin-top: var(--s-3); color: rgba(255,255,255,.78); font-size: var(--step--1); max-width: 56ch; }
+.syscat-benefits { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-top: var(--s-5); }
+
+.cat-empty {
+  text-align: center; padding: var(--s-11) var(--s-5);
+  border: 1px dashed var(--border); border-radius: var(--r-lg); color: var(--text-3);
+}
+.cat-empty svg { width: 44px; height: 44px; margin: 0 auto var(--s-4); color: var(--text-4); }
+
+/* ============================================================
+   PRODUCT DETAIL
+   ============================================================ */
+.crumbs {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  font-family: var(--font-mono); font-size: var(--step--2);
+  letter-spacing: var(--tr-mono); color: var(--text-3);
+}
+.crumbs a:hover { color: var(--accent); }
+.crumbs .sep { opacity: .5; }
+
+.pd-grid { display: grid; grid-template-columns: 0.95fr 1.05fr; gap: clamp(32px, 5vw, 72px); align-items: start; }
+@media (max-width: 900px) { .pd-grid { grid-template-columns: 1fr; } }
+.pd-media {
+  position: relative; overflow: hidden; border-radius: var(--r-xl);
+  border: 1px solid var(--border); box-shadow: var(--shadow-2);
+  aspect-ratio: 1/1; background: var(--surface-3);
+}
+.pd-media img { width: 100%; height: 100%; object-fit: cover; }
+.pd-title { font-size: var(--step-5); letter-spacing: var(--tr-display); }
+.pd-buy { display: flex; align-items: center; gap: var(--s-3); flex-wrap: wrap; }
+.pd-qty { border: 1.5px solid var(--border); border-radius: var(--r-full); padding: 5px 8px; }
+.pd-note { font-size: var(--step--2); color: var(--text-3); }
+.pd-safety {
+  display: flex; gap: var(--s-3); padding: var(--s-4);
+  border-radius: var(--r-md); background: var(--signal-soft);
+  border: 1px solid color-mix(in srgb, var(--signal) 22%, transparent);
+  font-size: var(--step--1); color: var(--text-2);
+}
+.pd-safety svg { width: 18px; height: 18px; flex: none; color: var(--signal); margin-top: 2px; }
+
+/* ============================================================
+   INDUSTRIES
+   ============================================================ */
+.ind-band { position: relative; scroll-margin-top: calc(var(--header-h) + 40px); }
+.ind-clients {
+  margin-top: var(--s-5); padding-top: var(--s-4);
+  border-top: 1px solid var(--border);
+  font-size: var(--step--1); color: var(--text-3);
+}
+.ind-clients strong {
+  display: block; font-family: var(--font-mono); font-size: var(--step--2);
+  letter-spacing: var(--tr-label); text-transform: uppercase;
+  color: var(--text-2); margin-bottom: 6px; font-weight: 500;
+}
+
+/* ============================================================
+   ABOUT
+   ============================================================ */
+.about-hero {
+  display: grid; grid-template-columns: 1.25fr 0.75fr;
+  gap: clamp(32px, 6vw, 72px); align-items: center;
+}
+@media (max-width: 880px) { .about-hero { grid-template-columns: 1fr; } }
+.mv-card { padding: clamp(26px, 4vw, 40px); border-radius: var(--r-xl); position: relative; overflow: hidden; }
+.mv-card::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+  background: linear-gradient(var(--aqua-400), var(--blue-600));
+}
+.mv-card.is-vision::before { background: linear-gradient(var(--red-400), var(--red-600)); }
+.mv-card h2 { font-size: var(--step-2); }
+.mv-card p { margin-top: var(--s-4); color: var(--text-2); }
+
+.client-group h3 {
+  font-family: var(--font-mono); font-size: var(--step--2);
+  letter-spacing: var(--tr-label); text-transform: uppercase;
+  color: var(--accent); font-weight: 500;
+}
+.client-group ul { margin-top: var(--s-4); display: grid; gap: 10px; }
+.client-group li {
+  display: flex; gap: 10px; align-items: baseline;
+  color: var(--text-2); font-size: var(--step--1);
+}
+.client-group li::before { content: "—"; color: var(--text-4); flex: none; }
+
+/* ============================================================
+   CONTACT
+   ============================================================ */
+.contact-grid { display: grid; grid-template-columns: 0.85fr 1.15fr; gap: clamp(32px, 5vw, 64px); align-items: start; }
+@media (max-width: 900px) { .contact-grid { grid-template-columns: 1fr; } }
+.contact-row {
+  display: flex; align-items: center; gap: var(--s-4);
+  padding: var(--s-4) var(--s-5); border-radius: var(--r-md);
+  border: 1px solid var(--border); background: var(--surface);
+  transition: all var(--t-fast);
+}
+a .contact-row:hover { border-color: var(--border-lit); transform: translateX(4px); background: var(--surface-2); }
+.contact-ico {
+  width: 42px; height: 42px; flex: none; display: grid; place-items: center;
+  border-radius: var(--r-sm); background: var(--accent-soft); color: var(--accent);
+}
+.contact-row .cl {
+  font-family: var(--font-mono); font-size: var(--step--2);
+  letter-spacing: var(--tr-label); text-transform: uppercase; color: var(--text-3);
+}
+.contact-row .cv { font-weight: 600; margin-top: 2px; font-size: var(--step--1); }
+
+/* ============================================================
+   404
+   ============================================================ */
+.nf { min-height: 62svh; display: grid; place-items: center; text-align: center; }
+.nf .code {
+  font-family: var(--font-display); font-size: clamp(6rem, 20vw, 13rem);
+  font-weight: 600; line-height: .85; letter-spacing: -0.06em;
+}

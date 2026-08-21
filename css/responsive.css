@@ -1,0 +1,329 @@
+/* ============================================================
+   VISTEX — Responsive & input-modality layer
+   Loaded LAST so it wins. Everything here is a deliberate
+   correction for small screens, touch input, or notched devices.
+   ============================================================ */
+
+/* ============================================================
+   1. TOUCH vs HOVER
+   Hover transforms "stick" on touch devices — a card tapped once
+   stays lifted. Gate every hover-only affordance behind (hover: hover).
+   ============================================================ */
+@media (hover: none) {
+  .card-hover:hover,
+  .sys-card:hover,
+  .btn:hover,
+  .chip:hover,
+  a.chip:hover,
+  .contact-row:hover,
+  a .contact-row:hover,
+  .pstep:hover { transform: none; }
+
+  .pcard:hover .pcard-media img,
+  .sys-card:hover .sys-card-img { transform: none; }
+
+  .btn::after { display: none; }          /* sheen sweep is pointless without a pointer */
+  .card-glow::before { display: none; }   /* pointer-tracked glow likewise */
+
+  /* Give the pressed state something to say instead */
+  .btn:active { transform: scale(.975); }
+  .card-hover:active { transform: scale(.99); }
+  .pcard-add:active { background: var(--accent); color: var(--on-accent); border-color: transparent; }
+}
+
+/* ============================================================
+   2. TAP TARGETS
+   Anything a thumb has to hit gets at least ~44px on touch.
+   ============================================================ */
+@media (pointer: coarse) {
+  .qty button { width: 40px; height: 40px; font-size: 18px; }
+  .qty span { width: 34px; font-size: var(--step-0); }
+
+  .pcard-add { padding: 11px 18px; font-size: var(--step--1); }
+  .ci-remove { padding: 10px; }
+  .cart-close { width: 44px; height: 44px; }
+  .icon-btn { height: 46px; }
+  .icon-btn--sq { width: 46px; }
+  .nav-toggle { width: 46px; height: 46px; }
+  .chip { padding: 10px 16px; }
+  .search .search-clear { width: 32px; height: 32px; right: 10px; }
+  .link-quiet { padding: 10px; }
+  .nav-links a { min-height: 44px; display: flex; align-items: center; }
+}
+
+/* ============================================================
+   3. FORM FIELDS — stop iOS auto-zoom
+   Safari zooms the viewport whenever a focused input renders
+   below 16px. Every field is pinned to 16px on small screens.
+   ============================================================ */
+@media (max-width: 820px), (pointer: coarse) {
+  .field input, .field textarea, .field select, .input,
+  .cart-foot input, .cart-foot textarea,
+  #catSearch {
+    font-size: 16px;
+    padding: 14px 15px;
+  }
+  .search input { padding-left: 46px; }
+  .field textarea { min-height: 130px; }
+}
+
+/* ============================================================
+   4. NOTCHED / GESTURE-BAR DEVICES
+   ============================================================ */
+@supports (padding: max(0px)) {
+  .cart-drawer {
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-right: env(safe-area-inset-right);
+  }
+  .toast-wrap { bottom: max(26px, calc(env(safe-area-inset-bottom) + 16px)); }
+  .site-footer .footer-bottom { padding-bottom: max(var(--s-5), env(safe-area-inset-bottom)); }
+  .container { padding-inline: max(var(--gutter), env(safe-area-inset-left)); }
+}
+
+/* ============================================================
+   5. HEADER & NAV
+   ============================================================ */
+@media (max-width: 920px) {
+  /* The panel must scroll if the viewport is short (landscape phones). */
+  .nav-links {
+    max-height: calc(100svh - var(--header-h));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+}
+@media (max-width: 400px) {
+  .nav-logo img { height: 40px; }
+  .nav { gap: var(--s-2); }
+  .nav-actions { gap: 6px; }
+}
+
+/* ============================================================
+   6. HERO
+   The desktop hero is a 94svh statement. On a phone that becomes
+   a wall of 57px type above the fold, so the scale is pulled back
+   and the visual is given a real, bounded slot.
+   ============================================================ */
+@media (max-width: 720px) {
+  .hero {
+    min-height: min(88svh, 720px);
+    padding-block: calc(var(--header-h) + clamp(24px, 6vh, 48px)) clamp(48px, 9vh, 72px);
+  }
+  .hero .h-hero {
+    font-size: clamp(2.5rem, 11.5vw, 3.4rem);
+    letter-spacing: -0.035em;
+    line-height: 1.02;
+    max-width: 100%;
+  }
+  .hero-trust { font-size: var(--step--2); gap: var(--s-3); }
+  .drop-mark { width: 20px; height: 20px; }
+  .scroll-cue-wrap { display: none; }
+
+  /* Full-width CTAs read as buttons, not links, at thumb size */
+  .hero-ctas { width: 100%; gap: var(--s-2); }
+  .hero-ctas .btn { flex: 1 1 100%; justify-content: center; }
+}
+
+/* ============================================================
+   STACKED HERO — keep the products near the fold
+   Below 980px the hero goes single column and the product stage lands under
+   the copy. Unchecked, that pushed it ~350px below the fold and the products
+   looked simply absent. Tighten the copy block so the line-up peeks in view.
+   ============================================================ */
+@media (max-width: 980px) {
+  .hero {
+    min-height: 0;
+    padding-block: calc(var(--header-h) + clamp(18px, 4vh, 40px)) clamp(32px, 6vh, 64px);
+  }
+
+  /* `display: contents` dissolves .hero-copy so its children become direct
+     flex items of the grid — that lets the product stage be ordered between
+     the buttons and the trust line, which is otherwise impossible. */
+  .hero-grid {
+    display: flex; flex-direction: column; align-items: stretch;
+    gap: clamp(14px, 2.6vh, 24px);
+  }
+  .hero-copy { display: contents; }
+
+  .hero .eyebrow   { order: 1; }
+  .hero .h-hero    { order: 2; font-size: clamp(2.3rem, 7.2vw, 3.3rem); max-width: 100%; }
+  .hero-lede       { display: none; }      /* dropped on mobile by request */
+  .hero-ctas       { order: 3; width: 100%; }
+  .hero-visual     { order: 4; margin-inline: auto; }
+  .hero-trust      { order: 5; padding-top: var(--s-4); max-width: 100%; }
+
+  .hero-ctas .btn { flex: 1 1 100%; justify-content: center; }
+
+  /* the line-up sits lower and centred under the buttons */
+  .hero-visual { max-width: 560px; width: 100%; }
+  .pstage { min-height: 240px; aspect-ratio: 5 / 3.4; }
+}
+
+/* Landscape phones: the hero must not lock the viewport */
+@media (max-height: 520px) and (orientation: landscape) {
+  .hero { min-height: 0; padding-block: calc(var(--header-h) + var(--s-6)) var(--s-8); }
+}
+
+/* ============================================================
+   7. CATALOGUE TOOLBAR
+   Two stacked rows of sticky chrome eats a phone screen. Compact
+   it, and let the filters scroll sideways instead of wrapping.
+   ============================================================ */
+@media (max-width: 820px) {
+  .cat-toolbar { padding-block: var(--s-3); margin-bottom: var(--s-6); }
+  .cat-toolbar-inner { gap: var(--s-3); }
+  .cat-toolbar-inner > div:last-child { justify-content: flex-start; gap: var(--s-3); }
+
+  /* A flex item defaults to min-width:auto, so this row refused to shrink below
+     the combined width of its chips and dragged the whole page ~420px wide.
+     min-width:0 lets it shrink; the bleed is done with 50%/50vw so the box is
+     exactly the viewport rather than container + 2 gutters. */
+  .cat-toolbar-inner, .cat-toolbar-inner > div { min-width: 0; }
+  .cat-filters {
+    flex-wrap: nowrap;
+    min-width: 0;
+    width: 100vw;
+    max-width: 100vw;
+    margin-inline: calc(50% - 50vw);
+    padding-inline: var(--gutter);
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    padding-bottom: 2px;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 16px, #000 calc(100% - 24px), transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 16px, #000 calc(100% - 24px), transparent);
+  }
+  .cat-filters::-webkit-scrollbar { display: none; }
+  .cat-filters .chip { flex: none; scroll-snap-align: start; }
+  .cat-meta { display: none; }
+}
+
+/* ============================================================
+   8. PRODUCT GRIDS
+   Two columns stays useful much further down than the generic
+   600px breakpoint — 40 products in one column is a long scroll.
+   ============================================================ */
+@media (max-width: 600px) and (min-width: 400px) {
+  .grid-4, .grid-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-3); }
+  .pcard-body { padding: var(--s-4); gap: 7px; }
+  .pcard-name { font-size: var(--step--1); }
+  .pcard-desc { -webkit-line-clamp: 2; font-size: var(--step--2); }
+  .pcard-foot { flex-direction: column; align-items: stretch; gap: var(--s-2); }
+  .pcard-add { justify-content: center; }
+}
+@media (max-width: 399px) {
+  .grid-4, .grid-3 { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ============================================================
+   9. SYSTEM CARDS
+   ============================================================ */
+@media (max-width: 900px) {
+  .sys-card, .sys-card:nth-child(1), .sys-card:nth-child(2) { min-height: 300px; }
+}
+@media (max-width: 600px) {
+  .sys-card, .sys-card:nth-child(1), .sys-card:nth-child(2) {
+    min-height: 260px; padding: var(--s-5); border-radius: var(--r-lg);
+  }
+  .sys-card-top { top: var(--s-5); left: var(--s-5); right: var(--s-5); }
+  .sys-emblem { width: 40px; height: 40px; }
+  .sys-card h3 { font-size: var(--step-1); }
+  .sys-card p { font-size: var(--step--2); -webkit-line-clamp: 3; }
+  .sys-more { margin-top: var(--s-4); }
+}
+
+/* ============================================================
+   10. SPEC TABLE — stacks rather than squeezing two columns
+   ============================================================ */
+@media (max-width: 480px) {
+  .spec-row { grid-template-columns: 1fr; gap: 4px; padding-block: 11px; }
+}
+
+/* ============================================================
+   11. ENQUIRY DRAWER
+   ============================================================ */
+@media (max-width: 460px) {
+  .cart-drawer { width: 100vw; border-left: 0; }
+  .cart-head, .cart-items, .cart-foot { padding-inline: var(--s-5); }
+  .cart-foot .row2 { grid-template-columns: 1fr; }
+  .cart-item { flex-wrap: wrap; }
+  .cart-item > div:first-child { flex: 1 1 100%; }
+}
+
+/* ============================================================
+   12. TYPE & RHYTHM ON SMALL SCREENS
+   ============================================================ */
+@media (max-width: 560px) {
+  .cta-band { border-radius: var(--r-xl); padding-inline: var(--s-5); }
+  .cta-band h2 { font-size: var(--step-3); }
+  .cta-band .hero-ctas { width: 100%; }
+  .cta-band .hero-ctas .btn { flex: 1 1 100%; justify-content: center; }
+
+  .pullquote q { font-size: var(--step-3); }
+  .pullquote .qmark { font-size: 5rem; }
+
+  .proof-strip .n { font-size: var(--step-2); }
+  .stat .n { font-size: var(--step-4); }
+
+  .mv-card h2 { font-size: var(--step-1); }
+  .about-hero .photo { max-width: 380px; margin-inline: auto; }
+
+  .syscat { margin-bottom: var(--s-9); }
+  .syscat-head { border-radius: var(--r-lg); }
+  .syscat-title { font-size: var(--step-2); gap: var(--s-3); }
+  .syscat-benefits .chip { font-size: var(--step--2); padding: 7px 12px; }
+
+  .footer-grid { gap: var(--s-6); }
+  .footer-bottom { flex-direction: column; align-items: flex-start; gap: 6px; }
+}
+
+/* ============================================================
+   13. MOTION COST ON SMALL / LOW-POWER DEVICES
+   A 46vw circle under a 60px blur is cheap on a laptop GPU and
+   expensive on a mid-range phone. Shrink the work, keep the look.
+   ============================================================ */
+@media (max-width: 720px) {
+  .aurora { filter: blur(42px) saturate(125%); opacity: calc(var(--aurora-opacity) * .8); }
+  .aurora .a1 { width: 78vw; height: 78vw; }
+  .aurora .a2 { width: 66vw; height: 66vw; }
+  .aurora .a3 { width: 84vw; height: 60vw; }
+  .caustics { opacity: .14; }
+  .caustics::after { display: none; }
+  .photo--parallax img { height: 100%; margin-top: 0; }  /* parallax needs headroom we don't have */
+  [data-parallax] { transform: none !important; }
+}
+
+/* Coarse pointers never get tilt — it only reads as jitter */
+@media (pointer: coarse) {
+  [data-tilt] { transform: none !important; }
+}
+
+/* The header row and its children must never be the thing that overflows */
+.site-header .container, .nav, .nav-links, .nav-actions { min-width: 0; }
+.nav-links { max-width: 100vw; }
+
+/* ============================================================
+   14. OVERFLOW GUARDS
+   Wide content must scroll inside its own box, never the page.
+   ============================================================ */
+.client-row, .cat-filters, .row { min-width: 0; }
+.split-copy, .sec-head, .pcard-body, .cart-item > div { min-width: 0; }
+.ci-name, .pcard-name, .contact-row .cv { overflow-wrap: anywhere; }
+.crumbs { overflow-wrap: anywhere; }
+
+/* Long product codes and emails must not push the layout out */
+.mono, .label, .pcard-code, .footer-grid a { overflow-wrap: anywhere; }
+
+/* ============================================================
+   15. PRINT
+   ============================================================ */
+@media print {
+  .site-header, .site-footer, .cart-drawer, .cart-overlay, .toast-wrap,
+  .aurora, .caustics, .bubbles, .marquee, .scroll-cue-wrap, #vx-loader { display: none !important; }
+  body { background: #fff; color: #000; }
+  body::after { display: none; }
+  [data-anim] { opacity: 1 !important; transform: none !important; }
+  .split-unit { opacity: 1 !important; transform: none !important; }
+  a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 10px; }
+  .section { padding-block: 18px; }
+}

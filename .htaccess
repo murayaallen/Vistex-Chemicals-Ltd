@@ -1,21 +1,66 @@
+# ============================================================
 # Vistex Chemicals — Apache / DirectAdmin config
-# This is a plain multi-page site, so no SPA rewrite is needed.
+# Plain multi-page static site: no SPA rewrite needed.
+# ============================================================
 
 ErrorDocument 404 /404.html
-
-# Default document
 DirectoryIndex index.html
 
-# Gzip / compression
-<IfModule mod_deflate.c>
-  AddOutputFilterByType DEFLATE text/html text/css application/javascript image/svg+xml
+# ---------- Force HTTPS + canonical www host ----------
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # http → https
+  RewriteCond %{HTTPS} !=on
+  RewriteCond %{HTTP:X-Forwarded-Proto} !https
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  # non-www → www
+  RewriteCond %{HTTP_HOST} ^vistexchemicals\.co\.ke$ [NC]
+  RewriteRule ^ https://www.vistexchemicals.co.ke%{REQUEST_URI} [L,R=301]
 </IfModule>
 
-# Cache static assets
+# ---------- Security headers ----------
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "geolocation=(), microphone=(), camera=(), interest-cohort=()"
+  # HSTS — enable once you are certain HTTPS works on every subdomain.
+  # Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+</IfModule>
+
+# ---------- Compression ----------
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml \
+    application/javascript application/json application/xml \
+    application/manifest+json image/svg+xml
+  # video is already compressed — re-compressing wastes CPU for no gain
+  SetEnvIfNoCase Request_URI \.(?:mp4|webm|jpe?g|png|webp)$ no-gzip dont-vary
+</IfModule>
+
+# ---------- Caching ----------
 <IfModule mod_expires.c>
   ExpiresActive On
-  ExpiresByType text/css "access plus 1 month"
-  ExpiresByType application/javascript "access plus 1 month"
-  ExpiresByType image/jpeg "access plus 1 year"
-  ExpiresByType image/png "access plus 1 year"
+  ExpiresDefault                          "access plus 1 week"
+  ExpiresByType text/html                 "access plus 0 seconds"
+  ExpiresByType text/css                  "access plus 1 month"
+  ExpiresByType application/javascript    "access plus 1 month"
+  ExpiresByType image/jpeg                "access plus 1 year"
+  ExpiresByType image/png                 "access plus 1 year"
+  ExpiresByType image/webp                "access plus 1 year"
+  ExpiresByType image/svg+xml             "access plus 1 year"
+  ExpiresByType font/woff2                "access plus 1 year"
+  ExpiresByType video/mp4                 "access plus 1 year"
+  ExpiresByType video/webm                "access plus 1 year"
+  ExpiresByType application/manifest+json "access plus 1 week"
+</IfModule>
+
+# ---------- MIME ----------
+<IfModule mod_mime.c>
+  AddType application/manifest+json .webmanifest
+  AddType image/webp .webp
+  AddType font/woff2 .woff2
+  AddType video/mp4 .mp4
+  AddType video/webm .webm
 </IfModule>

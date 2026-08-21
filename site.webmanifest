@@ -1,0 +1,14 @@
+{
+  "name": "Vistex Chemicals Ltd",
+  "short_name": "Vistex",
+  "description": "Professional hygiene systems for hotels, hospitals and institutions across East Africa.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fbfcfe",
+  "theme_color": "#2E3995",
+  "icons": [
+    { "src": "images/logo/vistex-mark.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "images/favicon.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

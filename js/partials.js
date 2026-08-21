@@ -1,183 +1,337 @@
 // ==========================================================
-// VISTEX — Page Partials
-// Injects the shared header, footer and cart drawer into every
-// page, wires the theme toggle + mobile nav, and exposes
-// window.productCardHtml() used by catalog/product pages.
+// VISTEX — Shared shell
+// Injects header / footer / enquiry drawer into every page and
+// wires theme, mobile nav, focus management and the intro loader.
+// Also exposes window.productCardHtml() and window.vxToast().
 // ==========================================================
 (function () {
   'use strict';
+
   var V = window.VISTEX;
   var co = V.company;
   var icon = window.icon;
   var page = document.body.dataset.page || '';
 
-  // ---------- Loader: fast rush of bubbles behind the logo ----------
-  (function loaderBubbles() {
-    var box = document.getElementById('vxLoaderBubbles');
-    if (!box || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    for (var i = 0; i < 22; i++) {
-      var b = document.createElement('span');
-      var size = 5 + Math.random() * 22;
-      b.style.width = size + 'px';
-      b.style.height = size + 'px';
-      b.style.left = (Math.random() * 100) + '%';
-      b.style.animationDuration = (0.9 + Math.random() * 1.4) + 's'; // brisk but smooth
-      b.style.animationDelay = (Math.random() * 1.3) + 's';
-      box.appendChild(b);
-    }
-  })();
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  window.vxEsc = esc;
 
-  function active(name) { return page === name ? 'active' : ''; }
-  // product detail counts as "systems" for nav highlighting
+  // ---------------------------------------------------------
+  // <picture> helper — every raster asset has a .webp sibling.
+  // Modern browsers take the webp (~73% smaller); everything else
+  // falls back to the original jpeg/png with no extra request.
+  // CSS targets the inner <img>, so `picture { display: contents }`
+  // keeps this wrapper invisible to layout.
+  // ---------------------------------------------------------
+  window.vxPicture = function (src, alt, o) {
+    o = o || {};
+    var webp = src.replace(/\.(jpe?g|png)$/i, '.webp');
+    var attrs =
+      ' src="' + src + '" alt="' + esc(alt || '') + '"' +
+      (o.cls ? ' class="' + o.cls + '"' : '') +
+      (o.w ? ' width="' + o.w + '"' : '') +
+      (o.h ? ' height="' + o.h + '"' : '') +
+      ' loading="' + (o.eager ? 'eager' : 'lazy') + '" decoding="async"' +
+      (o.eager ? ' fetchpriority="high"' : '') +
+      (o.extra || '');
+    return '<picture>' +
+      '<source srcset="' + webp + '" type="image/webp">' +
+      '<img' + attrs + '>' +
+    '</picture>';
+  };
+
+  // "product" pages highlight the Systems nav item
   function navActive(name) {
     if (name === 'systems' && (page === 'systems' || page === 'product')) return 'active';
-    return active(name);
+    return page === name ? 'active' : '';
   }
+  function ariaCur(name) { return navActive(name) ? ' aria-current="page"' : ''; }
 
-  // ---------- HEADER ----------
+  // ---------------------------------------------------------
+  // HEADER
+  // ---------------------------------------------------------
+  var NAV = [
+    ['index.html',      'home',       'Home'],
+    ['systems.html',    'systems',    'Our Systems'],
+    ['industries.html', 'industries', 'Industries'],
+    ['about.html',      'about',      'About'],
+    ['contact.html',    'contact',    'Contact']
+  ];
+
   var header =
     '<a href="#main" class="skip-to-content">Skip to content</a>' +
-    '<header class="site-header"><div class="container nav">' +
-      '<a class="nav-logo" href="index.html" aria-label="' + co.name + ' home">' +
-        '<img class="logo-light" src="images/logo/vistex-logo-color-on-white.png" alt="' + co.name + '">' +
-        '<img class="logo-dark" src="images/logo/vistex-logo-white-on-blue.png" alt="' + co.name + '">' +
-      '</a>' +
-      '<nav class="nav-links" id="navLinks">' +
-        '<a href="index.html" class="' + navActive('home') + '">Home</a>' +
-        '<a href="systems.html" class="' + navActive('systems') + '">Our Systems</a>' +
-        '<a href="industries.html" class="' + navActive('industries') + '">Industries</a>' +
-        '<a href="about.html" class="' + navActive('about') + '">About</a>' +
-        '<a href="contact.html" class="' + navActive('contact') + '">Contact</a>' +
-      '</nav>' +
-      '<div class="nav-actions">' +
-        '<button class="icon-btn" id="themeToggle" aria-label="Toggle dark mode" title="Toggle theme">' +
-          '<span id="themeIcon"></span></button>' +
-        '<button class="icon-btn" id="cartOpen" aria-label="Open enquiry">' + icon('clipboard',18) + ' <span class="hide-sm">Enquiry</span>' +
-          '<span class="cart-badge" id="cartBadge" hidden>0</span></button>' +
-        '<button class="nav-toggle" id="navToggle" aria-label="Menu"><span></span><span></span><span></span></button>' +
+    '<header class="site-header">' +
+      '<div class="container nav">' +
+        '<a class="nav-logo" href="index.html" aria-label="' + esc(co.name) + ' — home">' +
+          window.vxPicture('images/logo/vistex-logo-color-on-white.png', co.name, { cls: 'logo-light', w: 230, h: 73, eager: true }) +
+          window.vxPicture('images/logo/vistex-logo-white-on-blue.png',  co.name, { cls: 'logo-dark',  w: 230, h: 73, eager: true }) +
+        '</a>' +
+        '<nav class="nav-links" id="navLinks" aria-label="Main">' +
+          NAV.map(function (n) {
+            return '<a href="' + n[0] + '" class="' + navActive(n[1]) + '"' + ariaCur(n[1]) + '>' + n[2] + '</a>';
+          }).join('') +
+        '</nav>' +
+        '<div class="nav-actions">' +
+          '<button class="icon-btn icon-btn--sq" id="themeToggle" aria-label="Switch to dark theme" title="Toggle theme">' +
+            '<span id="themeIcon"></span></button>' +
+          '<button class="icon-btn" id="cartOpen" aria-label="Open enquiry list" aria-haspopup="dialog" aria-expanded="false">' +
+            icon('clipboard', 18) + '<span class="hide-sm">Enquiry</span>' +
+            '<span class="cart-badge" id="cartBadge" hidden>0</span></button>' +
+          '<button class="nav-toggle" id="navToggle" aria-label="Menu" aria-controls="navLinks" aria-expanded="false">' +
+            '<span></span><span></span><span></span></button>' +
+        '</div>' +
       '</div>' +
-    '</div></header>';
+      '<div class="scroll-progress" aria-hidden="true"></div>' +
+    '</header>';
 
-  // ---------- FOOTER ----------
+  // ---------------------------------------------------------
+  // FOOTER
+  // ---------------------------------------------------------
   var year = new Date().getFullYear();
+
   var footer =
     '<footer class="site-footer">' +
-    '<div class="footer-wave"><svg viewBox="0 0 1440 56" preserveAspectRatio="none" aria-hidden="true">' +
-      '<path fill="currentColor" d="M0,28 C240,0 480,0 720,28 C960,56 1200,56 1440,28 L1440,56 L0,56 Z"/></svg></div>' +
-    '<div class="container footer-grid">' +
-      '<div>' +
-        '<img class="footer-logo" src="images/logo/vistex-logo-white-on-blue.png" alt="' + co.name + '">' +
-        '<p style="margin-top:16px;max-width:34ch;color:rgba(255,255,255,.78)">' + co.tagline + '</p>' +
-        '<p style="margin-top:12px;font-weight:700;color:var(--aqua-2)">' + co.slogan + '</p>' +
+      '<div class="footer-glow" aria-hidden="true"></div>' +
+      '<div class="container footer-grid">' +
+        '<div>' +
+          window.vxPicture('images/logo/vistex-logo-white-on-blue.png', co.name, { cls: 'footer-logo', w: 215, h: 68 }) +
+          '<p style="margin-top:18px;max-width:32ch;color:rgba(255,255,255,.72);font-size:var(--step--1)">' + esc(co.tagline) + '</p>' +
+          '<p class="footer-brandline" style="margin-top:14px;font-size:var(--step--2)">' +
+            esc(co.productBrand) + ' — ' + esc(co.productBrandTagline) + '</p>' +
+        '</div>' +
+        '<div><h4>Explore</h4><ul>' +
+          '<li><a href="systems.html">Our Systems</a></li>' +
+          '<li><a href="industries.html">Industries</a></li>' +
+          '<li><a href="about.html">About</a></li>' +
+          '<li><a href="contact.html">Contact</a></li>' +
+        '</ul></div>' +
+        '<div><h4>Systems</h4><ul>' +
+          V.systems.map(function (s) {
+            return '<li><a href="systems.html?system=' + s.key + '">' + esc(s.short) + '</a></li>';
+          }).join('') +
+        '</ul></div>' +
+        '<div><h4>Get in touch</h4><ul>' +
+          '<li>' + icon('phone', 16) + '<a href="tel:+' + co.phoneIntl + '">' + esc(co.phoneDisplay) + '</a></li>' +
+          '<li>' + icon('chat', 16) + '<a href="' + V.wa(V.waText.quote) + '" target="_blank" rel="noopener">WhatsApp us</a></li>' +
+          '<li>' + icon('mail', 16) + '<a href="mailto:' + esc(co.email) + '">' + esc(co.email) + '</a></li>' +
+          '<li>' + icon('pin', 16) + '<span>' + esc(co.address) + '</span></li>' +
+          '<li>' + icon('clock', 16) + '<span>' + esc(co.hours) + '</span></li>' +
+        '</ul></div>' +
       '</div>' +
-      '<div><h4>Explore</h4><ul>' +
-        '<li><a href="systems.html">Our Systems</a></li>' +
-        '<li><a href="industries.html">Industries</a></li>' +
-        '<li><a href="about.html">About</a></li>' +
-        '<li><a href="contact.html">Contact</a></li>' +
-      '</ul></div>' +
-      '<div><h4>Get in touch</h4><ul>' +
-        '<li><a href="tel:' + co.phoneIntl + '">' + icon('phone',16) + ' ' + co.phoneDisplay + '</a></li>' +
-        '<li><a href="https://wa.me/' + co.phoneIntl + '" target="_blank" rel="noreferrer">' + icon('chat',16) + ' WhatsApp us</a></li>' +
-        '<li><a href="mailto:' + co.email + '">' + icon('mail',16) + ' ' + co.email + '</a></li>' +
-        '<li>' + icon('pin',16) + ' ' + co.address + '</li>' +
-      '</ul></div>' +
-    '</div>' +
-    '<div class="footer-bottom">© ' + year + ' ' + co.name + '. All rights reserved. · ' +
-      co.productBrand + ' — ' + co.productBrandTagline + '</div>' +
+      '<div class="container"><div class="footer-bottom">' +
+        '<span>© ' + year + ' ' + esc(co.name) + '. All rights reserved.</span>' +
+        '<span class="footer-brandline">' + esc(co.slogan) + '</span>' +
+      '</div></div>' +
     '</footer>';
 
-  // ---------- CART DRAWER ----------
+  // ---------------------------------------------------------
+  // ENQUIRY DRAWER
+  // ---------------------------------------------------------
   var drawer =
     '<div class="cart-overlay" id="cartOverlay"></div>' +
-    '<aside class="cart-drawer" id="cartDrawer" aria-label="Enquiry list">' +
-      '<div class="cart-head"><h3>Your Enquiry (<span id="cartCount">0</span>)</h3>' +
-        '<button class="cart-close" id="cartClose" aria-label="Close">×</button></div>' +
+    '<aside class="cart-drawer" id="cartDrawer" role="dialog" aria-modal="true"' +
+      ' aria-label="Your enquiry list" tabindex="-1">' +
+      '<div class="cart-head">' +
+        '<h3>Your enquiry <span class="mono" style="color:var(--text-3)">(<span id="cartCount">0</span>)</span></h3>' +
+        '<button class="cart-close" id="cartClose" aria-label="Close enquiry list">' + icon('x', 18) + '</button>' +
+      '</div>' +
       '<div class="cart-items" id="cartItems"></div>' +
       '<div class="cart-foot" id="cartFoot" hidden>' +
-        '<div class="row2"><input id="cf-name" placeholder="Your name"><input id="cf-biz" placeholder="Hotel / business"></div>' +
-        '<input id="cf-phone" placeholder="Your phone">' +
-        '<textarea id="cf-notes" rows="2" placeholder="Notes (delivery location, timing…)"></textarea>' +
-        '<button class="btn btn-wa" id="cartSend" style="width:100%">Send enquiry on WhatsApp</button>' +
-        '<button class="link-quiet" id="cartClear">Clear list</button>' +
+        '<div class="row2">' +
+          '<input id="cf-name" placeholder="Your name" autocomplete="name">' +
+          '<input id="cf-biz" placeholder="Hotel / business" autocomplete="organization">' +
+        '</div>' +
+        '<input id="cf-phone" placeholder="Your phone" autocomplete="tel" inputmode="tel">' +
+        '<textarea id="cf-notes" rows="2" placeholder="Notes — delivery location, timing…"></textarea>' +
+        '<div class="cart-actions">' +
+          '<button class="btn btn-wa btn-block" id="cartSend">' + icon('chat', 17) + 'Send on WhatsApp</button>' +
+          '<button class="btn btn-ghost btn-block btn-sm" id="cartMail">' + icon('mail', 16) + 'Or send by email</button>' +
+        '</div>' +
+        '<button class="link-quiet" id="cartClear" style="justify-self:center">Clear list</button>' +
       '</div>' +
-    '</aside>';
+    '</aside>' +
+    '<div class="toast-wrap" id="toastWrap" aria-live="polite" aria-atomic="true"></div>';
 
-  // Insert header at top of body, footer + drawer at end.
   document.body.insertAdjacentHTML('afterbegin', header);
   document.body.insertAdjacentHTML('beforeend', footer + drawer);
+  if (window.hydrateIcons) window.hydrateIcons(document);
 
-  // ---------- Theme toggle ----------
-  function applyTheme(t) {
-    document.documentElement.setAttribute('data-theme', t);
+  // ---------------------------------------------------------
+  // THEME
+  // ---------------------------------------------------------
+  var themeBtn = document.getElementById('themeToggle');
+  function paintThemeIcon() {
+    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
     var el = document.getElementById('themeIcon');
-    if (el) el.innerHTML = icon(t === 'dark' ? 'sun' : 'moon', 18);
-    try { localStorage.setItem('vistex-theme', t); } catch (e) {}
+    if (el) el.innerHTML = icon(dark ? 'sun' : 'moon', 18);
+    themeBtn.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
   }
-  document.getElementById('themeToggle').addEventListener('click', function () {
-    var cur = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
-    applyTheme(cur === 'dark' ? 'light' : 'dark');
+  themeBtn.addEventListener('click', function () {
+    var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('vx-theme', next); } catch (e) {}
+    paintThemeIcon();
   });
-  // reflect the already-applied theme on the icon
-  (function () {
-    var t = document.documentElement.getAttribute('data-theme') || 'light';
-    var el = document.getElementById('themeIcon');
-    if (el) el.innerHTML = icon(t === 'dark' ? 'sun' : 'moon', 18);
-  })();
+  paintThemeIcon();
 
-  // ---------- Header solidify on scroll (home overlay nav) ----------
-  (function () {
-    var hdr = document.querySelector('.site-header');
-    if (!hdr) return;
-    function onScroll() { hdr.classList.toggle('scrolled', window.scrollY > 40); }
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-  })();
-
-  // ---------- Mobile nav ----------
+  // ---------------------------------------------------------
+  // MOBILE NAV — aria-expanded, Escape, outside click
+  // ---------------------------------------------------------
   var navToggle = document.getElementById('navToggle');
   var navLinks = document.getElementById('navLinks');
-  navToggle.addEventListener('click', function () { navLinks.classList.toggle('open'); });
-  navLinks.addEventListener('click', function (e) { if (e.target.tagName === 'A') navLinks.classList.remove('open'); });
 
-  // ---------- Loading screen: hide once everything has loaded ----------
+  function setNav(open) {
+    navLinks.classList.toggle('open', open);
+    navToggle.setAttribute('aria-expanded', String(open));
+  }
+  navToggle.addEventListener('click', function () {
+    setNav(navToggle.getAttribute('aria-expanded') !== 'true');
+  });
+  navLinks.addEventListener('click', function (e) {
+    if (e.target.closest('a')) setNav(false);
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && navLinks.classList.contains('open')) {
+      setNav(false); navToggle.focus();
+    }
+  });
+  window.addEventListener('resize', function () {
+    if (window.innerWidth > 920) setNav(false);
+  }, { passive: true });
+
+  // ---------------------------------------------------------
+  // INTRO LOADER — once per session, capped, never blocks paint
+  // ---------------------------------------------------------
+  // The hero reveal must not play behind an opaque loader. This flag + event
+  // let motion.js wait until the intro is actually lifting before it animates.
+  window.__vxIntro = { done: false };
+  function introDone() {
+    if (window.__vxIntro.done) return;
+    window.__vxIntro.done = true;
+    document.dispatchEvent(new CustomEvent('vx:intro-done'));
+  }
+
   (function () {
     var loader = document.getElementById('vx-loader');
-    if (!loader) return;
+    if (!loader) { introDone(); return; }     // pages without an intro reveal at once
+
+    // Spawn the loader's bubbles here rather than waiting for motion.js — the
+    // loader is gone before that script's DOMContentLoaded work would land.
+    var box = loader.querySelector('.bubbles');
+    if (box && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      var frag = document.createDocumentFragment();
+      for (var i = 0; i < 16; i++) {
+        var b = document.createElement('span');
+        b.className = 'bubble';
+        var size = 7 + Math.random() * 26;
+        b.style.width = size + 'px'; b.style.height = size + 'px';
+        b.style.left = (Math.random() * 100).toFixed(1) + '%';
+        b.style.animationDuration = (2.2 + Math.random() * 2.6).toFixed(1) + 's';
+        b.style.animationDelay = (-Math.random() * 3).toFixed(1) + 's';
+        frag.appendChild(b);
+      }
+      box.appendChild(frag);
+    }
+
+    // ---------- intro timing ----------
+    // MIN lets the CSS fill animation read; MAX is a hard cap so the loader can
+    // never strand a visitor. Home page only, once per session.
+    var MIN = 1500, MAX = 2400;
     var start = Date.now();
-    var MIN = 1800; // keep it visible at least this long so it doesn't flash
-    function hide() {
-      var wait = Math.max(0, MIN - (Date.now() - start));
+    var done = false;
+
+    function hide(afterMs) {
+      if (done) return; done = true;
       setTimeout(function () {
         loader.classList.add('hide');
+        setTimeout(introDone, 300);
         setTimeout(function () { if (loader.parentNode) loader.remove(); }, 600);
-      }, wait);
+        try { sessionStorage.setItem('vx-seen', '1'); } catch (e) {}
+      }, afterMs != null ? afterMs : Math.max(0, MIN - (Date.now() - start)));
     }
+
     if (document.readyState === 'complete') hide();
-    else window.addEventListener('load', hide);
-    // safety net: never let the loader get stuck
-    setTimeout(function () { if (document.getElementById('vx-loader')) hide(); }, 4000);
+    else window.addEventListener('load', function () { hide(); });
+    setTimeout(hide, MAX);
   })();
 
-  // ---------- Product card HTML (shared) ----------
+  // ---------------------------------------------------------
+  // REVEAL FAILSAFE
+  // [data-anim] and [data-split] start at opacity 0 and are revealed by
+  // motion.js. If that request is blocked or fails, the page would stay
+  // permanently blank. This flag is cleared by motion.js on boot; if it is
+  // still set a few seconds later, reveal everything unconditionally.
+  // ---------------------------------------------------------
+  window.__vxMotionPending = true;
+  setTimeout(function () {
+    if (!window.__vxMotionPending) return;
+    document.querySelectorAll('[data-anim]').forEach(function (el) { el.classList.add('is-in'); });
+    document.querySelectorAll('[data-split]').forEach(function (el) { el.classList.add('is-in', 'split-ready'); });
+  }, 2500);
+
+  // ---------------------------------------------------------
+  // TOAST
+  // ---------------------------------------------------------
+  window.vxToast = function (msg, iconName) {
+    var wrap = document.getElementById('toastWrap');
+    if (!wrap) return;
+    var t = document.createElement('div');
+    t.className = 'toast';
+    t.innerHTML = icon(iconName || 'check-circle', 17) + '<span>' + esc(msg) + '</span>';
+    wrap.appendChild(t);
+    setTimeout(function () { t.remove(); }, 2900);
+  };
+
+  // ---------------------------------------------------------
+  // PRODUCT CARD (shared by catalog, product page, search)
+  // ---------------------------------------------------------
   window.productCardHtml = function (p) {
     var media = p.image
-      ? '<div class="pcard-media"><img src="' + p.image + '" alt="' + p.name + '" loading="lazy"></div>'
-      : '<div class="pcard-media"><div class="pcard-noimg"><span class="drop">' + icon('bottle',32) + '</span>' +
-        '<span class="nm">' + p.name + '</span><span class="sb">Swift · Usafi Halisi</span></div></div>';
-    var code = p.code ? '<span class="pcard-code">' + p.code + '</span>' : '';
+      ? '<div class="pcard-media">' +
+          window.vxPicture(p.image, p.name + (p.code ? ' ' + p.code : ''), { w: 400, h: 300 }) +
+        '</div>'
+      : '<div class="pcard-media"><div class="pcard-noimg">' +
+          '<span class="drop">' + icon('bottle', 30) + '</span>' +
+          '<span class="nm">' + esc(p.name) + '</span>' +
+          '<span class="sb">Swift · Usafi Halisi</span>' +
+        '</div></div>';
+
     return (
-      '<article class="card card-hover pcard" data-anim="up">' +
-        '<a href="product.html?id=' + p.id + '">' + media + '</a>' +
+      '<article class="card card-hover card-glow pcard" data-anim="up" data-pid="' + p.id + '">' +
+        '<a href="product.html?id=' + encodeURIComponent(p.id) + '" tabindex="-1" aria-hidden="true">' + media + '</a>' +
         '<div class="pcard-body">' +
-          '<div class="pcard-top"><h3 class="pcard-name">' +
-            '<a href="product.html?id=' + p.id + '">' + p.name + '</a></h3>' + code + '</div>' +
-          '<p class="pcard-desc">' + p.purpose + '</p>' +
-          '<div class="pcard-foot"><span class="pcard-pack">' + p.pack + '</span>' +
-            '<button class="btn btn-accent" style="padding:9px 16px;font-size:13px" data-add="' + p.id + '">+ Add</button>' +
+          '<div class="pcard-top">' +
+            '<h3 class="pcard-name"><a href="product.html?id=' + encodeURIComponent(p.id) + '">' + esc(p.name) + '</a></h3>' +
+            (p.code ? '<span class="pcard-code">' + esc(p.code) + '</span>' : '') +
+          '</div>' +
+          '<p class="pcard-desc">' + esc(p.purpose) + '</p>' +
+          '<div class="pcard-foot">' +
+            '<span class="pcard-pack">' + esc(p.pack) + '</span>' +
+            '<button class="pcard-add" data-add="' + p.id + '" aria-label="Add ' + esc(p.name) + ' to enquiry">' +
+              icon('plus', 14) + 'Add</button>' +
           '</div>' +
         '</div>' +
       '</article>'
     );
   };
+
+  // ---------------------------------------------------------
+  // PAGE TRANSITION — soft fade out on internal navigation
+  // ---------------------------------------------------------
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest('a');
+      if (!a) return;
+      var href = a.getAttribute('href');
+      if (!href || a.target === '_blank' || e.metaKey || e.ctrlKey || e.shiftKey) return;
+      if (!/\.html($|\?|#)/.test(href) && href !== '/') return;
+      if (href.indexOf('#') === 0) return;
+      e.preventDefault();
+      document.body.classList.add('is-leaving');
+      setTimeout(function () { location.href = href; }, 190);
+    });
+  }
 })();

@@ -1,180 +1,338 @@
 <!doctype html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<script>(function(){try{var t=localStorage.getItem("vistex-theme")||"light";document.documentElement.setAttribute("data-theme",t);}catch(e){}})();</script>
-<title>Vistex Chemicals Ltd — Professional Hygiene Systems for Every Sector</title>
-<meta name="description" content="Vistex Chemicals Ltd is a Kenyan manufacturer of complete hygiene systems — laundry, housekeeping, kitchen, pool and guest care — for hotels, hospitals and institutions across East Africa.">
-<link rel="canonical" href="https://www.vistexchemicals.co.ke/">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Vistex Chemicals Ltd — Professional Hygiene Systems">
-<meta property="og:description" content="The hygiene & cleaning systems partner for East Africa. Made in Kenya.">
-<meta property="og:image" content="images/logo/vistex-logo-color-on-white.png">
-<meta name="theme-color" content="#2E3995">
-<link rel="icon" type="image/png" href="images/favicon.png">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet" onerror="this.remove()">
-<link rel="stylesheet" href="css/main.css">
-<link rel="stylesheet" href="css/motion.css">
-<link rel="stylesheet" href="css/home.css">
-</head>
-<body data-page="home">
-<div id="vx-loader" aria-hidden="true"><div class="vx-loader-bubbles" id="vxLoaderBubbles"></div><div class="vx-loader-inner">
-  <img class="vx-loader-logo l-light" src="images/logo/vistex-logo-color-on-white.png" alt="Vistex Chemicals">
-  <img class="vx-loader-logo l-dark" src="images/logo/vistex-logo-white-on-blue.png" alt="Vistex Chemicals">
-  <div class="vx-drops"><span></span><span></span><span></span></div>
-  <div class="vx-loader-bar"><span></span></div>
-  <div class="vx-loader-text">Pure hygiene, loading…</div>
-</div></div>
-<main id="main">
+<script>(function(){try{var d=document.documentElement,t=localStorage.getItem('vx-theme')||'dark';d.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();</script>
 
-  <!-- ===== HERO ===== -->
-  <section class="hero vx-decor" data-blobs="3" data-drops="2">
-    <img class="hero-bg" src="images/photos/hero-bg.jpg" alt="" onerror="this.remove()">
-    <div class="bubbles" data-count="14"></div>
+<title>Vistex Chemicals Ltd — Professional Hygiene Systems, Made in Kenya</title>
+<meta name="description" content="Vistex Chemicals Ltd manufactures complete hygiene systems — laundry, housekeeping, kitchen, pool and guest care — for hotels, hospitals and institutions across East Africa. Made in Nairobi.">
+<link rel="canonical" href="https://www.vistexchemicals.co.ke/">
+<meta name="theme-color" content="#2E3995" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#070a16" media="(prefers-color-scheme: dark)">
+
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.vistexchemicals.co.ke/">
+<meta property="og:site_name" content="Vistex Chemicals Ltd">
+<meta property="og:title" content="Vistex Chemicals Ltd — Professional Hygiene Systems">
+<meta property="og:description" content="Complete hygiene systems for hotels, hospitals and institutions across East Africa. Made in Kenya.">
+<meta property="og:image" content="https://www.vistexchemicals.co.ke/images/photos/hero-bg.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Vistex Chemicals Ltd — Professional Hygiene Systems">
+<meta name="twitter:description" content="Complete hygiene systems for hotels, hospitals and institutions across East Africa.">
+<meta name="twitter:image" content="https://www.vistexchemicals.co.ke/images/photos/hero-bg.jpg">
+
+<link rel="icon" type="image/png" href="images/favicon.png">
+<link rel="apple-touch-icon" href="images/logo/vistex-mark.png">
+<link rel="manifest" href="site.webmanifest">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" type="image/webp" fetchpriority="high"
+      imagesrcset="images/photos/hero-bg-900.webp 900w, images/photos/hero-bg.webp 1450w"
+      imagesizes="100vw">
+<!-- Fonts load async: a render-blocking third-party stylesheet stalls first
+     paint (and with it the CSS animation clock) whenever the CDN is slow. -->
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'" onerror="this.remove()">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/motion.css">
+<link rel="stylesheet" href="css/pages.css">
+<link rel="stylesheet" href="css/responsive.css">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": ["Organization", "LocalBusiness"],
+      "@id": "https://www.vistexchemicals.co.ke/#org",
+      "name": "Vistex Chemicals Ltd",
+      "alternateName": "Vistex",
+      "url": "https://www.vistexchemicals.co.ke/",
+      "logo": "https://www.vistexchemicals.co.ke/images/logo/vistex-logo-color-on-white.png",
+      "image": "https://www.vistexchemicals.co.ke/images/photos/hero-bg.jpg",
+      "description": "Kenyan manufacturer of professional hygiene and cleaning systems for hotels, hospitals, schools, commercial laundries and food plants across East Africa.",
+      "foundingDate": "2019",
+      "slogan": "Quality · Hygiene · Innovative",
+      "telephone": "+254739446655",
+      "email": "info@vistexchemicals.co.ke",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "P.O. Box 218, Industrial Area",
+        "addressLocality": "Nairobi",
+        "addressCountry": "KE"
+      },
+      "areaServed": [
+        { "@type": "Country", "name": "Kenya" },
+        { "@type": "Place", "name": "East Africa" }
+      ],
+      "openingHours": ["Mo-Fr 08:00-17:30", "Sa 08:00-13:00"],
+      "knowsAbout": ["Laundry hygiene", "Housekeeping chemicals", "Kitchen and food safety", "Pool water treatment", "Guest amenities"]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://www.vistexchemicals.co.ke/#site",
+      "url": "https://www.vistexchemicals.co.ke/",
+      "name": "Vistex Chemicals Ltd",
+      "publisher": { "@id": "https://www.vistexchemicals.co.ke/#org" }
+    }
+  ]
+}
+</script>
+</head>
+
+<body data-page="home">
+<noscript>
+  <div style="background:#2E3995;color:#fff;padding:16px 20px;text-align:center;font:15px/1.5 system-ui,sans-serif">
+    This site needs JavaScript to display its catalogue.
+    Reach us directly on <a href="tel:+254739446655" style="color:#99dff9;font-weight:600">0739 446 655</a>
+    or <a href="mailto:info@vistexchemicals.co.ke" style="color:#99dff9;font-weight:600">info@vistexchemicals.co.ke</a>.
+  </div>
+</noscript>
+
+
+<div id="vx-loader" aria-hidden="true">
+  <!-- layered brand-blue field: gradient + ripple texture + drifting glow -->
+  <div class="vx-tex" aria-hidden="true"></div>
+  <div class="vx-glow" aria-hidden="true"><span></span><span></span></div>
+  <div class="bubbles" data-count="14"></div>
+
+  <div class="vx-loader-inner">
+    <!-- one lockup, not two: the wordmark asset already contains the V/C mark,
+         so showing both duplicated it. The whole logo fills with liquid. -->
+    <div class="vx-loader-mark">
+      <img class="m-ghost" src="images/logo/vistex-logo-white-on-blue.png" alt="" width="806" height="279" fetchpriority="high">
+      <img class="m-fill"  src="images/logo/vistex-logo-white-on-blue.png" alt="Vistex Chemicals Ltd" width="806" height="279" fetchpriority="high">
+    </div>
+    <div class="vx-loader-bar"><span></span></div>
+    <div class="vx-loader-text">Quality &middot; Hygiene &middot; Innovative</div>
+  </div>
+</div>
+</div>
+</div>
+</div>
+
+<main id="main" class="page-fade">
+
+  <!-- ═══════════ HERO ═══════════ -->
+  <section class="hero">
+    <picture>
+      <source type="image/webp" sizes="100vw" srcset="images/photos/hero-bg-900.webp 900w, images/photos/hero-bg.webp 1450w">
+      <source type="image/jpeg" sizes="100vw" srcset="images/photos/hero-bg-900.jpg 900w, images/photos/hero-bg.jpg 1450w">
+      <img class="hero-bg" src="images/photos/hero-bg.jpg" alt="" fetchpriority="high" decoding="async" width="1450" height="1800" data-parallax="0.06" onerror="this.remove()">
+    </picture>
+    <div class="aurora" aria-hidden="true"></div>
+    <div class="bubbles" data-count="14" aria-hidden="true"></div>
+
     <div class="container hero-grid">
       <div class="hero-copy">
-        <span class="eyebrow">Professional hygiene systems · Made in Kenya</span>
-        <h1>
-          <span class="line"><i>Pro-grade hygiene</i></span>
-          <span class="line"><i>for <span class="hero-rotator"><span class="w text-grad" id="heroWord">hotels</span></span></i></span>
-        </h1>
-        <p class="hero-lede lede">From hotels and hospitals to schools, kitchens, laundries and pools — Vistex designs complete cleaning &amp; hygiene systems that cut costs, kill germs and keep every space spotless and safe.</p>
-        <div class="hero-ctas">
-          <a href="systems.html" class="btn btn-primary">Explore our systems
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        <span class="eyebrow" data-anim="up" style="--d:.05s">Professional hygiene systems · Made in Kenya</span>
+
+        <h1 class="h-hero" data-anim="fade" data-split="lines" data-split-anim="drop">Pro-grade hygiene for <span class="hero-rotator" id="heroRotator" data-live><span class="w text-grad">hotels</span></span></h1>
+
+        <p class="lede hero-lede" data-anim="up" style="--d:.62s">From hotels and hospitals to schools, kitchens, laundries and pools — we design complete cleaning &amp; hygiene systems that cut costs, kill germs and keep every space spotless.</p>
+
+        <div class="hero-ctas" data-anim="up" style="--d:.76s">
+          <a href="systems.html" class="btn btn-primary arrow-slide">Explore our systems
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
           </a>
           <a href="contact.html" class="btn btn-ghost">Request a consultation</a>
         </div>
-        <div class="hero-trust">
-          <span class="drop-mark"></span>
-          <span>One partner for <strong>every sector</strong> — products, training &amp; support</span>
+
+        <div class="hero-trust" data-anim="up" style="--d:.88s">
+          <span class="drop-mark" aria-hidden="true"></span>
+          <span>One partner for <strong>every sector</strong> — products, training &amp; ongoing support</span>
         </div>
       </div>
 
-      <div class="hero-visual" data-anim="scale">
-        <div class="soap-cluster">
-          <span class="drop-glow"></span>
-          <span class="soap b1"></span>
-          <span class="soap b2"></span>
-          <span class="soap b3"></span>
-          <span class="soap b4"></span>
-          <span class="soap b5"></span>
-        </div>
-        <div class="hero-floats" aria-hidden="true">
-          <div class="hero-sector s2 float-soft" data-ico="hospital"><span>Hospitals</span></div>
-          <div class="hero-sector s4 float-soft" style="animation-delay:1s" data-ico="utensils"><span>Kitchens</span></div>
+      <!-- Product stage: cascade line-up, then the hero-lift slideshow -->
+      <div class="hero-visual">
+        <div class="pstage" id="productStage" aria-hidden="true">
+          <div class="pstage-floor"></div>
+          <div class="pstage-pool"></div>
+          <div class="pstage-items" id="pstageItems"></div>
+          <a class="pstage-cap" id="pstageCap" href="#" tabindex="-1"></a>
         </div>
       </div>
     </div>
-    <div class="scroll-cue-wrap"><div class="scroll-cue"><span>Scroll</span><span class="line"></span></div></div>
+
+    <div class="scroll-cue-wrap" aria-hidden="true">
+      <span class="scroll-cue"><span>Scroll</span><span class="line"></span></span>
+    </div>
   </section>
 
-  <!-- ===== MARQUEE ===== -->
+  <!-- ═══════════ MARQUEE ═══════════ -->
   <div class="marquee" aria-hidden="true"><div class="marquee-track" id="marquee"></div></div>
 
-  <!-- ===== PURPOSE BAND ===== -->
-  <section class="section vx-decor" data-blobs="2">
-    <div class="container split">
-      <div class="split-media" data-anim="left">
-        <figure class="photo product-figure" style="--ar: 1 / 1">
-          <img src="images/products/laundry-powder-s020.jpeg" alt="Swift professional cleaning products by Vistex">
+  <!-- ═══════════ PROOF ═══════════ -->
+  <section class="section section--sm">
+    <div class="container">
+      <div class="proof-strip reveal-parent" id="proofStrip" data-anim="up"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════ POSITIONING ═══════════ -->
+  <section class="section band-photo cv-auto">
+    <picture>
+      <source type="image/webp" sizes="(max-width: 900px) 90vw, 58vw"
+              srcset="images/products/laundry-powder-s020.webp 800w, images/products/laundry-powder-s020@2x.webp 1280w">
+      <source type="image/jpeg" sizes="(max-width: 900px) 90vw, 58vw"
+              srcset="images/products/laundry-powder-s020.jpeg 800w, images/products/laundry-powder-s020@2x.jpeg 1280w">
+      <img class="band-photo-bg" src="images/products/laundry-powder-s020.jpeg" alt="" loading="lazy" decoding="async" width="1280" height="1280" data-parallax="0.05" onerror="this.remove()">
+    </picture>
+    <div class="container band-photo-inner">
+      <div class="split-copy stack-6" data-anim="up">
+        <span class="eyebrow">More than detergent</span>
+        <h2 class="h-section" data-split="lines" data-anim="fade">We design hygiene systems, not just supply chemicals</h2>
+        <p class="lede">Anyone can sell you a drum of detergent. Vistex engineers the whole result — the right chemistry, the right dosing, trained staff and ongoing support — so your costs fall while your cleanliness and safety rise.</p>
+        <ul class="feature-list">
+          <li><span class="fi" data-ico="check" data-size="14"></span><span>Low-dose, high-performance chemistry that lowers cost per kilo</span></li>
+          <li><span class="fi" data-ico="check" data-size="14"></span><span>Food-grade &amp; chlorine-safe formulations for sensitive areas</span></li>
+          <li><span class="fi" data-ico="check" data-size="14"></span><span>Manufactured in Nairobi — fast, uninterrupted supply</span></li>
+        </ul>
+        <div class="row"><a href="about.html" class="btn btn-ghost arrow-slide">About Vistex
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+      </div>
+      <p class="band-photo-credit">Swift &middot; Usafi Halisi</p>
+    </div>
+  </section>
+
+  <!-- ═══════════ PROBLEM → SOLUTION ═══════════ -->
+  <section class="section section--tint cv-auto">
+    <div class="container ledger-layout">
+      <div class="ledger-aside" data-anim="left">
+        <div class="sec-head">
+          <span class="eyebrow">What we actually fix</span>
+          <h2 class="h-section" data-split="lines" data-anim="fade">The six problems every property calls us about</h2>
+        </div>
+        <figure class="photo" style="--ar:4/5;margin-top:var(--s-7)">
+          <picture><source srcset="images/photos/industry-laundries.webp" type="image/webp"><img src="images/photos/industry-laundries.jpg" alt="Industrial laundry stacked with bright white hotel linen" loading="lazy" decoding="async" width="1200" height="1500" data-parallax="0.04"></picture>
+          <figcaption class="photo-caption">Where the cost hides</figcaption>
         </figure>
       </div>
-      <div class="split-copy" data-anim="right">
-        <span class="eyebrow">More than detergent</span>
-        <h2 class="h-section">We design hygiene systems, not just supply chemicals</h2>
-        <p class="lede">Anyone can sell you a bucket of detergent. Vistex engineers the whole result — the right products, the right dosing, trained staff and ongoing support — so your costs drop while your cleanliness and safety go up.</p>
-        <ul class="feature-list">
-          <li><span class="fi" data-ico="check" data-size="15"></span><span>Low-dose, high-performance chemistry that lowers cost per kg</span></li>
-          <li><span class="fi" data-ico="check" data-size="15"></span><span>Food-grade &amp; chlorine-safe formulations for sensitive areas</span></li>
-          <li><span class="fi" data-ico="check" data-size="15"></span><span>Locally manufactured in Nairobi — fast, reliable supply</span></li>
-        </ul>
-        <div class="hero-ctas" style="margin-top:26px">
-          <a href="about.html" class="btn btn-primary">About Vistex</a>
-        </div>
-      </div>
+      <div class="ledger reveal-parent" id="ledger" data-anim="right"></div>
     </div>
   </section>
 
-  <!-- ===== SYSTEMS SHOWCASE ===== -->
-  <section class="section section--tint vx-decor" data-blobs="3">
+  <!-- ═══════════ SYSTEMS ═══════════ -->
+  <section class="section section--ripple cv-auto">
+    <picture>
+      <source srcset="images/photos/ripple.webp" type="image/webp">
+      <img class="ripple-bg" src="images/photos/ripple.jpg" alt="" loading="lazy" decoding="async" width="1800" height="2398" data-parallax="0.05" onerror="this.remove()">
+    </picture>
     <div class="container">
-      <div class="center"><span class="eyebrow" style="justify-content:center">End-to-end hygiene</span>
-        <h2 class="h-section" data-anim="up">Five systems for every part of your property</h2>
-        <p class="lede measure" data-anim="up" style="margin:12px auto 0">Complete, coordinated solutions — from the laundry room to the kitchen, the pool to the guest bathroom.</p>
+      <div class="sec-head sec-head--center" style="margin-bottom:var(--s-10)">
+        <span class="eyebrow eyebrow--center">End-to-end hygiene</span>
+        <h2 class="h-section" data-split="lines" data-anim="fade">Five systems for every part of your property</h2>
+        <p class="lede measure">From the laundry room to the kitchen, the pool to the guest bathroom — coordinated, not cobbled together.</p>
       </div>
-      <div class="grid grid-3 reveal-parent" id="sysGrid" style="margin-top:56px"></div>
+      <div class="sys-grid reveal-parent" id="sysGrid"></div>
     </div>
   </section>
 
-  <!-- ===== APPROACH ===== -->
-  <section class="section vx-decor" data-blobs="2" data-drops="2">
-    <div class="container split reverse">
-      <div class="split-media" data-anim="right">
-        <div class="water-panel">
-          <div class="bubbles" data-count="12"></div>
-          <span class="panel-emblem" data-ico="users" data-size="76"></span>
-        </div>
-      </div>
-      <div class="split-copy" data-anim="left">
+  <!-- ═══════════ PROCESS ═══════════ -->
+  <section class="section section--tint cv-auto">
+    <div class="container">
+      <div class="sec-head" style="margin-bottom:var(--s-10)">
         <span class="eyebrow">How we work</span>
-        <h2 class="h-section">A complete system, not a single product</h2>
-        <p class="lede">We partner with you from assessment to ongoing performance checks — so results are consistent and your team is confident.</p>
-        <div class="steps">
-          <div class="step"><div class="step-n">1</div><div><h4>Assess</h4><p>We audit your spaces, costs and current results to find the gaps.</p></div></div>
-          <div class="step"><div class="step-n">2</div><div><h4>Supply</h4><p>We deliver the right products and dosing systems for each area.</p></div></div>
-          <div class="step"><div class="step-n">3</div><div><h4>Train</h4><p>We train your staff with demonstrations and clear usage guides.</p></div></div>
-          <div class="step"><div class="step-n">4</div><div><h4>Support</h4><p>We provide on-site support and ongoing performance checks.</p></div></div>
+        <h2 class="h-section" data-split="lines" data-anim="fade">A programme, not a product list</h2>
+      </div>
+
+      <div class="process" data-steps>
+        <div class="process-visual" data-anim="scale">
+          <div id="pvShots"></div>
+          <span class="pv-num" data-step-num>01</span>
+          <span class="pv-label" data-step-label id="stepLabel">Assess</span>
+          <span class="pv-pips" id="pvPips" aria-hidden="true"></span>
         </div>
+        <div class="process-steps reveal-parent" id="processSteps"></div>
       </div>
     </div>
   </section>
 
-  <!-- ===== STATS BAND ===== -->
-  <section class="section section--brand has-bg" style="overflow:hidden">
-    <img class="band-bg" src="images/photos/bg-stats.jpg" alt="" onerror="this.remove()">
+  <!-- ═══════════ STATS ═══════════ -->
+  <section class="section stats-band cv-auto">
+    <!-- The brand film lives here, not in the loader: it is far enough down the
+         page that it has ample time to buffer, and it never delays first paint.
+         The poster shows until the clip is genuinely ready to play. -->
+    <video class="band-video" id="statsVideo" muted loop playsinline preload="none"
+           poster="media/loader-poster.jpg" aria-hidden="true" tabindex="-1"
+           data-src="media/loader.mp4"></video>
+    <div class="caustics" aria-hidden="true"></div>
     <div class="container"><div class="stats reveal-parent" id="statsGrid"></div></div>
   </section>
 
-  <!-- ===== WHY VISTEX ===== -->
-  <section class="section">
+  <!-- ═══════════ DIFFERENTIATORS ═══════════ -->
+  <section class="section cv-auto">
     <div class="container">
-      <div class="center"><span class="eyebrow" style="justify-content:center">What makes Vistex different</span>
-        <h2 class="h-section" data-anim="up">A partner, not just a supplier</h2></div>
-      <div class="grid grid-3 reveal-parent" id="diffGrid" style="margin-top:40px"></div>
+      <div class="sec-head" style="margin-bottom:var(--s-9)">
+        <span class="eyebrow">What makes Vistex different</span>
+        <h2 class="h-section" data-split="lines" data-anim="fade">A partner, not just a supplier</h2>
+      </div>
+      <div class="bento reveal-parent" id="diffGrid"></div>
     </div>
   </section>
 
-  <!-- ===== PULL QUOTE ===== -->
-  <section class="section section--tint">
+  <!-- ═══════════ PULL QUOTE ═══════════ -->
+  <section class="section section--tint cv-auto">
     <div class="container pullquote" data-anim="up">
-      <div class="qmark">&ldquo;</div>
-      <q>We partner with you, not just supply you. Cleaner spaces, safer guests, lower costs — that is the Vistex promise.</q>
-      <div class="qby">— Vistex Chemicals Ltd</div>
+      <div class="qmark" aria-hidden="true">&ldquo;</div>
+      <q>We partner with you, not just supply you. Cleaner spaces, safer guests, lower costs.</q>
+      <div class="qby">Vistex Chemicals Ltd</div>
     </div>
   </section>
 
-  <!-- ===== CLIENTS ===== -->
-  <section class="section">
+  <!-- ═══════════ CLIENTS ═══════════ -->
+  <section class="section cv-auto">
     <div class="container center">
-      <span class="eyebrow" style="justify-content:center">Trusted across the region</span>
-      <h2 class="h-section" data-anim="up">Hotels &amp; hospitals that rely on us</h2>
+      <div class="sec-head sec-head--center" style="margin-bottom:var(--s-8)">
+        <span class="eyebrow eyebrow--center">Trusted across the region</span>
+        <h2 class="h-section" data-split="lines" data-anim="fade">Hotels &amp; hospitals that rely on us</h2>
+      </div>
       <div class="client-row" id="clientRow" data-anim="up"></div>
+
+      <div class="photo-strip reveal-parent" style="margin-top:var(--s-10)">
+        <figure class="photo" data-anim="up" style="--ar:3/4">
+          <picture><source srcset="images/photos/industry-hotels.webp" type="image/webp"><img src="images/photos/industry-hotels.jpg" alt="Immaculate hotel suite" loading="lazy" decoding="async" width="1200" height="1600"></picture>
+          <figcaption class="photo-caption">Hotels</figcaption>
+        </figure>
+        <figure class="photo" data-anim="up" style="--ar:3/4">
+          <picture><source srcset="images/photos/industry-hospitals.webp" type="image/webp"><img src="images/photos/industry-hospitals.jpg" alt="Clean, bright hospital ward" loading="lazy" decoding="async" width="1200" height="1600"></picture>
+          <figcaption class="photo-caption">Hospitals</figcaption>
+        </figure>
+        <figure class="photo" data-anim="up" style="--ar:3/4">
+          <picture><source srcset="images/photos/industry-schools.webp" type="image/webp"><img src="images/photos/industry-schools.jpg" alt="Tidy school dormitory" loading="lazy" decoding="async" width="1200" height="1600"></picture>
+          <figcaption class="photo-caption">Institutions</figcaption>
+        </figure>
+        <figure class="photo" data-anim="up" style="--ar:3/4">
+          <picture><source srcset="images/photos/industry-food.webp" type="image/webp"><img src="images/photos/industry-food.jpg" alt="Spotless stainless food-processing area" loading="lazy" decoding="async" width="1200" height="1600"></picture>
+          <figcaption class="photo-caption">Food plants</figcaption>
+        </figure>
+      </div>
     </div>
   </section>
 
-  <!-- ===== CTA ===== -->
-  <section class="section">
+  <!-- ═══════════ CTA ═══════════ -->
+  <section class="section cv-auto">
     <div class="container">
-      <div class="cta-band section--brand has-bg" data-anim="scale">
-        <img class="band-bg" src="images/photos/bg-cta.jpg" alt="" onerror="this.remove()">
+      <div class="cta-band" data-anim="scale">
+        <picture>
+          <source type="image/webp" sizes="100vw" srcset="images/photos/bg-cta-900.webp 900w, images/photos/bg-cta.webp 1500w">
+          <source type="image/jpeg" sizes="100vw" srcset="images/photos/bg-cta-900.jpg 900w, images/photos/bg-cta.jpg 1500w">
+          <img class="band-bg" src="images/photos/bg-cta.jpg" alt="" loading="lazy" decoding="async" width="1500" height="1000" onerror="this.remove()">
+        </picture>
+        <div class="aurora" aria-hidden="true"></div>
         <div style="position:relative;z-index:2">
           <h2>Ready to clean smarter and spend less?</h2>
-          <p class="measure" style="margin-inline:auto">Get a free hygiene assessment, product demonstration and a cost-saving program tailored to your property.</p>
-          <div class="hero-ctas" style="margin-top:26px">
-            <a class="btn btn-wa" id="ctaWa" href="#" target="_blank" rel="noreferrer">Chat on WhatsApp</a>
+          <p>Get a free hygiene assessment, a product demonstration and a cost-saving programme built around your property.</p>
+          <div class="hero-ctas">
+            <a class="btn btn-wa" id="ctaWa" href="#" target="_blank" rel="noopener">Chat on WhatsApp</a>
             <a class="btn btn-light" href="contact.html">Contact our team</a>
+            <a class="btn btn-ghost" id="ctaMail" href="#" style="--btn-bd:rgba(255,255,255,.4);--btn-fg:#fff">Email us</a>
           </div>
         </div>
       </div>

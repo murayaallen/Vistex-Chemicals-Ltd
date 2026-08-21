@@ -1,3 +1,13 @@
+# OS / editor noise
 .DS_Store
 Thumbs.db
 *.local
+
+# tooling
+node_modules/
+package-lock.json
+
+# working files that are not part of the deploy
+/jerricans/
+/diag.html
+/preview-effects.html
