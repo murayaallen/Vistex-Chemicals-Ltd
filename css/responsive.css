@@ -164,6 +164,18 @@
 }
 
 /* ============================================================
+   6b. SECTIONS DROPPED ON MOBILE
+   Both are cut from the phone layout by request. `display: none` also means
+   the metrics band's IntersectionObserver never fires, so the background video
+   is not downloaded on mobile at all — a useful bandwidth saving here.
+   The numbers still appear in the proof strip near the top of the page.
+   ============================================================ */
+@media (max-width: 820px) {
+  .stats-band,
+  .sec-ledger { display: none; }
+}
+
+/* ============================================================
    7. CATALOGUE TOOLBAR
    Two stacked rows of sticky chrome eats a phone screen. Compact
    it, and let the filters scroll sideways instead of wrapping.
