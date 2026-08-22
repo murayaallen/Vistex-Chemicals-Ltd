@@ -59,8 +59,11 @@
 
   --text:        var(--n-900);
   --text-2:      var(--n-600);
-  --text-3:      var(--n-500);
-  --text-4:      var(--n-400);
+  /* --n-500 (#6e7893) measured 3.89:1 worst-case against --surface-3, under AA
+     for the small labels and form notes that use it. #5f6987 clears every
+     surface in the light ladder at 4.81:1 or better. */
+  --text-3:      #5f6987;
+  --text-4:      #79839f;
   --text-inv:    var(--n-0);
 
   --border:      color-mix(in srgb, var(--n-900) 10%, transparent);
@@ -93,16 +96,22 @@
 /* ---------- 4. Semantic — DARK ---------- */
 [data-theme="dark"] {
   --bg:          var(--n-950);
-  --bg-sunk:     #04060f;
-  --surface:     #0d1226;
-  --surface-2:   #131a33;
-  --surface-3:   #1a2344;
+  /* bg-sunk must sit ABOVE bg in dark mode, not below it. At #04060f the
+     difference from --bg was 0.0013 luminance — invisible, so every tinted
+     band looked identical to the page and the whole site read as one flat
+     dark field. Raised into a real elevation ladder. */
+  --bg-sunk:     #0c1224;
+  --surface:     #131b34;
+  --surface-2:   #1a2443;
+  --surface-3:   #223055;
   --surface-inv: var(--n-0);
 
   --text:        #eaeeff;
   --text-2:      #aab3d4;
-  --text-3:      #7d87ab;
-  --text-4:      #5c6683;
+  /* nudged up with the elevation ladder: on the raised --surface-2 the old
+     #7d87ab measured 4.30:1, just under AA. #8b95b8 clears it at 5.15:1. */
+  --text-3:      #8b95b8;
+  --text-4:      #69739a;
   --text-inv:    var(--n-900);
 
   --border:      rgba(255,255,255,.12);

@@ -404,7 +404,7 @@
         v.preload = 'auto';
         v.load();
         v.addEventListener('canplaythrough', function () {
-          var band = v.closest('.stats-band');
+          var band = v.closest('.film-band');
           var p = v.play();
           if (p && p.catch) p.catch(function () {});
           if (band) band.classList.add('video-live');
@@ -432,6 +432,34 @@
         if (document.hidden) v.pause();
       });
     });
+  }
+
+  // ==========================================================
+  // 8b. SCROLL FOCUS — a hover state driven by position, not a pointer
+  // Touch devices have no hover, so cards never showed their lifted state.
+  // Whichever card is nearest the middle of the viewport takes it instead.
+  // ==========================================================
+  function initScrollFocus() {
+    var els = Array.prototype.slice.call(document.querySelectorAll('[data-focus] > *, .sys-grid > .sys-card'));
+    if (!els.length || reduce) return;
+    if (window.matchMedia('(hover: hover)').matches && window.innerWidth > 900) return;
+
+    var current = null;
+    scrollTasks.push(function () {
+      var focal = window.innerHeight * 0.5;
+      var best = null, bestD = Infinity;
+      els.forEach(function (el) {
+        var r = el.getBoundingClientRect();
+        if (r.bottom < 0 || r.top > window.innerHeight) return;
+        var d = Math.abs(r.top + r.height / 2 - focal);
+        if (d < bestD) { bestD = d; best = el; }
+      });
+      if (best === current) return;
+      if (current) current.classList.remove('in-focus');
+      if (best) best.classList.add('in-focus');
+      current = best;
+    });
+    alwaysRun = true;
   }
 
   // ==========================================================
@@ -502,6 +530,7 @@
     initPointer();
     initChrome();
     initBgVideo();
+    initScrollFocus();
     initParallax();
     initSteps();
     startLoop(false);

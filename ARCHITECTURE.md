@@ -106,6 +106,54 @@ and cleared by `motion.js` reveals everything unconditionally after 2.5s if it n
 
 ---
 
+## 4b. Home page order & the mobile split
+
+The home page runs: **hero → ticker → the five systems → "more than detergent"
+→ problem/solution ledger → how we work → what makes us different → film band
+→ clients → CTA.** Systems sit directly after the hero because that is what a
+buyer arriving cold actually wants to see.
+
+Two sections change shape on phones rather than shrinking:
+
+| Section | Desktop | ≤820px |
+| --- | --- | --- |
+| How we work | Sticky photo stage + 4 step cards | **Swipe deck** — one step per card, image above narration |
+| What makes us different | 6-card bento | **Swipe deck** — one card per screen |
+| Problem/solution ledger | Full ledger | Hidden |
+
+The decks use native horizontal `scroll-snap`. Vertical page scrolling is never
+intercepted — reaching the last slide simply hands scrolling back, so there is
+no scroll-jacking.
+
+The hero reorders on phones to **headline → products → buttons**, and the lede
+is dropped: the headline and the product line-up already carry the message, and
+keeping it pushed the CTAs below the fold.
+
+There is no metrics band. The four figures were shown twice and were removed;
+the brand film that had lived behind them now carries the pull quote instead,
+lazily armed 1200px before it scrolls into view and played only on
+`canplaythrough`.
+
+---
+
+## 4c. Dark mode is the default
+
+`--bg-sunk` used to sit *below* `--bg` in dark mode — a 0.0013 luminance
+difference, invisible, so every tinted band looked identical to the page and
+the whole site read as one flat dark field. It is now a real elevation ladder:
+
+```
+--bg #070a16 → --bg-sunk #0c1224 → --surface #131b34 → --surface-2 #1a2443 → --surface-3 #223055
+```
+
+Raising those surfaces pushed several small labels under AA, so `--text-3` and
+`--text-4` moved with them in both themes. Contrast is audited by script across
+6 pages × 2 themes; see `scratch/audit.js` from the build session. It resolves
+`color(srgb …)` (the form `color-mix()` serialises to) and skips text sitting on
+gradient or photo bands rather than mis-measuring it.
+
+---
+
 ## 5. File map
 
 ```

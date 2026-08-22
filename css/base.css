@@ -176,7 +176,13 @@ h1, h2, h3, h4, h5 {
 
 .section { padding-block: var(--section-py); position: relative; }
 .section--sm { padding-block: var(--section-py-sm); }
-.section--tint { background: var(--bg-sunk); }
+/* Tinted band. In dark mode this is now a genuinely raised surface (see the
+   elevation ladder in tokens.css) plus a hairline, so section rhythm is
+   legible instead of the whole page reading as one flat dark field. */
+.section--tint {
+  background: var(--bg-sunk);
+  border-block: 1px solid var(--border-2);
+}
 .section--ink {
   background: var(--blue-900); color: #fff;
   --text: #fff; --text-2: rgba(255,255,255,.76); --text-3: rgba(255,255,255,.58);

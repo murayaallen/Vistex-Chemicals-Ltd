@@ -153,7 +153,13 @@
 /* Container queries, not viewport: the stage sizes off its own column. */
 @container pstage (max-width: 520px) { .pstage { --pw-front: 26%; --pw-back: 21%; --hero-scale: 1.72; } }
 @container pstage (max-width: 400px) { .pstage { --pw-front: 30%; --pw-back: 24%; --hero-scale: 1.58; } }
-@media (max-width: 620px) { .pstage { min-height: 250px; aspect-ratio: 5 / 3.4; } }
+@media (max-width: 620px) {
+  .pstage { min-height: 250px; aspect-ratio: 5 / 3.15; }
+  /* more room under the product so the name never sits on top of it */
+  .pstage-cap { bottom: -6%; }
+  .pstage-dots { bottom: -30px; }
+  .hero-visual { padding-bottom: 44px; }
+}
 /* the shelf line every product lands on */
 .pstage-floor {
   position: absolute; left: 3%; right: 3%; bottom: 15%; height: 1px;
@@ -283,11 +289,10 @@
 }
 .band-photo-bg {
   position: absolute; z-index: -2;
-  /* The shot has its own pale studio background, so a plain rectangle left a
-     hard vertical seam against the page. Dissolve every edge so it reads as
-     part of the section rather than a pasted image. */
-  -webkit-mask-image: radial-gradient(ellipse 74% 76% at 58% 50%, #000 34%, rgba(0,0,0,.55) 62%, transparent 82%);
-  mask-image: radial-gradient(ellipse 74% 76% at 58% 50%, #000 34%, rgba(0,0,0,.55) 62%, transparent 82%);
+  /* This is the product poster, so it must read clearly — the mask only
+     dissolves the outer rectangle edge, it does not veil the artwork. */
+  -webkit-mask-image: radial-gradient(ellipse 86% 88% at 55% 50%, #000 62%, rgba(0,0,0,.85) 78%, transparent 97%);
+  mask-image: radial-gradient(ellipse 86% 88% at 55% 50%, #000 62%, rgba(0,0,0,.85) 78%, transparent 97%);
   /* Centred with auto margins, NOT translateY(-50%): this element also carries
      data-parallax, and motion.js writes to `transform` — a transform used for
      layout here would be overwritten and the image would drop out of frame. */
@@ -295,7 +300,7 @@
   /* capped at the native 1280px source so it is never upscaled, even at 2x */
   width: min(58%, 640px); height: auto; aspect-ratio: 1 / 1;
   object-fit: contain;
-  filter: saturate(.9) contrast(1.02);
+  filter: saturate(1.04) contrast(1.05);
 }
 /* tint it into the palette + fade its edges so it has no hard boundary */
 .band-photo::before {
@@ -303,9 +308,9 @@
   background:
     linear-gradient(95deg,
       var(--bg) 0%,
-      color-mix(in srgb, var(--bg) 92%, transparent) 38%,
-      color-mix(in srgb, var(--bg) 55%, transparent) 58%,
-      transparent 78%),
+      color-mix(in srgb, var(--bg) 94%, transparent) 30%,
+      color-mix(in srgb, var(--bg) 40%, transparent) 48%,
+      transparent 62%),
     radial-gradient(90% 70% at 78% 50%,
       color-mix(in srgb, var(--aqua-200) 34%, transparent), transparent 68%);
 }
@@ -321,20 +326,58 @@
 }
 .band-photo-inner { position: relative; z-index: 1; }
 .band-photo-inner .split-copy { max-width: 52ch; }
-.band-photo-credit {
-  margin-top: var(--s-8);
-  font-family: var(--font-mono); font-size: var(--step--2);
-  letter-spacing: var(--tr-label); text-transform: uppercase; color: var(--text-4);
+/* Brand lockup — the tagline is a statement, not a caption. Display weight
+   for the name, an aqua rule, and the Swahili line in the accent colour. */
+.brandmark {
+  margin-top: var(--s-9);
+  display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 var(--s-4);
+}
+.brandmark-name {
+  font-family: var(--font-display); font-weight: 700;
+  font-size: clamp(2.6rem, 6vw, 4.6rem);
+  letter-spacing: -0.05em; line-height: .92;
+  background: linear-gradient(100deg, var(--blue-600) 0%, var(--aqua-500) 70%);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+[data-theme="dark"] .brandmark-name {
+  background: linear-gradient(100deg, #fff 0%, var(--aqua-300) 78%);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.brandmark-tag {
+  position: relative; padding-left: var(--s-5);
+  font-family: var(--font-display); font-weight: 500;
+  font-size: clamp(1rem, 1.9vw, 1.5rem);
+  letter-spacing: 0.02em; text-transform: uppercase;
+  color: var(--signal);
+}
+[data-theme="dark"] .brandmark-tag { color: var(--aqua-400); }
+.brandmark-tag::before {
+  content: ""; position: absolute; left: 0; top: 50%;
+  width: 2px; height: 1.15em; transform: translateY(-50%);
+  border-radius: 2px;
+  background: linear-gradient(var(--aqua-400), var(--blue-600));
 }
 @media (max-width: 900px) {
-  /* stacked: push the photo behind as a soft wash so the copy stays first */
-  .band-photo-bg { right: -18%; width: 90%; opacity: .5; }
-  .band-photo::before {
-    background:
-      linear-gradient(180deg, var(--bg) 0%, color-mix(in srgb, var(--bg) 82%, transparent) 55%, color-mix(in srgb, var(--bg) 92%, transparent) 100%),
-      radial-gradient(90% 60% at 70% 60%, color-mix(in srgb, var(--aqua-200) 26%, transparent), transparent 70%);
+  /* Stacked: the poster comes OUT of the background and sits in flow beneath
+     the copy. Behind the text it made both the words and the artwork hard to
+     read; as its own block it is fully legible and the copy is clean. */
+  .band-photo { display: flex; flex-direction: column; }
+  .band-photo > picture { order: 2; display: block; }
+  .band-photo-inner { order: 1; }
+  .band-photo::before { display: none; }
+
+  .band-photo-bg {
+    position: static; transform: none;
+    width: calc(100% - var(--gutter) * 2);
+    max-width: 520px;
+    margin: var(--s-8) auto 0;
+    aspect-ratio: auto;
+    border-radius: var(--r-xl);
+    -webkit-mask-image: none; mask-image: none;
+    box-shadow: var(--shadow-2);
   }
   .band-photo-inner .split-copy { max-width: 100%; }
+  .brandmark { margin-top: var(--s-7); }
 }
 
 /* ============================================================
@@ -464,6 +507,17 @@
 .sys-more svg { width: 15px; height: 15px; transition: transform var(--t-mid); }
 .sys-card:hover .sys-more svg { transform: translateX(5px); }
 
+/* Scroll-focus: on touch there is no hover, so the card nearest the middle of
+   the viewport takes the lifted state as you scroll. Same language as hover,
+   driven by position instead of a pointer. */
+@media (hover: none), (max-width: 900px) {
+  .sys-card { transition: transform .55s var(--ease-out), box-shadow .55s var(--ease-out); }
+  .sys-card.in-focus { transform: translateY(-6px) scale(1.018); box-shadow: var(--shadow-3); }
+  .sys-card.in-focus .sys-card-img { transform: scale(1.06); }
+  .sys-card.in-focus::after { opacity: .92; }
+  .sys-card.in-focus .sys-more svg { transform: translateX(5px); }
+}
+
 /* Water line at the base of each card */
 .sys-wave { position: absolute; left: 0; right: 0; bottom: -1px; z-index: -1; opacity: .5; color: var(--aqua-400); }
 .sys-wave svg { width: 200%; height: 46px; animation: wave-drift 11s linear infinite; }
@@ -556,21 +610,28 @@
 /* ============================================================
    HOME — STATS BAND
    ============================================================ */
-.stats-band {
+.film-band {
   position: relative; isolation: isolate; overflow: hidden;
   background: linear-gradient(150deg, var(--blue-700) 0%, var(--blue-900) 55%, var(--blue-950) 100%);
   color: #fff;
 }
-.stats-band .band-bg,
-.stats-band .band-video {
+/* The film band replaced the metrics band: same treatment, but it now carries
+   the pull quote, so the type has to read as light-on-film. */
+.film-band { color: #fff; --text: #fff; --text-2: rgba(255,255,255,.8); --text-3: rgba(255,255,255,.62); }
+.film-band .pullquote q { color: #fff; }
+.film-band .pullquote .qby { color: rgba(255,255,255,.66); }
+.film-band .pullquote .qmark { color: var(--aqua-300); opacity: .34; }
+
+.film-band .band-bg,
+.film-band .band-video {
   position: absolute; inset: 0; width: 100%; height: 100%;
   object-fit: cover; z-index: -2;
   opacity: 0; transition: opacity .9s var(--ease-out);
 }
-.stats-band .band-video { opacity: .42; }
-.stats-band.video-live .band-video { opacity: .62; }
+.film-band .band-video { opacity: .42; }
+.film-band.video-live .band-video { opacity: .62; }
 /* keep the numbers legible over moving footage */
-.stats-band::after {
+.film-band::after {
   content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
   background:
     radial-gradient(90% 70% at 50% 50%, color-mix(in srgb, var(--blue-950) 52%, transparent), transparent 78%),
@@ -669,8 +730,11 @@
   font-family: var(--font-mono); font-size: 10px; font-weight: 500;
   letter-spacing: var(--tr-label); text-transform: uppercase;
 }
-.ledger-p .ledger-tag { color: var(--text-4); }
-.ledger-s .ledger-tag { color: var(--aqua-600); }
+/* Both tags measured under AA on the tinted band (3.52 and 3.69). These clear
+   it at 5.08 and 5.55 while keeping the muted/accent relationship intact. */
+.ledger-p .ledger-tag { color: var(--text-3); }
+.ledger-s .ledger-tag { color: var(--aqua-700); }
+[data-theme="dark"] .ledger-p .ledger-tag { color: var(--text-3); }
 [data-theme="dark"] .ledger-s .ledger-tag { color: var(--aqua-400); }
 
 .ledger-p {
@@ -810,6 +874,9 @@
   border-radius: var(--r-xl); padding: clamp(26px, 4vw, 42px);
   color: #fff; margin-bottom: var(--s-6);
   border: 1px solid var(--border);
+  /* solid ground beneath the photo: the white type keeps its contrast even if
+     the image never loads */
+  background-color: var(--blue-900);
 }
 .syscat-bg {
   position: absolute; inset: 0; z-index: -2;

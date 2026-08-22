@@ -148,13 +148,21 @@
     0 2px 10px color-mix(in srgb, var(--aqua-500) 14%, transparent);
   animation: bubble-rise linear infinite;
 }
+/* Dark mode: the inset dark shadow turned these into grey marbles. They now
+   read as lit bubbles — aqua rim, soft glow, no dark core. */
 [data-theme="dark"] .bubble {
-  background: radial-gradient(circle at 32% 28%, rgba(255,255,255,.9), rgba(255,255,255,.07) 58%, transparent 72%);
-  border-color: rgba(255,255,255,.26);
-  box-shadow: inset -2px -3px 6px rgba(0,0,0,.2), inset 3px 3px 8px rgba(255,255,255,.3);
+  background: radial-gradient(circle at 30% 26%,
+    rgba(255,255,255,.55) 0%,
+    color-mix(in srgb, var(--aqua-300) 26%, transparent) 38%,
+    transparent 68%);
+  border: 1px solid color-mix(in srgb, var(--aqua-300) 34%, transparent);
+  box-shadow:
+    inset 2px 3px 8px rgba(255,255,255,.18),
+    0 0 14px color-mix(in srgb, var(--aqua-400) 18%, transparent);
+  opacity: .8;
 }
 /* On brand-blue bands the light-theme tint would disappear — force white there */
-.section--ink .bubble, .stats-band .bubble, .cta-band .bubble, #vx-loader .bubble {
+.section--ink .bubble, .film-band .bubble, .cta-band .bubble, #vx-loader .bubble {
   background: radial-gradient(circle at 32% 28%, rgba(255,255,255,.88), rgba(255,255,255,.07) 58%, transparent 72%);
   border-color: rgba(255,255,255,.3);
   box-shadow: inset -2px -3px 6px rgba(0,0,0,.15), inset 3px 3px 8px rgba(255,255,255,.35);

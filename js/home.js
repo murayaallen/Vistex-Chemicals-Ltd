@@ -15,14 +15,6 @@
     $('marquee').innerHTML = run + run;
   })();
 
-  // ---------- Proof strip ----------
-  $('proofStrip').innerHTML = V.stats.map(function (s) {
-    var n = s.raw
-      ? '<div class="n">' + s.raw + '</div>'
-      : '<div class="n count" data-count="' + s.n + '" data-suffix="' + (s.suffix || '') + '">0</div>';
-    return '<div>' + n + '<div class="l">' + esc(s.label) + '</div></div>';
-  }).join('');
-
   // ---------- Problem → solution ledger ----------
   $('ledger').innerHTML = V.problemSolutions.map(function (r, i) {
     return '<div class="ledger-row" data-anim="up">' +
@@ -75,14 +67,6 @@
   }).join('');
   $('stepLabel').textContent = V.process[0].label;
 
-  // ---------- Stats ----------
-  $('statsGrid').innerHTML = V.stats.map(function (s) {
-    var n = s.raw
-      ? '<div class="n">' + s.raw + '</div>'
-      : '<div class="n count" data-count="' + s.n + '" data-suffix="' + (s.suffix || '') + '">0</div>';
-    return '<div class="stat" data-anim="up">' + n + '<div class="l">' + esc(s.label) + '</div></div>';
-  }).join('');
-
   // ---------- Differentiators (bento) ----------
   $('diffGrid').innerHTML = V.differentiators.map(function (d) {
     return '<div class="card card-glow diff-card" data-anim="up">' +
@@ -91,6 +75,67 @@
       '<p>' + esc(d.text) + '</p>' +
     '</div>';
   }).join('');
+
+  // ==========================================================
+  // MOBILE SWIPE DECKS
+  // Phones get one idea per screen instead of a sticky scrollytelling rig or a
+  // six-card bento. Native horizontal scroll-snap: vertical page scrolling is
+  // never intercepted, so reaching the last slide simply hands scrolling back.
+  // ==========================================================
+  function buildDeck(host, slides) {
+    if (!host) return;
+    host.innerHTML =
+      '<div class="swipe-track">' + slides.map(function (sl, i) {
+        return '<article class="swipe-slide">' +
+          (sl.media ? '<figure class="swipe-media">' + sl.media + '</figure>' : '') +
+          '<div class="swipe-body">' +
+            '<span class="swipe-step">' + esc(sl.kicker) + '</span>' +
+            '<h4>' + esc(sl.title) + '</h4>' +
+            '<p>' + esc(sl.text) + '</p>' +
+          '</div>' +
+        '</article>';
+      }).join('') + '</div>' +
+      '<div class="swipe-dots" aria-hidden="true">' +
+        slides.map(function (_, i) { return '<i class="' + (i === 0 ? 'on' : '') + '"></i>'; }).join('') +
+      '</div>';
+
+    var track = host.querySelector('.swipe-track');
+    var dots = Array.prototype.slice.call(host.querySelectorAll('.swipe-dots i'));
+    var cards = Array.prototype.slice.call(host.querySelectorAll('.swipe-slide'));
+
+    function sync() {
+      var mid = track.scrollLeft + track.clientWidth / 2;
+      var best = 0, bestD = Infinity;
+      cards.forEach(function (c, i) {
+        var d = Math.abs(c.offsetLeft + c.offsetWidth / 2 - mid);
+        if (d < bestD) { bestD = d; best = i; }
+      });
+      dots.forEach(function (d, i) { d.classList.toggle('on', i === best); });
+      cards.forEach(function (c, i) { c.classList.toggle('is-active', i === best); });
+    }
+    track.addEventListener('scroll', function () {
+      window.requestAnimationFrame(sync);
+    }, { passive: true });
+    sync();
+  }
+
+  buildDeck($('processSwipe'), V.process.map(function (p, i) {
+    return {
+      kicker: 'Step ' + String(i + 1).padStart(2, '0'),
+      title: p.title,
+      text: p.text,
+      media: window.vxPicture(p.img, p.alt, { w: 800, h: 600 })
+    };
+  }));
+
+  buildDeck($('diffSwipe'), V.differentiators.map(function (d, i) {
+    return {
+      kicker: String(i + 1).padStart(2, '0') + ' / ' + String(V.differentiators.length).padStart(2, '0'),
+      title: d.title,
+      text: d.text,
+      media: '<span class="swipe-ico">' + icon(d.icon, 30) + '</span>'
+    };
+  }));
 
   // ---------- Clients ----------
   $('clientRow').innerHTML = V.clients.hotels.concat(V.clients.hospitals)

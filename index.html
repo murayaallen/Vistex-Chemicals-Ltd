@@ -112,9 +112,6 @@
     <div class="vx-loader-text">Quality &middot; Hygiene &middot; Innovative</div>
   </div>
 </div>
-</div>
-</div>
-</div>
 
 <main id="main" class="page-fade">
 
@@ -168,10 +165,19 @@
   <!-- ═══════════ MARQUEE ═══════════ -->
   <div class="marquee" aria-hidden="true"><div class="marquee-track" id="marquee"></div></div>
 
-  <!-- ═══════════ PROOF ═══════════ -->
-  <section class="section section--sm">
+  <!-- ═══════════ SYSTEMS ═══════════ -->
+  <section class="section section--ripple cv-auto">
+    <picture>
+      <source srcset="images/photos/ripple.webp" type="image/webp">
+      <img class="ripple-bg" src="images/photos/ripple.jpg" alt="" loading="lazy" decoding="async" width="1800" height="2398" data-parallax="0.05" onerror="this.remove()">
+    </picture>
     <div class="container">
-      <div class="proof-strip reveal-parent" id="proofStrip" data-anim="up"></div>
+      <div class="sec-head sec-head--center" style="margin-bottom:var(--s-10)">
+        <span class="eyebrow eyebrow--center">End-to-end hygiene</span>
+        <h2 class="h-section" data-split="lines" data-anim="fade">Five systems for every part of your property</h2>
+        <p class="lede measure">From the laundry room to the kitchen, the pool to the guest bathroom — coordinated, not cobbled together.</p>
+      </div>
+      <div class="sys-grid reveal-parent" id="sysGrid"></div>
     </div>
   </section>
 
@@ -197,7 +203,10 @@
         <div class="row"><a href="about.html" class="btn btn-ghost arrow-slide">About Vistex
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
       </div>
-      <p class="band-photo-credit">Swift &middot; Usafi Halisi</p>
+      <p class="brandmark" data-anim="up">
+        <span class="brandmark-name">Swift</span>
+        <span class="brandmark-tag">Usafi&nbsp;Halisi</span>
+      </p>
     </div>
   </section>
 
@@ -218,22 +227,6 @@
     </div>
   </section>
 
-  <!-- ═══════════ SYSTEMS ═══════════ -->
-  <section class="section section--ripple cv-auto">
-    <picture>
-      <source srcset="images/photos/ripple.webp" type="image/webp">
-      <img class="ripple-bg" src="images/photos/ripple.jpg" alt="" loading="lazy" decoding="async" width="1800" height="2398" data-parallax="0.05" onerror="this.remove()">
-    </picture>
-    <div class="container">
-      <div class="sec-head sec-head--center" style="margin-bottom:var(--s-10)">
-        <span class="eyebrow eyebrow--center">End-to-end hygiene</span>
-        <h2 class="h-section" data-split="lines" data-anim="fade">Five systems for every part of your property</h2>
-        <p class="lede measure">From the laundry room to the kitchen, the pool to the guest bathroom — coordinated, not cobbled together.</p>
-      </div>
-      <div class="sys-grid reveal-parent" id="sysGrid"></div>
-    </div>
-  </section>
-
   <!-- ═══════════ PROCESS ═══════════ -->
   <section class="section section--tint cv-auto">
     <div class="container">
@@ -242,7 +235,7 @@
         <h2 class="h-section" data-split="lines" data-anim="fade">A programme, not a product list</h2>
       </div>
 
-      <div class="process" data-steps>
+      <div class="process desk-only" data-steps>
         <div class="process-visual" data-anim="scale">
           <div id="pvShots"></div>
           <span class="pv-num" data-step-num>01</span>
@@ -251,19 +244,13 @@
         </div>
         <div class="process-steps reveal-parent" id="processSteps"></div>
       </div>
-    </div>
-  </section>
 
-  <!-- ═══════════ STATS ═══════════ -->
-  <section class="section stats-band cv-auto">
-    <!-- The brand film lives here, not in the loader: it is far enough down the
-         page that it has ample time to buffer, and it never delays first paint.
-         The poster shows until the clip is genuinely ready to play. -->
-    <video class="band-video" id="statsVideo" muted loop playsinline preload="none"
-           poster="media/loader-poster.jpg" aria-hidden="true" tabindex="-1"
-           data-src="media/loader.mp4"></video>
-    <div class="caustics" aria-hidden="true"></div>
-    <div class="container"><div class="stats reveal-parent" id="statsGrid"></div></div>
+      <!-- Phones get a swipe deck instead of the sticky scrollytelling: two
+           parts per slide (the image, then the narration), swiped one at a
+           time. Native horizontal scroll-snap, so vertical page scrolling is
+           never hijacked — once you reach the last slide the page moves on. -->
+      <div class="swipe-deck mob-only" id="processSwipe" data-anim="up"></div>
+    </div>
   </section>
 
   <!-- ═══════════ DIFFERENTIATORS ═══════════ -->
@@ -273,16 +260,25 @@
         <span class="eyebrow">What makes Vistex different</span>
         <h2 class="h-section" data-split="lines" data-anim="fade">A partner, not just a supplier</h2>
       </div>
-      <div class="bento reveal-parent" id="diffGrid"></div>
+      <div class="bento reveal-parent desk-only" id="diffGrid"></div>
+      <div class="swipe-deck mob-only" id="diffSwipe" data-anim="up"></div>
     </div>
   </section>
 
-  <!-- ═══════════ PULL QUOTE ═══════════ -->
-  <section class="section section--tint cv-auto">
-    <div class="container pullquote" data-anim="up">
-      <div class="qmark" aria-hidden="true">&ldquo;</div>
-      <q>We partner with you, not just supply you. Cleaner spaces, safer guests, lower costs.</q>
-      <div class="qby">Vistex Chemicals Ltd</div>
+  <!-- ═══════════ FILM BAND ═══════════ -->
+  <section class="section film-band cv-auto">
+    <!-- The brand film sits here: far enough down the page to have buffered,
+         and it never delays first paint. Poster shows until it can play. -->
+    <video class="band-video" id="statsVideo" muted loop playsinline preload="none"
+           poster="media/loader-poster.jpg" aria-hidden="true" tabindex="-1"
+           data-src="media/loader.mp4"></video>
+    <div class="caustics" aria-hidden="true"></div>
+    <div class="container">
+      <div class="pullquote" data-anim="up">
+        <div class="qmark" aria-hidden="true">&ldquo;</div>
+        <q>We partner with you, not just supply you. Cleaner spaces, safer guests, lower costs.</q>
+        <div class="qby">Vistex Chemicals Ltd</div>
+      </div>
     </div>
   </section>
 
