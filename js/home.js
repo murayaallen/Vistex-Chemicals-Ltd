@@ -230,7 +230,7 @@
       dots.appendChild(document.createElement('i'));
       return d;
     });
-    stage.appendChild(dots);
+    ($('pstageMeta') || stage).appendChild(dots);
 
     var dotEls = Array.prototype.slice.call(dots.children);
     function anim(el, frames, opts) {
@@ -410,7 +410,7 @@
     // content, not decoration — it names who Vistex serves. Under reduced motion
     // the CSS collapses the transition, so it becomes a plain instant swap
     // instead of a slide, which is the behaviour that setting actually asks for.
-    var words = ['hotels', 'hospitals', 'schools', 'kitchens', 'laundries', 'pools', 'institutions'];
+    var words = ['Hotels', 'Hospitals', 'Schools', 'Kitchens', 'Laundries', 'Pools', 'Institutions'];
     var i = 0, busy = false;
 
     // Reserve the width of the longest word so the headline never reflows mid-swap.
@@ -431,8 +431,17 @@
       var host = $('heroRotator');
       if (!host || busy || document.hidden) return;
       sizeHost(host);
+
+      // Sweep any stale words first. A re-split (fonts.ready / resize) restores
+      // the rotator from a snapshot, and if that snapshot was taken mid-swap it
+      // froze TWO words into the DOM — which then stacked behind every
+      // subsequent one. Only ever keep the most recent.
+      var all = host.querySelectorAll('.w');
+      for (var k = 0; k < all.length - 1; k++) all[k].remove();
+
       var out = host.querySelector('.w');
       if (!out) return;
+      out.classList.remove('in');
 
       busy = true;
       i = (i + 1) % words.length;

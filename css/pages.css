@@ -155,10 +155,6 @@
 @container pstage (max-width: 400px) { .pstage { --pw-front: 30%; --pw-back: 24%; --hero-scale: 1.58; } }
 @media (max-width: 620px) {
   .pstage { min-height: 250px; aspect-ratio: 5 / 3.15; }
-  /* more room under the product so the name never sits on top of it */
-  .pstage-cap { bottom: -6%; }
-  .pstage-dots { bottom: -30px; }
-  .hero-visual { padding-bottom: 44px; }
 }
 /* the shelf line every product lands on */
 .pstage-floor {
@@ -223,32 +219,35 @@
 /* dimmed group members transition smoothly rather than snapping */
 .pitem { transition: filter .45s var(--ease-out); }
 
-/* caption for the featured product */
+/* Caption + dots: a flow block under the stage. Absolutely positioning this
+   over the stage meant the hero-lift product covered its own name at every
+   viewport (measured 4-19px of overlap). In flow it cannot happen. */
+.pstage-meta {
+  display: grid; justify-items: center; gap: var(--s-3);
+  margin-top: var(--s-4);
+  min-height: 62px;                 /* reserved, so nothing jumps on swap */
+}
 .pstage-cap {
-  position: absolute; left: 0; right: 0; bottom: 2%;
-  text-align: center; opacity: 0; pointer-events: none;
+  text-align: center; opacity: 0;
   transition: opacity .4s var(--ease-out);
 }
-.pstage.featuring .pstage-cap { opacity: 1; pointer-events: auto; }
+.pstage.featuring ~ .pstage-meta .pstage-cap,
+.pstage-meta .pstage-cap.on { opacity: 1; }
 .pstage-cap b {
   display: block; font-family: var(--font-display); font-weight: 600;
-  font-size: var(--step-0); letter-spacing: var(--tr-tight); color: var(--text);
+  font-size: var(--step-1); letter-spacing: var(--tr-tight); color: var(--text);
 }
 .pstage-cap span {
-  display: inline-block; margin-top: 4px;
+  display: inline-block; margin-top: 3px;
   font-family: var(--font-mono); font-size: var(--step--2);
   letter-spacing: var(--tr-label); text-transform: uppercase; color: var(--text-3);
 }
 .pstage-cap:hover b { color: var(--accent); }
 
-/* progress dots for the slideshow */
-.pstage-dots {
-  position: absolute; left: 50%; transform: translateX(-50%); bottom: -14px;
-  display: flex; gap: 6px; opacity: 0; transition: opacity .4s var(--ease-out);
-}
-.pstage.featuring .pstage-dots { opacity: 1; }
+.pstage-dots { display: flex; gap: 6px; opacity: 0; transition: opacity .4s var(--ease-out); }
+.pstage.featuring ~ .pstage-meta .pstage-dots { opacity: 1; }
 .pstage-dots i {
-  width: 5px; height: 5px; border-radius: 999px; display: block;
+  width: 5px; height: 5px; border-radius: var(--r-full); display: block;
   background: color-mix(in srgb, var(--text) 22%, transparent);
   transition: all var(--t-mid);
 }
