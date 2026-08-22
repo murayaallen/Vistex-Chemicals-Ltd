@@ -174,6 +174,22 @@
     document.documentElement.setAttribute('data-theme', next);
     try { localStorage.setItem('vx-theme', next); } catch (e) {}
     paintThemeIcon();
+
+  // Until the visitor picks a theme, the default keeps following the device:
+  // light on phones/tablets, dark on laptops and desktops. Once they toggle,
+  // their choice is stored and this stops interfering.
+  (function () {
+    var mq = window.matchMedia('(max-width: 820px)');
+    function follow() {
+      var stored = null;
+      try { stored = localStorage.getItem('vx-theme'); } catch (e) {}
+      if (stored) return;                       // explicit choice wins
+      document.documentElement.setAttribute('data-theme', mq.matches ? 'light' : 'dark');
+      paintThemeIcon();
+    }
+    if (mq.addEventListener) mq.addEventListener('change', follow);
+    else if (mq.addListener) mq.addListener(follow);
+  })();
   });
   paintThemeIcon();
 

@@ -3,7 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<script>(function(){try{var d=document.documentElement,t=localStorage.getItem('vx-theme')||'dark';d.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();</script>
+<!-- Theme default follows the device: light on phones/tablets, dark on
+     laptops and desktops. An explicit choice always wins. Runs before
+     paint, so there is no flash of the wrong theme. -->
+<script>(function(){try{var d=document.documentElement,t=localStorage.getItem('vx-theme');if(!t)t=window.matchMedia('(max-width: 820px)').matches?'light':'dark';d.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();</script>
 
 <title>About Vistex Chemicals Ltd — Kenyan Hygiene Systems Manufacturer</title>
 <meta name="description" content="Vistex Chemicals Ltd is a Kenyan-owned hygiene and cleaning solutions manufacturer founded in 2019, serving hotels, hospitals and institutions across East Africa.">
