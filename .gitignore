@@ -8,6 +8,14 @@ node_modules/
 package-lock.json
 
 # working files that are not part of the deploy
-/jerricans/
 /diag.html
 /preview-effects.html
+/preview-stage.html
+
+# source artwork, not part of the deploy
+/jerricans/
+/new/
+/Urinal Mat Scents/
+*.pdf
+*.docx
+*.zip

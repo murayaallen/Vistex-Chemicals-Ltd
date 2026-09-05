@@ -149,8 +149,17 @@
         </div>
       </div>
 
-      <!-- Product stage: cascade line-up, then the hero-lift slideshow -->
+      <!-- Product stage: perspective conveyor, spotlight at the front -->
       <div class="hero-visual">
+        <!-- The product brand, floating over the stage it belongs to. Anchored
+             to .hero-visual rather than .pstage so the stage's container
+             queries cannot resize it. -->
+        <span class="hero-swift" data-anim="scale" style="--d:.5s">
+          <picture>
+            <source srcset="images/logo/swift-logo.webp" type="image/webp">
+            <img src="images/logo/swift-logo.png" alt="Swift — Usafi Halisi" width="720" height="361" decoding="async">
+          </picture>
+        </span>
         <div class="pstage" id="productStage" aria-hidden="true">
           <div class="pstage-floor"></div>
           <div class="pstage-pool"></div>
@@ -211,10 +220,20 @@
         <div class="row"><a href="about.html" class="btn btn-ghost arrow-slide">About Vistex
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
       </div>
-      <p class="brandmark" data-anim="up">
-        <span class="brandmark-name">Swift</span>
-        <span class="brandmark-tag">Usafi&nbsp;Halisi</span>
-      </p>
+      <!-- The brand moment: this section is about what Vistex makes, so the
+           product brand appears here in full, with the relationship spelled out. -->
+      <div class="brand-statement" data-anim="up">
+        <span class="swift-badge swift-badge--lg">
+          <picture>
+            <source srcset="images/logo/swift-logo.webp" type="image/webp">
+            <img src="images/logo/swift-logo.png" alt="Swift — Usafi Halisi" width="720" height="361" loading="lazy" decoding="async">
+          </picture>
+        </span>
+        <p class="brand-statement__note">
+          <strong>Swift</strong> is the product brand of <strong>Vistex&nbsp;Chemicals&nbsp;Ltd</strong> —
+          every drum, bucket and jerrican we manufacture in Nairobi carries it.
+        </p>
+      </div>
     </div>
   </section>
 

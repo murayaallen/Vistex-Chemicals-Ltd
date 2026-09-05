@@ -66,8 +66,8 @@
     '<header class="site-header">' +
       '<div class="container nav">' +
         '<a class="nav-logo" href="index.html" aria-label="' + esc(co.name) + ' — home">' +
-          window.vxPicture('images/logo/vistex-logo-color-on-white.png', co.name, { cls: 'logo-light', w: 230, h: 73, eager: true }) +
-          window.vxPicture('images/logo/vistex-logo-white-on-blue.png',  co.name, { cls: 'logo-dark',  w: 230, h: 73, eager: true }) +
+          window.vxPicture('images/logo/vistex-logo-color-on-white.png', co.name, { cls: 'logo-light', w: 280, h: 89, eager: true }) +
+          window.vxPicture('images/logo/vistex-logo-white-on-blue.png',  co.name, { cls: 'logo-dark',  w: 280, h: 89, eager: true }) +
         '</a>' +
         '<nav class="nav-links" id="navLinks" aria-label="Main">' +
           NAV.map(function (n) {
@@ -96,11 +96,20 @@
     '<footer class="site-footer">' +
       '<div class="footer-glow" aria-hidden="true"></div>' +
       '<div class="container footer-grid">' +
-        '<div>' +
-          window.vxPicture('images/logo/vistex-logo-white-on-blue.png', co.name, { cls: 'footer-logo', w: 215, h: 68 }) +
-          '<p style="margin-top:18px;max-width:32ch;color:rgba(255,255,255,.72);font-size:var(--step--1)">' + esc(co.tagline) + '</p>' +
-          '<p class="footer-brandline" style="margin-top:14px;font-size:var(--step--2)">' +
-            esc(co.productBrand) + ' — ' + esc(co.productBrandTagline) + '</p>' +
+        '<div class="footer-brands">' +
+          '<div>' +
+            window.vxPicture('images/logo/vistex-logo-white-on-blue.png', co.name, { cls: 'footer-logo', w: 215, h: 68 }) +
+            '<p style="margin-top:16px;max-width:32ch;color:rgba(255,255,255,.72);font-size:var(--step--1)">' + esc(co.tagline) + '</p>' +
+          '</div>' +
+          '<div>' +
+            '<div class="brand-lockup__label">Our product brand</div>' +
+            '<div class="footer-swift" style="margin-top:10px">' +
+              '<span class="swift-badge">' +
+                window.vxPicture(co.productBrandLogo, co.productBrand + ' — ' + co.productBrandTagline, { w: 720, h: 361 }) +
+              '</span>' +
+              '<p>Every drum, bucket and jerrican we manufacture carries it.</p>' +
+            '</div>' +
+          '</div>' +
         '</div>' +
         '<div><h4>Explore</h4><ul>' +
           '<li><a href="systems.html">Our Systems</a></li>' +
@@ -312,7 +321,9 @@
       : '<div class="pcard-media"><div class="pcard-noimg">' +
           '<span class="drop">' + icon('bottle', 30) + '</span>' +
           '<span class="nm">' + esc(p.name) + '</span>' +
-          '<span class="sb">Swift · Usafi Halisi</span>' +
+          '<span class="swift-badge swift-badge--sm sb-badge">' +
+            window.vxPicture(co.productBrandLogo, co.productBrand, { w: 720, h: 361 }) +
+          '</span>' +
         '</div></div>';
 
     return (

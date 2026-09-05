@@ -65,13 +65,35 @@
   });
   document.head.appendChild(ld);
 
+  // ---------- Scent variants ----------
+  // Only the urinal mat has these today, but the shape is generic: any product
+  // that ships in several colourways can declare `scents` and get the picker.
+  var scents = p.scents && p.scents.length ? p.scents : null;
+  function scentImg(sid) { return 'images/products/' + p.id + '-' + sid + '.jpeg'; }
+
+  var picker = scents
+    ? '<div class="scent" role="radiogroup" aria-label="Scent">' +
+        '<div class="scent-head"><span class="label">Scent</span>' +
+          '<span class="scent-now" id="scentNow">' + esc(scents[0].name) + '</span></div>' +
+        '<div class="scent-chips">' + scents.map(function (sc, i) {
+          return '<button type="button" class="scent-chip' + (i === 0 ? ' on' : '') + '"' +
+            ' role="radio" aria-checked="' + (i === 0) + '"' +
+            ' data-scent="' + esc(sc.id) + '" data-name="' + esc(sc.name) + '"' +
+            ' style="--sw:' + esc(sc.hex) + '" title="' + esc(sc.name) + '">' +
+            '<span class="visually-hidden">' + esc(sc.name) + '</span></button>';
+        }).join('') + '</div>' +
+      '</div>'
+    : '';
+
   // ---------- Media ----------
   var media = p.image
     ? window.vxPicture(p.image, fullName, { w: 800, h: 800, eager: true })
     : '<div class="pcard-noimg" style="position:relative">' +
         '<span class="drop">' + icon('bottle', 52) + '</span>' +
         '<span class="nm" style="font-size:var(--step-1)">' + esc(p.name) + '</span>' +
-        '<span class="sb">Swift · Usafi Halisi</span>' +
+        '<span class="swift-badge swift-badge--md sb-badge">' +
+          window.vxPicture(co.productBrandLogo, co.productBrand, { w: 720, h: 361 }) +
+        '</span>' +
       '</div>';
 
   // ---------- Spec table: only the rows that exist ----------
@@ -81,17 +103,47 @@
     ['Dilution', p.dilution, 'scale'],
     ['Temperature', p.temp, 'thermometer'],
     ['System', s.name, s.icon],
-    ['Brand', co.productBrand + ' — ' + co.productBrandTagline, 'sparkle']
+    ['Brand', null, 'sparkle']       // rendered as the badge below, not text
   ].filter(function (r) { return r[1]; });
+
+  if (scents) rows.push(['Scents', String(scents.length) + ' available', 'sparkle']);
 
   var spec = '<dl class="spec">' + rows.map(function (r) {
     return '<div class="spec-row"><dt>' + esc(r[0]) + '</dt><dd>' + esc(r[1]) + '</dd></div>';
-  }).join('') + '</dl>';
+  }).join('') +
+    // Brand is the one row that is a mark rather than a value
+    '<div class="spec-row"><dt>Brand</dt><dd>' +
+      '<span class="swift-badge swift-badge--md">' +
+        window.vxPicture(co.productBrandLogo, co.productBrand + ' — ' + co.productBrandTagline, { w: 720, h: 361 }) +
+      '</span>' +
+      '<span class="spec-brand-note">Made by ' + esc(co.name) + '</span>' +
+    '</dd></div>' +
+  '</dl>';
 
   var features = (p.features && p.features.length)
     ? '<div class="row" style="gap:8px">' + p.features.map(function (f) {
         return '<span class="chip chip--accent">' + icon('check', 14) + esc(f) + '</span>';
       }).join('') + '</div>'
+    : '';
+
+  // ---------- Where it is used ----------
+  // Generic: any product declaring `applications` (environments) or `fabrics`
+  // (what it may be used on) gets this block. Only SP-021 carries them today,
+  // straight from the supplied product sheet.
+  function useList(title, items, ico) {
+    if (!items || !items.length) return '';
+    return '<div class="uses-col">' +
+      '<h3 class="uses-title">' + icon(ico, 16) + esc(title) + '</h3>' +
+      '<ul class="uses-list">' + items.map(function (t) {
+        return '<li>' + esc(t) + '</li>';
+      }).join('') + '</ul>' +
+    '</div>';
+  }
+  var usesBlock = (p.applications || p.fabrics)
+    ? '<section class="uses card card-pad" data-anim="up">' +
+        useList('Ideal applications', p.applications, 'building') +
+        useList('Suitable for', p.fabrics, 'washer') +
+      '</section>'
     : '';
 
   // ---------- Render ----------
@@ -115,6 +167,7 @@
 
         '<p class="lede">' + esc(p.purpose) + '</p>' +
         features +
+        picker +
         spec +
 
         '<div class="pd-buy">' +
@@ -133,6 +186,58 @@
           '<span><strong>Handling:</strong> ' + esc(co.safetyNote) + '</span></div>' +
       '</div>' +
     '</div>';
+
+  // ---------- Where it is used ----------
+  if (usesBlock) {
+    var uses = document.createElement('div');
+    uses.innerHTML = usesBlock;
+    root.appendChild(uses.firstChild);
+  }
+
+  // ---------- Scent picker ----------
+  if (scents) {
+    var chips = [].slice.call(root.querySelectorAll('.scent-chip'));
+    var nowEl = document.getElementById('scentNow');
+    var mediaImg = root.querySelector('.pd-media img');
+    var mediaSrc = root.querySelector('.pd-media source');
+
+    // Warm the other scents so the swap is instant rather than a white flash.
+    scents.slice(1).forEach(function (sc) {
+      var pre = new Image();
+      pre.src = scentImg(sc.id).replace('.jpeg', '.webp');
+    });
+
+    function pick(chip) {
+      var sid = chip.dataset.scent;
+      chips.forEach(function (c) {
+        var on = c === chip;
+        c.classList.toggle('on', on);
+        c.setAttribute('aria-checked', on ? 'true' : 'false');
+        c.tabIndex = on ? 0 : -1;
+      });
+      nowEl.textContent = chip.dataset.name;
+      if (mediaSrc) mediaSrc.srcset = scentImg(sid).replace('.jpeg', '.webp');
+      if (mediaImg) {
+        mediaImg.src = scentImg(sid);
+        mediaImg.alt = fullName + ' — ' + chip.dataset.name;
+      }
+    }
+    chips.forEach(function (c, i) {
+      c.tabIndex = i === 0 ? 0 : -1;
+      c.addEventListener('click', function () { pick(c); });
+    });
+    // Arrow keys move within the group, which is what a radiogroup must do.
+    root.querySelector('.scent-chips').addEventListener('keydown', function (e) {
+      var i = chips.indexOf(document.activeElement);
+      if (i < 0) return;
+      var d = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1
+            : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 0;
+      if (!d) return;
+      e.preventDefault();
+      var n = chips[(i + d + chips.length) % chips.length];
+      n.focus(); pick(n);
+    });
+  }
 
   // ---------- Quantity + add ----------
   var qty = 1;

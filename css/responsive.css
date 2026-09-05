@@ -92,7 +92,7 @@
   }
 }
 @media (max-width: 400px) {
-  .nav-logo img { height: 40px; }
+  .nav-logo img { height: 46px; }
   .nav { gap: var(--s-2); }
   .nav-actions { gap: 6px; }
 }
@@ -155,7 +155,12 @@
 
   /* the line-up sits lower and centred under the buttons */
   .hero-visual { max-width: 560px; width: 100%; }
-  .pstage { min-height: 240px; aspect-ratio: 5 / 3.4; }
+  /* Taller than the old shelf, and deliberately so. A product's size on the
+     belt is set by --cv-pw, which is a percentage of the stage WIDTH — so a
+     taller stage costs nothing in product size and buys headroom above the
+     belt for the Swift mark. At 5/3.4 the spotlight product filled the frame
+     top to bottom and ran into the mark by 23px (measured at 390px). */
+  .pstage { min-height: 276px; aspect-ratio: 5 / 4.2; }
 }
 
 /* Landscape phones: the hero must not lock the viewport */

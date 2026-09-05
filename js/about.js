@@ -9,6 +9,7 @@
 
   $('aboutIntro').textContent = co.intro;
   $('aboutMeta').textContent = 'Founded ' + co.founded + ' · Nairobi, Kenya';
+  var rel = $('brandRel'); if (rel) rel.textContent = co.brandRelationship;
   $('mission').textContent = co.mission;
   $('vision').textContent = co.vision;
 

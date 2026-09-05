@@ -159,7 +159,7 @@ gradient or photo bands rather than mis-measuring it.
 ```
 /
 ├── index.html            home        — the narrative arc
-├── systems.html          catalog     — 5 systems, 40 products, search + filter
+├── systems.html          catalog     — 5 systems, 52 products, search + filter
 ├── product.html          detail      — ?id=<productId>
 ├── industries.html       5 sectors, alternating editorial bands
 ├── about.html            company, mission, clients
@@ -257,8 +257,64 @@ be filled in progressively without touching a template.
 - Every motion module honours `prefers-reduced-motion`.
 
 **Conversion**
-- Catalog gains live search + system filter + sort (40 products, previously unfiltered).
+- Catalog gains live search + system filter + sort (52 products, previously unfiltered).
 - Product pages show dilution, temperature, pH, pack options and safety notes.
 - Contact and the enquiry drawer both offer **WhatsApp primary + email fallback**,
   so a popup-blocked desktop visitor is no longer dead-ended.
 ```
+
+---
+
+## Hero conveyor (revision 2)
+
+The two-tier "cascade shelf + hero lift" was replaced with a single perspective
+conveyor. Every product sits at an angle on a horizontal circle; the circle turns
+at a constant rate, so products sweep forward through a spotlight at the front,
+then recede around the back and converge on one vanishing point.
+
+The projection is the real one, not an approximation:
+
+```
+Z    = cam - cos(phi)          depth from the camera, in circle radii
+proj = 1 / Z                   the perspective divisor
+x    = span * sin(phi) * proj
+y    = floor + rise * (1 - dn) dn = proj normalised to 0..1
+s    = scale * proj / projNear
+```
+
+Two useful consequences:
+
+- Because `x` and `y` are both linear in `proj`, the path traced is exactly the
+  perspective image of a circle — an ellipse. That is why `.pstage-floor` can be
+  one CSS ellipse and still land on every product baseline, with no JS and no SVG.
+- Because `cam > 1` the whole circle stays in front of the camera, so the loop is
+  genuinely endless: no wrap, no reset, no seam to hide.
+
+The camera lives in CSS custom properties on `.pstage` (`--cv-cam`, `--cv-span`,
+`--cv-floor`, `--cv-rise`, `--cv-scale`, `--cv-fade`, `--cv-pw`) and `js/home.js`
+reads them, so a container query re-aims the shot per width without touching the
+script. Product size is set by `--cv-pw`, a percentage of stage **width** — which
+is why the phone stage can be made taller for headroom at zero cost to how big the
+products are.
+
+Per-frame cost is kept to transform + opacity. Depth of field is three fixed
+classes (`.dof0/1/2`) rather than an animated blur radius, and z-index/opacity are
+only written when the value actually changes.
+
+**Membership rule:** a cut-out alone does not put a product on the belt — it also
+needs a `vessel` of `bucket`, `jerrican` or `bottle`. The urinal mat has a cut-out
+for its scent picker but no vessel, because a flat disc cannot stand on a conveyor.
+
+## Sections added since revision 1
+
+| Section | Where | Notes |
+|---|---|---|
+| Swift mark | hero | Centred on the belt's vanishing point, so mark → vanishing point → spotlight sit on one vertical axis. |
+| Recommended products | each industry band | Six cut-outs per sector on a frosted `.glass` panel; `--drift` is scroll-scrubbed by IntersectionObserver + rAF and drives both the product fan and the specular sweep. |
+| Scent picker | product detail | Generic: any product declaring `scents: [{id,name,hex}]` gets a WAI-ARIA radiogroup with arrow-key support. Only the urinal mat uses it today. |
+| Rail thumbnails | `images/thumbs/` | The rails were pulling full hero cut-outs (up to 160 K) into a 92px slot — 967 K for 21 thumbnails. Regenerated at 240px: **2.33 MB → 698 K on the WebP path (−70%)**. |
+
+`.glass` is deliberately reserved for panels over photography, gradients or the
+aurora. Over flat page background it reads as a slightly grey box, and where
+`backdrop-filter` is unsupported it opts out of translucency entirely rather than
+leaving unreadable text.

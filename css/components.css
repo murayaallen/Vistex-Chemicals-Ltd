@@ -246,9 +246,9 @@ body[data-page="home"] .site-header:not(.scrolled) .nav-links a:hover {
 }
 .nav-logo { display: flex; align-items: center; flex: none; }
 .nav-logo img {
-  /* the artwork now fills its box (the dead canvas was cropped out), so this
-     height is all logo — roughly 1.8x the visible mark of the previous build */
-  height: clamp(40px, 4.2vw, 54px); width: auto;
+  /* the artwork fills its box (the dead canvas was cropped out), so this
+     height is all logo, not padding */
+  height: clamp(48px, 5.2vw, 68px); width: auto;
   transition: opacity var(--t-fast);
 }
 .nav-logo:hover img { opacity: .82; }
@@ -350,13 +350,17 @@ body[data-page="home"] .site-header:not(.scrolled) .nav-links a:hover {
 }
 @media (max-width: 940px) { .footer-grid { grid-template-columns: 1fr 1fr; gap: var(--s-7); } }
 @media (max-width: 560px) { .footer-grid { grid-template-columns: 1fr; } }
-.footer-logo { height: 58px; width: auto; }
+.footer-logo { height: 68px; width: auto; }
 .footer-grid h4 {
   font-family: var(--font-mono); font-size: var(--step--2);
   letter-spacing: var(--tr-label); text-transform: uppercase;
   color: var(--aqua-300); margin-bottom: var(--s-4); font-weight: 500;
 }
 .footer-grid ul { display: grid; gap: 11px; font-size: var(--step--1); }
+/* A bare text link in this list measured 21px tall — under the 24x24 pointer
+   target WCAG 2.5.8 asks for. Padding the anchor (not the li) keeps the
+   visual rhythm identical while making the whole row hittable. */
+.footer-grid a { display: inline-flex; align-items: center; min-height: 24px; }
 .site-footer a { color: rgba(255,255,255,.72); transition: color var(--t-fast); }
 .site-footer a:hover { color: #fff; }
 .footer-grid li { display: flex; gap: 10px; align-items: flex-start; color: rgba(255,255,255,.72); }
@@ -447,6 +451,11 @@ body[data-page="home"] .site-header:not(.scrolled) .nav-links a:hover {
 
 /* ============ PRODUCT CARD ============ */
 .pcard {
+  position: relative;              /* anchors the stretched title link below */
+  /* The catalogue toolbar is sticky under the fixed header, so the global
+     scroll-padding-top (header only) still parks a card underneath it when
+     focus or scrollIntoView brings it up. */
+  scroll-margin-top: calc(var(--header-h) + 96px);
   display: flex; flex-direction: column; overflow: hidden;
   border-radius: var(--r-lg);
 }
@@ -485,6 +494,18 @@ body[data-page="home"] .site-header:not(.scrolled) .nav-links a:hover {
 .pcard-top { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--s-3); }
 .pcard-name { font-family: var(--font-display); font-weight: 600; font-size: var(--step-0); line-height: 1.25; letter-spacing: var(--tr-tight); }
 .pcard-name a:hover { color: var(--accent); }
+/* Two separate problems with the title link, both fixed here.
+   1. Its own box was 20px tall — under the 24x24 pointer target WCAG 2.5.8
+      asks for. display:block + min-height gives it a real box, and the title
+      still wraps normally because the h3 around it is block-level anyway.
+   2. Only the words were clickable. The stretched ::after makes the whole
+      card open the product, which is what people already expect. The media
+      anchor above it is aria-hidden and the Add button is lifted over the
+      overlay, so neither the accessibility tree nor the enquiry flow moves. */
+.pcard-name a { display: block; min-height: 24px; }
+.pcard-name a::after { content: ""; position: absolute; inset: 0; z-index: 1; }
+.pcard-foot { position: relative; z-index: 2; }
+.pcard-add { position: relative; z-index: 2; }
 .pcard-code {
   flex: none; font-family: var(--font-mono); font-size: 10.5px; font-weight: 500;
   letter-spacing: var(--tr-mono);
@@ -610,4 +631,82 @@ body[data-page="home"] .site-header:not(.scrolled) .nav-links a:hover {
 @media (max-width: 820px) {
   .desk-only { display: none !important; }
   .mob-only  { display: block; }
+}
+
+
+/* ============================================================
+   BRAND ARCHITECTURE
+   Vistex Chemicals Ltd manufactures; Swift is the brand on the packaging.
+   The site keeps them in a fixed relationship: Vistex owns the chrome
+   (header, footer, page identity), Swift appears wherever product is the
+   subject. These components make that pairing explicit and consistent.
+   ============================================================ */
+
+/* The Swift badge is a self-contained oval with its own ground, so it needs
+   no plate behind it and reads on light and dark alike. */
+.swift-badge { display: inline-block; line-height: 0; }
+.swift-badge img { width: 100%; height: auto; display: block; }
+.swift-badge--sm { width: 82px; }
+.swift-badge--md { width: 132px; }
+.swift-badge--lg { width: clamp(170px, 22vw, 240px); }
+
+/* Parent company beside product brand, separated by a rule. */
+.brand-lockup {
+  display: flex; align-items: center; gap: var(--s-5);
+  flex-wrap: wrap;
+}
+.brand-lockup__rule {
+  width: 1px; align-self: stretch; min-height: 44px;
+  background: currentColor; opacity: .22;
+}
+.brand-lockup__side { display: grid; gap: 6px; }
+.brand-lockup__label {
+  font-family: var(--font-mono); font-size: var(--step--2);
+  letter-spacing: var(--tr-label); text-transform: uppercase;
+  opacity: .62;
+}
+
+/* Footer pairing: the company mark, then the brand it makes. */
+.footer-brands { display: grid; gap: var(--s-5); }
+.footer-brands .brand-lockup__label { color: var(--aqua-300); opacity: 1; }
+.footer-swift { display: flex; align-items: center; gap: var(--s-4); }
+.footer-swift .swift-badge { width: 104px; flex: none; }
+.footer-swift p {
+  font-size: var(--step--2); color: rgba(255,255,255,.66);
+  max-width: 26ch; line-height: 1.5;
+}
+@media (max-width: 560px) {
+  .footer-swift .swift-badge { width: 88px; }
+}
+
+/* ============================================================
+   GLASS — frosted panel
+   One translucent surface used across the site. It only works if
+   something interesting sits BEHIND it, so it is reserved for panels
+   over photography, gradients or the aurora — never over flat page
+   background, where it just reads as a slightly grey box.
+   ============================================================ */
+.glass {
+  position: relative;
+  border-radius: var(--r-lg);
+  background: color-mix(in srgb, var(--n-0) 46%, transparent);
+  border: 1px solid color-mix(in srgb, var(--n-0) 62%, transparent);
+  box-shadow:
+    0 20px 44px -26px rgba(12, 20, 48, .45),
+    inset 0 1px 0 color-mix(in srgb, #fff 60%, transparent);
+  backdrop-filter: blur(18px) saturate(170%);
+  -webkit-backdrop-filter: blur(18px) saturate(170%);
+}
+[data-theme="dark"] .glass {
+  background: color-mix(in srgb, var(--surface) 46%, transparent);
+  border-color: color-mix(in srgb, #fff 12%, transparent);
+  box-shadow:
+    0 22px 48px -26px rgba(0, 0, 0, .7),
+    inset 0 1px 0 color-mix(in srgb, #fff 14%, transparent);
+}
+/* Without backdrop-filter the panel is simply transparent, and the content
+   behind it makes the text unreadable — so opt out of translucency entirely. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass { background: var(--surface); }
+  [data-theme="dark"] .glass { background: var(--surface-2); }
 }

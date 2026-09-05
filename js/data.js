@@ -3,7 +3,8 @@
 // Everything the site renders comes from window.VISTEX.
 //
 // Product fields: id, system, name, code, image, pack, purpose
-//   optional →  form, dilution, temp, packs, features
+//   optional →  form, dilution, temp, packs, features, applications, fabrics,
+//               cutout + vessel (hero conveyor), scents (colourway picker)
 // Optional fields are only rendered when present, so the catalogue
 // can be filled in progressively without touching a template.
 //
@@ -19,8 +20,12 @@
     tagline: 'The hygiene & cleaning systems partner for East African hotels',
     slogan: 'Quality · Hygiene · Innovative',
     founded: 2019,
+    // Brand architecture: Vistex Chemicals Ltd is the manufacturer (the parent),
+    // Swift is the product brand that appears on every drum and bucket.
     productBrand: 'Swift',
     productBrandTagline: 'Usafi Halisi',
+    productBrandLogo: 'images/logo/swift-logo.png',
+    brandRelationship: 'Swift is the product brand of Vistex Chemicals Ltd — every drum, bucket and jerrican we manufacture in Nairobi carries it.',
     phoneDisplay: '0739 446 655',
     phoneIntl: '254739446655',
     email: 'info@vistexchemicals.co.ke',
@@ -101,6 +106,7 @@
         'Branded guest toiletries & amenities'
       ],
       systems: ['laundry', 'housekeeping', 'kitchen', 'pool', 'toiletries'],
+      recommend: ['laundry-powder-s020', 'fabric-softener-s070', 'carpet-shampoo', 'palm-fresh-handwash', 'blue-drop-wc', 'urinal-mat'],
       img: 'images/photos/industry-hotels.jpg',
       imgHint: 'Immaculate hotel suite in warm, bright light',
       clients: ['Nokras Hotels', 'Mayan Hotels', 'Tafaria Resort', 'FK Resort', 'Abai Lodges']
@@ -116,6 +122,7 @@
         'Reliable local supply you can count on'
       ],
       systems: ['laundry', 'housekeeping', 'kitchen'],
+      recommend: ['laundry-powder-sp015hd', 'liquid-bleach-s040', 'oxygen-bleach-s045', 'hand-sanitizer', 'regular-bleach', 'palm-fresh-handwash'],
       img: 'images/photos/industry-hospitals.jpg',
       imgHint: 'Clean, bright hospital ward',
       clients: ['Mathari Hospital', 'Nazareth Hospital', 'Outspan Hospital', 'Kiriaini Mission Hospital']
@@ -131,6 +138,7 @@
         'Staff training and clear usage guides'
       ],
       systems: ['laundry', 'housekeeping', 'kitchen'],
+      recommend: ['laundry-powder-sp021', 'powder-bleach-sp040', 'scouring-powder', 'regular-bleach', 'urinal-screen', 'urinal-mat'],
       img: 'images/photos/industry-schools.jpg',
       imgHint: 'Tidy school dormitory or dining hall',
       clients: []
@@ -146,6 +154,7 @@
         'Lower cost per kg, faster turnaround'
       ],
       systems: ['laundry'],
+      recommend: ['laundry-powder-s020', 'booster-plus', 'brightener-sp062', 'oxygen-bleach-s045', 'rust-away-sp064', 'rust-away-spray'],
       img: 'images/photos/industry-laundries.jpg',
       imgHint: 'Industrial laundry stacked with bright white linen',
       clients: []
@@ -161,6 +170,7 @@
         'Support for food-safety compliance'
       ],
       systems: ['kitchen'],
+      recommend: ['descaler-ticosta', 'scouring-powder', 'hand-sanitizer', 'liquid-bleach-s040', 'palm-fresh-handwash', 'power-plus'],
       img: 'images/photos/industry-food.jpg',
       imgHint: 'Spotless stainless food-processing area',
       clients: []
@@ -184,8 +194,8 @@
     },
     {
       key: 'kitchen', icon: 'utensils', name: 'Kitchen & Food Safety', short: 'Kitchen',
-      tagline: 'For hotel kitchens, restaurants and food handling areas.',
-      description: 'Food-grade cleaning and sanitation that stops grease build-up and cross-contamination and stands up to a food-safety audit.',
+      tagline: 'For professional kitchens in hotels, restaurants, hospitals, schools and catering.',
+      description: 'Complete cleaning, degreasing, sanitising and equipment-care for institutional food-service environments — chemistry that stops grease build-up and cross-contamination and stands up to a food-safety audit.',
       benefits: ['No grease build-up', 'No cross-contamination', 'Audit-ready kitchens'],
       img: 'images/photos/system-kitchen.jpg'
     },
@@ -208,10 +218,17 @@
   var IMG = 'images/products/';
   var products = [
     /* ---------- LAUNDRY ---------- */
-    { id:'laundry-powder-sp021', system:'laundry', name:'Laundry Powder', code:'SP-021',
+    { id:'laundry-powder-sp021', system:'laundry', name:'Premium Laundry Powder', code:'SP-021',
       image:IMG+'laundry-powder-s021.jpeg', pack:'20 kg', cutout:'images/cutouts/laundry-powder-s021.png', vessel:'bucket', form:'Powder',
-      purpose:'High-foaming, off-white free-flowing detergent. Suitable for soft and hard water, and for all PE-cotton and cotton fabric including coloured items.',
-      features:['High-foaming', 'Soft & hard water', 'Colour-safe'] },
+      purpose:'High-performance professional laundry detergent for demanding commercial and institutional operations. An advanced blend of builders, surfactants, enzymes and optical brighteners lifts everyday and heavily soiled laundry while keeping fabric bright and fresh. Suitable for soft and hard water, and for all PE-cotton and cotton fabric including coloured items.',
+      features:['Powerful soil & stain removal', 'Enzyme-enhanced cleaning', 'Superior water conditioning',
+                'Fabric brightening', 'Fresh fragrance', 'Colour-safe'],
+      applications:['Hotels and resorts', 'Hospitals and healthcare facilities', 'Commercial laundries',
+                    'Laundromats', 'Cleaning companies', 'Schools and colleges',
+                    'Restaurants and catering facilities', 'Guest houses', 'Institutions',
+                    'Corporate and industrial facilities'],
+      fabrics:['Bed linen', 'Towels', 'Hotel linen', 'Uniforms', 'Workwear', 'Kitchen linen',
+               'General institutional laundry', 'Everyday household-type washable fabrics'] },
 
     { id:'laundry-powder-s020', system:'laundry', name:'Laundry Powder', code:'S-020',
       image:IMG+'laundry-powder-s020.jpeg', pack:'20 kg', cutout:'images/cutouts/laundry-powder-s020.png', vessel:'bucket', form:'Powder',
@@ -268,6 +285,21 @@
     { id:'pre-spotter', system:'laundry', name:'Pre-Spotter', code:null, image:null, pack:'On request',
       purpose:'Direct stain treatment applied before washing, for marks that will not survive a normal cycle.' },
 
+    { id:'regular-bleach', system:'laundry', name:'Regular Bleach', code:null,
+      image:IMG+'regular-bleach.jpeg', pack:'500 ml', cutout:'images/cutouts/regular-bleach.png', vessel:'bottle', form:'Liquid',
+      purpose:'Everyday whitening and disinfection for white and chlorine-fast linen, in a 500 ml bottle sized for housekeeping trolleys rather than the laundry plant.',
+      features:['Whitening', 'Antibacterial', 'Trolley-sized pack'] },
+
+    { id:'power-plus', system:'laundry', name:'Power Plus+', code:null,
+      image:IMG+'power-plus.jpeg', pack:'On request',
+      purpose:'High-performance laundry detergent range for machine washing, supplied in pack sizes from household bottles up to institutional jerricans.',
+      features:['Machine wash', 'Multiple pack sizes'] },
+
+    { id:'rust-away-spray', system:'laundry', name:'Rust Away Spray', code:null,
+      image:IMG+'rust-away-spray.jpeg', pack:'1 L', cutout:'images/cutouts/rust-away-spray.png', vessel:'bottle', form:'Liquid',
+      purpose:'Ready-to-use trigger spray that dissolves rust stains on linen on contact — the spot-treatment companion to the SP-064 bulk powder.',
+      features:['Ready to use', 'Spot treatment', 'Trigger spray'] },
+
     /* ---------- HOUSEKEEPING ---------- */
     { id:'multipurpose-cleaner', system:'housekeeping', name:'Multipurpose Cleaner', code:null, image:null, pack:'On request',
       purpose:'All-round floor and surface cleaner for daily housekeeping rounds.' },
@@ -287,24 +319,48 @@
       purpose:'Streak-free cleaning for glass, mirrors and glazed partitions.' },
     { id:'multi-surface-cleaner', system:'housekeeping', name:'Multi-Surface Cleaner', code:null, image:null, pack:'On request',
       purpose:'Safe, effective cleaning across the mixed surfaces in a guest room.' },
-    { id:'carpet-shampoo', system:'housekeeping', name:'Carpet Shampoo & Stain Remover', code:null, image:null, pack:'On request',
-      purpose:'Deep-cleans carpets and lifts set-in stains from corridors and rooms.' },
+    { id:'carpet-shampoo', system:'housekeeping', name:'Carpet Shampoo & Stain Remover', code:null,
+      image:IMG+'carpet-shampoo.jpeg', pack:'5 L / 20 L', cutout:'images/cutouts/carpet-shampoo.png', vessel:'jerrican', form:'Liquid',
+      purpose:'Deep-cleans carpets and lifts set-in stains from corridors and rooms. Also used on tiled floors, mats and vehicle carpets.',
+      features:['Carpets & rugs', 'Tiles & terrazzo', 'Mats & vehicle carpets'] },
     { id:'air-freshener', system:'housekeeping', name:'Air Fresheners', code:null, image:null, pack:'On request',
       purpose:'Odour control for guest rooms, corridors and washrooms.' },
+    { id:'blue-drop-wc', system:'housekeeping', name:'Blue-Drop Flush-Activated WC Cleaner', code:null,
+      image:IMG+'blue-drop-wc.jpeg', pack:'50 g × 4 (200 g)', form:'Tablet',
+      purpose:'Automatic toilet bowl cleaner. One tablet in the cistern releases cleaner with every flush, fighting hard-water stains and leaving lasting freshness.',
+      features:['Fights hard-water stains', 'Cleans every flush', 'Long-lasting freshness'] },
+    { id:'scouring-powder', system:'housekeeping', name:'Sparkle Clean Scouring Powder', code:null,
+      image:IMG+'scouring-powder.jpeg', pack:'500 g', cutout:'images/cutouts/scouring-powder.png', vessel:'bottle', form:'Powder',
+      purpose:'Abrasive scouring powder for kitchens, bathrooms, sinks and tiles. Lifts burnt-on stains and grease while leaving a fresh lemon scent.',
+      features:['Sinks & tiles', 'Burnt-on stains', 'Lemon fragrance'] },
 
-    /* ---------- KITCHEN ---------- */
-    { id:'degreaser', system:'kitchen', name:'Degreaser', code:null, image:null, pack:'On request',
-      purpose:'Cuts baked-on grease on cookers, ovens, grills and extraction canopies.' },
-    { id:'descaler-ticosta', system:'kitchen', name:'Descaler (Ticosta)', code:null, image:null, pack:'On request',
-      purpose:'Descaler for teapots, urns, boilers and stainless steel equipment.' },
-    { id:'dishwash-liquid', system:'kitchen', name:'Dishwash Liquid', code:null, image:null, pack:'On request',
-      purpose:'Manual dishwashing detergent for kitchens and restaurant pot-wash.' },
-    { id:'machine-dishwasher', system:'kitchen', name:'Machine Dishwasher Detergent', code:null, image:null, pack:'On request',
-      purpose:'Formulated for automatic dishwashing machines and pass-through units.' },
+    /* ---------- KITCHEN ----------
+       Names and uses are taken verbatim from the Vistex Kitchen Hygiene
+       Product Range sheet. The "Swift" prefix is dropped from each name
+       because the brand is shown separately on every card and product page —
+       repeating it in the title would read as "Swift Swift Dish Wash". */
+    { id:'dishwash-liquid', system:'kitchen', name:'Dish Wash Liquid', code:null, image:null, pack:'On request',
+      purpose:'Manual washing of plates, cups, utensils and cookware.' },
+    { id:'degreaser', system:'kitchen', name:'Grease Buster Heavy-Duty Degreaser', code:null, image:null, pack:'On request',
+      purpose:'Heavy grease and oil on cookers, hoods, equipment and floors.' },
+    { id:'oven-grill-cleaner', system:'kitchen', name:'Oven & Grill Cleaner', code:null, image:null, pack:'On request',
+      purpose:'Burnt-on grease and food residues on ovens, grills and hot plates.' },
+    { id:'grease-buster-floor', system:'kitchen', name:'Grease Buster', code:null, image:null, pack:'On request',
+      purpose:'Removal of grease, oil and food residues from kitchen floors.' },
+    { id:'machine-dishwasher', system:'kitchen', name:'Auto DishWash', code:null, image:null, pack:'On request',
+      purpose:'Automatic dishwashing machines and commercial warewashing.' },
     { id:'rinse-aid', system:'kitchen', name:'Rinse Aid', code:null, image:null, pack:'On request',
-      purpose:'Spot-free, fast drying for glassware and crockery.' },
-    { id:'food-safe-sanitizer', system:'kitchen', name:'Food-Safe Sanitizer', code:null, image:null, pack:'On request',
-      purpose:'Sanitises worktops and food-contact equipment between services.' },
+      purpose:'Improves rinsing, drying and spot-free finish on dishes and glassware.' },
+    { id:'food-safe-sanitizer', system:'kitchen', name:'Food-Safe Surface Sanitizer', code:null, image:null, pack:'On request',
+      purpose:'Sanitising food-contact surfaces after cleaning, according to label directions.' },
+    { id:'descaler-ticosta', system:'kitchen', name:'Descaler', code:null,
+      image:IMG+'descaler.jpeg', pack:'5 kg / 20 kg', cutout:'images/cutouts/descaler.png', vessel:'bucket', form:'Powder',
+      purpose:'Alkaline cleaning powder that removes limescale from kettles, urns, boilers, stainless steel equipment and other water-using equipment.',
+      features:['Kettles & urns', 'Boilers', 'Stainless steel'] },
+    { id:'multiclean', system:'kitchen', name:'Multiclean', code:null, image:null, pack:'On request',
+      purpose:'Cleaning tables, counters, walls, doors and general kitchen surfaces.' },
+    { id:'drain-care', system:'kitchen', name:'Drain Care', code:null, image:null, pack:'On request',
+      purpose:'Cleaning and maintaining kitchen drains and removing organic build-up.' },
     { id:'hand-wash-sanitizer', system:'kitchen', name:'Hand Wash & Sanitizer', code:null, image:null, pack:'On request',
       purpose:'Staff hand hygiene for food handling areas.' },
 
@@ -329,8 +385,38 @@
       purpose:'Guest body lotion — available branded for your hotel.' },
     { id:'tissue-paper', system:'toiletries', name:'Tissue Paper', code:null, image:null, pack:'On request',
       purpose:'Washroom and guest tissue supplies.' },
-    { id:'washroom-amenities', system:'toiletries', name:'Urinal Mats & Air Fresheners', code:null, image:null, pack:'On request',
-      purpose:'Washroom amenities and continuous odour control.' }
+    { id:'urinal-mat', system:'toiletries', name:'Urinal Mat', code:null,
+      image:IMG+'urinal-mat-ocean.jpeg', pack:'Single mat', form:'Anti-splash mat',
+      // Deliberately no `vessel`: a flat disc cannot stand on the hero conveyor,
+      // which is built for drums, buckets and bottles. The cut-out is here for
+      // the scent picker and the industry strips.
+      cutout:'images/cutouts/urinal-mat-ocean.png',
+      scents:[
+        { id:'ocean',       name:'Ocean',       hex:'#37AAEB' },
+        { id:'lemon',       name:'Lemon',       hex:'#CCC964' },
+        { id:'clear-lemon', name:'Clear Lemon', hex:'#CBCBCB' },
+        { id:'apple',       name:'Apple',       hex:'#91DB5D' },
+        { id:'lavender',    name:'Lavender',    hex:'#A797EF' },
+        { id:'orange',      name:'Orange',      hex:'#FE8249' },
+        { id:'strawberry',  name:'Strawberry',  hex:'#F57782' }
+      ],
+      purpose:'Anti-splash urinal mat that holds fragrance and keeps the drain clear. Drops straight in — no fixings, no tools — and comes in seven scents so a property can colour-code by floor or by block.',
+      features:['Seven scents', 'Anti-splash', 'Keeps the drain clear', 'Tool-free fitting'] },
+
+    { id:'palm-fresh-handwash', system:'toiletries', name:'Palm Fresh Handwash', code:null,
+      image:IMG+'palm-fresh-handwash.jpeg', pack:'500 ml / 5 L', cutout:'images/cutouts/palm-fresh-handwash.png', vessel:'bottle', form:'Liquid',
+      purpose:'Apple-fragranced hand wash with a moisturising formula — gentle on skin, tough on germs. Pump bottles for washrooms, jerricans for refilling.',
+      features:['Moisturising formula', 'Apple fragrance', 'Pump & refill packs'] },
+
+    { id:'hand-sanitizer', system:'toiletries', name:'Hand Sanitizer', code:null,
+      image:IMG+'hand-sanitizer.jpeg', pack:'500 ml / 5 L', form:'Liquid',
+      purpose:'Alcohol hand sanitiser that kills 99.9% of germs and keeps moisturising for up to eight hours. Pump bottles for front of house, jerricans for refilling dispensers.',
+      features:['Kills 99.9% of germs', 'Moisturises up to 8 hrs', 'Pump & refill packs'] },
+
+    { id:'urinal-screen', system:'toiletries', name:'Urinal Screen', code:null,
+      image:IMG+'urinal-screen.jpeg', pack:'On request',
+      purpose:'Anti-splash urinal screen that holds fragrance and keeps the drain clear. Drops straight in — no fixings, no tools.',
+      features:['Anti-splash', 'Continuous fragrance', 'Tool-free fitting'] }
   ];
 
   window.VISTEX = {

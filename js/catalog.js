@@ -1,6 +1,6 @@
 // ==========================================================
 // VISTEX — Catalogue (systems.html)
-// Live search + system filter over 40 products.
+// Live search + system filter over the full product list.
 // State lives in the URL (?system=…&q=…) so results are linkable.
 // ==========================================================
 (function () {
