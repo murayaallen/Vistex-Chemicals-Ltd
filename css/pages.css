@@ -131,12 +131,16 @@
    mark reads as signage over the line rather than a sticker in a corner.
    The spotlight product tops out around 30% down the stage, so this band is
    clear at every width (measured, not assumed).
-   Positioning lives on the span and the float on the <img>, because one
-   element cannot be centred by transform AND animated by transform. */
+   Centring is done with auto margins, NOT translateX(-50%): the span carries
+   data-anim="scale", and the reveal system ends on `[data-anim].is-in {
+   transform: none }`, which outspecifies this rule and wiped a centring
+   transform out — the mark slid right by half its width the moment the reveal
+   finished. Auto margins are immune to that, which leaves the span's transform
+   free for the reveal and the <img>'s free for the float. */
 .hero-swift {
   position: absolute;
-  top: -4%; left: 50%;
-  transform: translateX(-50%);
+  top: -4%; left: 0; right: 0;
+  margin-inline: auto;
   z-index: 4;
   width: clamp(110px, 22cqw, 190px);
   pointer-events: none;
