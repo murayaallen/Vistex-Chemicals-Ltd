@@ -138,7 +138,7 @@
         'Staff training and clear usage guides'
       ],
       systems: ['laundry', 'housekeeping', 'kitchen'],
-      recommend: ['laundry-powder-sp021', 'powder-bleach-sp040', 'scouring-powder', 'regular-bleach', 'urinal-screen', 'urinal-mat'],
+      recommend: ['laundry-powder-sp021', 'powder-bleach-sp040', 'scouring-powder', 'regular-bleach', 'blue-drop-wc', 'urinal-mat'],
       img: 'images/photos/industry-schools.jpg',
       imgHint: 'Tidy school dormitory or dining hall',
       clients: []
@@ -385,8 +385,12 @@
       purpose:'Guest body lotion — available branded for your hotel.' },
     { id:'tissue-paper', system:'toiletries', name:'Tissue Paper', code:null, image:null, pack:'On request',
       purpose:'Washroom and guest tissue supplies.' },
-    { id:'urinal-mat', system:'toiletries', name:'Urinal Mat', code:null,
-      image:IMG+'urinal-mat-ocean.jpeg', pack:'Single mat', form:'Anti-splash mat',
+    // "Urinal Screen" is what the pack prints; "urinal mat" is what half the
+    // trade calls it, so both words stay in the purpose line for the catalogue
+    // search. The id stays `urinal-mat` because product.js derives every scent
+    // image path from it — renaming it would orphan 28 files.
+    { id:'urinal-mat', system:'toiletries', name:'Urinal Screen', code:null,
+      image:IMG+'urinal-mat-ocean.jpeg', pack:'Single screen', form:'Anti-splash screen',
       // Deliberately no `vessel`: a flat disc cannot stand on the hero conveyor,
       // which is built for drums, buckets and bottles. The cut-out is here for
       // the scent picker and the industry strips.
@@ -400,7 +404,7 @@
         { id:'orange',      name:'Orange',      hex:'#FE8249' },
         { id:'strawberry',  name:'Strawberry',  hex:'#F57782' }
       ],
-      purpose:'Anti-splash urinal mat that holds fragrance and keeps the drain clear. Drops straight in — no fixings, no tools — and comes in seven scents so a property can colour-code by floor or by block.',
+      purpose:'Anti-splash urinal screen — the urinal mat — that holds fragrance and keeps the drain clear. Drops straight in: open the packet, place it in the urinal, no fixings and no tools. Seven scents, so a property can colour-code by floor or by block.',
       features:['Seven scents', 'Anti-splash', 'Keeps the drain clear', 'Tool-free fitting'] },
 
     { id:'palm-fresh-handwash', system:'toiletries', name:'Palm Fresh Handwash', code:null,
@@ -413,10 +417,6 @@
       purpose:'Alcohol hand sanitiser that kills 99.9% of germs and keeps moisturising for up to eight hours. Pump bottles for front of house, jerricans for refilling dispensers.',
       features:['Kills 99.9% of germs', 'Moisturises up to 8 hrs', 'Pump & refill packs'] },
 
-    { id:'urinal-screen', system:'toiletries', name:'Urinal Screen', code:null,
-      image:IMG+'urinal-screen.jpeg', pack:'On request',
-      purpose:'Anti-splash urinal screen that holds fragrance and keeps the drain clear. Drops straight in — no fixings, no tools.',
-      features:['Anti-splash', 'Continuous fragrance', 'Tool-free fitting'] }
   ];
 
   window.VISTEX = {
