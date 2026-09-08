@@ -18,7 +18,7 @@
   var company = {
     name: 'Vistex Chemicals Ltd',
     shortName: 'Vistex',
-    tagline: 'The hygiene & cleaning systems partner for East African hotels',
+    tagline: 'The hygiene & cleaning partner for East African hotels',
     slogan: 'Quality · Hygiene · Innovative',
     founded: 2019,
     // Brand architecture: Vistex Chemicals Ltd is the manufacturer (the parent),
@@ -37,15 +37,15 @@
     addressCountry: 'KE',
     hours: 'Mon–Fri 8:00–17:30 · Sat 8:00–13:00',
     mission: 'To provide high-quality, affordable and effective hygiene solutions that help our clients operate cleaner, safer and more efficiently.',
-    vision: 'To be the most trusted hygiene systems partner for hotels and institutions in East Africa.',
-    intro: 'Vistex Chemicals Ltd is a Kenyan-owned professional hygiene and cleaning solutions company founded in 2019. We serve hotels, resorts, hospitals, institutions, laundries, food processors and commercial facilities across East Africa. We don’t just sell detergents — we design complete hygiene systems that reduce cost, improve cleanliness, protect guest safety and increase linen life.',
+    vision: 'To be the most trusted hygiene partner for hotels and institutions in East Africa.',
+    intro: 'Vistex Chemicals Ltd is a Kenyan-owned professional hygiene and cleaning solutions company founded in 2019. We serve hotels, resorts, hospitals, institutions, laundries, food processors and commercial facilities across East Africa. We don’t just sell detergents — we design complete hygiene programmes that reduce cost, improve cleanliness, protect guest safety and increase linen life.',
     safetyNote: 'Professional-strength product for trained staff. Store sealed and out of reach of children, wear gloves and eye protection when handling, and never mix with other chemicals. A full Safety Data Sheet and dosing guide is supplied with every order.'
   };
 
   // Pre-built enquiry openers, so links stay consistent site-wide.
   var waText = {
     assessment: 'Hello Vistex — I would like a free hygiene assessment for my property.',
-    advice: 'Hello Vistex — I would like advice on the right hygiene system for my facility.',
+    advice: 'Hello Vistex — I would like advice on the right hygiene programme for my facility.',
     quote: 'Hello Vistex — I would like a quote.'
   };
 
@@ -66,7 +66,7 @@
 
   var problemSolutions = [
     { problem: 'Laundry costs keep climbing',        solution: 'Low-dose, high-performance detergents' },
-    { problem: 'Linen looks yellowed and dull',      solution: 'Brightening, chlorine-safe systems' },
+    { problem: 'Linen looks yellowed and dull',      solution: 'Brightening, chlorine-safe chemistry' },
     { problem: 'Stains survive the wash',            solution: 'Enzyme & booster technology' },
     { problem: 'Kitchen hygiene keeps failing audit',solution: 'Food-grade cleaning & sanitation' },
     { problem: 'Housekeeping results are inconsistent', solution: 'Professional chemicals plus staff training' },
@@ -79,7 +79,7 @@
     { icon: 'trend-down',  title: 'Cost-saving programs',        text: 'Low-dose, high-performance chemistry that brings down your cost per kilo of linen, not just your price per drum.' },
     { icon: 'shield',      title: 'Batch-to-batch consistency',  text: 'Quality-managed production, so the drum you get in December performs like the one you got in June.' },
     { icon: 'sliders',     title: 'Built around your property',  text: 'Your water, your machines, your linen, your volumes. Programs are specified, not pulled off a shelf.' },
-    { icon: 'users',       title: 'A partner, not a supplier',   text: 'Products plus systems plus training plus ongoing performance checks — we stay after the delivery note is signed.' }
+    { icon: 'users',       title: 'A partner, not a supplier',   text: 'Products plus programmes plus training plus ongoing performance checks — we stay after the delivery note is signed.' }
   ];
 
   // Currently unrendered — the metrics band was removed from the home page and
@@ -87,7 +87,7 @@
   // rather than typed so it cannot go stale again if it does.
   var stats = [
     { n: 2019, suffix: '',  label: 'Founded in Kenya', raw: '2019' },
-    { n: 5,    suffix: '',  label: 'Complete systems' },
+    { n: 5,    suffix: '',  label: 'Complete ranges' },
     { n: 0,    suffix: '+', label: 'Professional products', derive: 'products' },
     { n: 20,   suffix: '+', label: 'Hotels & hospitals served' }
   ];
@@ -118,7 +118,7 @@
     {
       key: 'hospitals', icon: 'hospital', name: 'Hospitals & Clinics',
       headline: 'Infection control you can rely on',
-      blurb: 'In healthcare, hygiene is not a preference. We supply disinfection and infection-control systems for linen, surfaces and kitchens that meet the higher standard clinical environments demand.',
+      blurb: 'In healthcare, hygiene is not a preference. We supply disinfection and infection-control programmes for linen, surfaces and kitchens that meet the higher standard clinical environments demand.',
       points: [
         'Disinfecting, chlorine-safe linen hygiene',
         'Hospital-grade surface disinfection',
@@ -150,7 +150,7 @@
     {
       key: 'laundries', icon: 'washer', name: 'Commercial Laundries',
       headline: 'Performance that protects the fabric',
-      blurb: 'Commercial and industrial laundries need chemistry that holds up at volume. Our low-dose, high-performance systems brighten results, cut re-wash and extend linen life — which is where the real saving lives.',
+      blurb: 'Commercial and industrial laundries need chemistry that holds up at volume. Our low-dose, high-performance chemistry brightens results, cut re-wash and extend linen life — which is where the real saving lives.',
       points: [
         'Low-dose, high-performance detergents',
         'Brightening, chlorine-safe whitening',
@@ -183,7 +183,7 @@
 
   var systems = [
     {
-      key: 'laundry', icon: 'washer', name: 'Laundry Hygiene System', short: 'Laundry',
+      key: 'laundry', icon: 'washer', name: 'Laundry Hygiene', short: 'Laundry',
       tagline: 'For hotels, lodges, hospitals and commercial laundries.',
       description: 'Complete laundry chemistry for whiter, brighter linen with less re-wash, longer linen life, a lower cost per kilo and faster turnaround.',
       benefits: ['Whiter, brighter linen', 'Less re-wash', 'Longer linen life', 'Lower cost per kg', 'Faster turnaround'],

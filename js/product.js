@@ -32,7 +32,17 @@
     var el = document.head.querySelector(sel);
     if (el) el.setAttribute(attr, val);
   }
-  meta('meta[name="description"]', 'content', p.purpose);
+  // A purpose line is written for the page; a meta description has to survive
+  // Google's ~160 character truncation. Trim on a word boundary rather than
+  // letting the snippet end mid-word.
+  function clip(t, n) {
+    if (t.length <= n) return t;
+    var cut = t.slice(0, n);
+    var sp = cut.lastIndexOf(' ');
+    return (sp > n * 0.6 ? cut.slice(0, sp) : cut).replace(/[\s,;:.—-]+$/, '') + '…';
+  }
+  var metaDesc = clip(fullName + ' — ' + p.purpose, 155);
+  meta('meta[name="description"]', 'content', metaDesc);
   meta('meta[property="og:title"]', 'content', fullName + ' — Vistex Chemicals');
   meta('meta[property="og:description"]', 'content', p.purpose);
   var self = co.origin + '/product.html?id=' + encodeURIComponent(p.id);
@@ -41,10 +51,15 @@
   // the bare product.html, contradicting the canonical they sit beside.
   document.head.querySelectorAll('link[rel="alternate"][hreflang]')
     .forEach(function (l) { l.setAttribute('href', self); });
-  if (p.image) {
-    meta('meta[property="og:image"]', 'content', co.origin + '/' + p.image);
-    meta('meta[name="twitter:image"]', 'content', co.origin + '/' + p.image);
-  }
+  // The share card stays the branded 1200x630 one from the HTML. Swapping in
+  // the product photo would have been more specific but wrong-shaped: those
+  // packshots are square, and a summary_large_image card centre-crops to
+  // 1.91:1, which slices the product name off the bottom of the banner. It
+  // would also have contradicted the og:image:width/height declared in the
+  // markup. Only the alt text is made specific.
+  var shareAlt = fullName + ' — a Swift product manufactured by ' + co.name + ' in Nairobi';
+  meta('meta[property="og:image:alt"]', 'content', shareAlt);
+  meta('meta[name="twitter:image:alt"]', 'content', shareAlt);
 
   var ld = document.createElement('script');
   ld.type = 'application/ld+json';
@@ -94,7 +109,7 @@
         '<span class="drop">' + icon('bottle', 52) + '</span>' +
         '<span class="nm" style="font-size:var(--step-1)">' + esc(p.name) + '</span>' +
         '<span class="swift-badge swift-badge--md sb-badge">' +
-          window.vxPicture(co.productBrandLogo, co.productBrand, { w: 720, h: 361 }) +
+          window.vxPicture(co.productBrandLogo, co.productBrand, { w: 760, h: 425 }) +
         '</span>' +
       '</div>';
 
@@ -104,7 +119,7 @@
     ['Form', p.form, 'beaker'],
     ['Dilution', p.dilution, 'scale'],
     ['Temperature', p.temp, 'thermometer'],
-    ['System', s.name, s.icon],
+    ['Range', s.name, s.icon],
     ['Brand', null, 'sparkle']       // rendered as the badge below, not text
   ].filter(function (r) { return r[1]; });
 
@@ -116,7 +131,7 @@
     // Brand is the one row that is a mark rather than a value
     '<div class="spec-row"><dt>Brand</dt><dd>' +
       '<span class="swift-badge swift-badge--md">' +
-        window.vxPicture(co.productBrandLogo, co.productBrand + ' — ' + co.productBrandTagline, { w: 720, h: 361 }) +
+        window.vxPicture(co.productBrandLogo, co.productBrand + ' — ' + co.productBrandTagline, { w: 760, h: 425 }) +
       '</span>' +
       '<span class="spec-brand-note">Made by ' + esc(co.name) + '</span>' +
     '</dd></div>' +
@@ -170,7 +185,7 @@
   // ---------- Render ----------
   root.innerHTML =
     '<nav class="crumbs" aria-label="Breadcrumb">' +
-      '<a href="systems.html">Systems</a><span class="sep">/</span>' +
+      '<a href="systems.html">Our Range</a><span class="sep">/</span>' +
       '<a href="systems.html?system=' + s.key + '">' + esc(s.short) + '</a><span class="sep">/</span>' +
       '<span style="color:var(--text-2)">' + esc(p.name) + '</span>' +
     '</nav>' +
@@ -298,7 +313,7 @@
     rel.style.marginTop = 'var(--s-11)';
     rel.innerHTML =
       '<div class="sec-head" style="margin-bottom:var(--s-6)">' +
-        '<span class="eyebrow">Same system</span>' +
+        '<span class="eyebrow">Same range</span>' +
         '<h2 class="h-sub">More from ' + esc(s.short) + '</h2>' +
       '</div>' +
       '<div class="grid grid-4 reveal-parent">' + related.map(window.productCardHtml).join('') + '</div>';

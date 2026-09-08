@@ -19,10 +19,10 @@
   // ---------- Page heading reflects the active system ----------
   function paintHead() {
     var s = state.system ? V.getSystem(state.system) : null;
-    $('catTitle').textContent = s ? s.name : 'Complete hygiene systems';
+    $('catTitle').textContent = s ? s.name : 'Our complete hygiene range';
     $('catLede').textContent = s ? s.tagline
       : 'Our full range across laundry, housekeeping, kitchen, pool and guest care. Add what you need to your enquiry and we’ll send a quote.';
-    document.title = (s ? s.name : 'Our Hygiene Systems') + ' — Vistex Chemicals Ltd';
+    document.title = (s ? s.name : 'Our Hygiene Range') + ' — Vistex Chemicals Ltd';
   }
 
   // ---------- Filter chips ----------

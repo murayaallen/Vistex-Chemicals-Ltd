@@ -130,6 +130,10 @@
 
 /* ============ 7. BACKGROUND SYSTEM — DRIFTING BUBBLES ============ */
 .bubbles { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 1; }
+/* No scroll coupling: the field is simply alive on its own. Bubbles rise, sway
+   and occasionally burst whether or not anyone is touching the page, which is
+   what an ambient background should do — reacting to scroll made the motion
+   feel like a control rather than an atmosphere. */
 
 /* Light theme: white bubbles on a light hero are invisible, so they are tinted
    with the brand aqua and given a real rim. Dark theme keeps them white. */
@@ -146,7 +150,11 @@
     inset -2px -3px 6px color-mix(in srgb, var(--blue-500) 16%, transparent),
     inset 3px 3px 8px rgba(255,255,255,.6),
     0 2px 10px color-mix(in srgb, var(--aqua-500) 14%, transparent);
-  animation: bubble-rise linear infinite;
+  /* Two animations on two different properties. `transform` carries the rise,
+     `translate` carries the sway, and because their periods are deliberately
+     unrelated the path never visibly repeats — which is what reads as drifting
+     rather than marching. */
+  animation: bubble-rise linear infinite, bubble-sway ease-in-out infinite alternate;
 }
 /* Dark mode: the inset dark shadow turned these into grey marbles. They now
    read as lit bubbles — aqua rim, soft glow, no dark core. */
@@ -167,12 +175,65 @@
   border-color: rgba(255,255,255,.3);
   box-shadow: inset -2px -3px 6px rgba(0,0,0,.15), inset 3px 3px 8px rgba(255,255,255,.35);
 }
+/* --travel is set per field by motion.js from the container's own height, so a
+   bubble crosses its section exactly once whether that section is 300px or a
+   full viewport. The old fixed -118vh shot straight out of short sections. */
 @keyframes bubble-rise {
-  0%   { transform: translateY(0) translateX(0) scale(.6); opacity: 0; }
+  0%   { transform: translateY(0) scale(.6); opacity: 0; }
   12%  { opacity: .75; }
   85%  { opacity: .5; }
-  100% { transform: translateY(-118vh) translateX(28px) scale(1.05); opacity: 0; }
+  100% { transform: translateY(calc(var(--travel, 118vh) * -1)) scale(1.05); opacity: 0; }
 }
+@keyframes bubble-sway {
+  from { translate: calc(var(--sway, 18px) * -1) 0; }
+  to   { translate: var(--sway, 18px) 0; }
+}
+
+/* ---- Pop ---------------------------------------------------------------
+   A bubble that reaches the surface bursts. Two parts: the skin snaps
+   outward and vanishes, and a thin ring expands past where the skin was.
+   Both run on `scale` — the third independent transform property — so the
+   rise and the sway keep running underneath and the bubble pops WHERE IT
+   IS rather than jumping to a corner first. */
+.bubble.pop {
+  animation-play-state: paused;          /* freeze the drift at the moment of burst */
+  scale: 1;
+}
+.bubble.pop::after {
+  content: ""; position: absolute; inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid color-mix(in srgb, var(--aqua-400) 70%, transparent);
+  animation: bubble-ring .42s cubic-bezier(.2, .8, .3, 1) forwards;
+}
+[data-theme="dark"] .bubble.pop::after {
+  border-color: color-mix(in srgb, var(--aqua-300) 66%, transparent);
+}
+.bubble.pop {
+  animation-name: bubble-rise, bubble-sway, bubble-burst;
+  animation-duration: var(--rise-d), var(--sway-d), .34s;
+  animation-timing-function: linear, ease-in-out, cubic-bezier(.3, .7, .4, 1);
+  animation-iteration-count: infinite, infinite, 1;
+  animation-fill-mode: none, none, forwards;
+  animation-play-state: paused, paused, running;
+}
+@keyframes bubble-burst {
+  0%   { scale: 1;    opacity: 1; }
+  45%  { scale: 1.35; opacity: .55; }
+  100% { scale: 1.7;  opacity: 0; }
+}
+@keyframes bubble-ring {
+  0%   { transform: scale(.9);  opacity: .85; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+
+/* Ambient fields: the same bubbles behind ordinary content sections, dialled
+   back so they read as texture rather than as the subject. */
+/* Measured on a screenshot first: at .5/.42 the field was so faint it read as
+   dust on the monitor, which defeats the point of putting it there. These
+   levels are visible as water without competing with the copy in front. */
+.bubbles--ambient .bubble { opacity: .78; }
+[data-theme="dark"] .bubbles--ambient .bubble { opacity: .62; }
+.bubbles--ambient { z-index: 0; }
 
 /* ============ 8. MARQUEE (velocity-reactive) ============
    Inverted band: deep brand ink with light type, so the product ticker reads as

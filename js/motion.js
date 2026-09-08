@@ -409,10 +409,22 @@
           if (p && p.catch) p.catch(function () {});
           if (band) band.classList.add('video-live');
         }, { once: true });
+        // A stalled or failed fetch must not leave a dead grey band: the poster
+        // is already painted underneath, so simply stop trying and let it show.
+        v.addEventListener('error', function () { v.removeAttribute('src'); }, { once: true });
       });
     }, { rootMargin: '1200px 0px' });
 
-    vids.forEach(function (v) { io.observe(v); });
+    // The band used to sit far down the page, where it had buffered long before
+    // anyone reached it. Now that it is directly below the hero it falls inside
+    // the observer's 1200px margin immediately — which would put a 950KB fetch
+    // in direct competition with the hero photograph and the product cut-outs.
+    // Holding observation until the window has loaded keeps the video out of
+    // that contention entirely; the poster covers the gap, so the band is never
+    // empty, it simply becomes live a moment later.
+    function observeAll() { vids.forEach(function (v) { io.observe(v); }); }
+    if (document.readyState === 'complete') observeAll();
+    else window.addEventListener('load', observeAll, { once: true });
 
     // Pause when off screen or the tab is hidden — no point decoding frames
     // nobody is looking at.
@@ -465,6 +477,7 @@
   // ==========================================================
   // 9. DECOR — aurora layers + drifting bubbles
   // ==========================================================
+  var dressAgain = function () {};        // set by initDecor, used by initPop
   function initDecor() {
     if (reduce) return;
 
@@ -472,23 +485,120 @@
       host.innerHTML = '<span class="a1"></span><span class="a2"></span><span class="a3"></span>';
     });
 
+    // Sections that asked for a field but have no markup for one get it here,
+    // so adding ambience to a section is a single attribute in the HTML.
+    document.querySelectorAll('[data-decor~="bubbles"]').forEach(function (host) {
+      if (host.querySelector(':scope > .bubbles')) return;
+      var box = document.createElement('div');
+      box.className = 'bubbles bubbles--ambient';
+      box.setAttribute('aria-hidden', 'true');
+      box.dataset.count = host.dataset.bubbles || '8';
+      if (getComputedStyle(host).position === 'static') host.style.position = 'relative';
+      host.insertBefore(box, host.firstChild);
+    });
+
+    // Size is drawn from a cubed random rather than a flat one: cubing pushes
+    // most draws small and leaves the occasional big one, which is how a real
+    // bubble field looks. A flat distribution gives a crowd of identical
+    // mid-size discs.
+    function dress(b) {
+      var t = Math.random();
+      var size = 4 + Math.pow(t, 3) * 62;               // 4px .. 66px, small-heavy
+      b.style.width = size.toFixed(1) + 'px';
+      b.style.height = size.toFixed(1) + 'px';
+      b.style.left = (Math.random() * 100).toFixed(2) + '%';
+      // Big bubbles rise faster and sway less, the way buoyancy actually works.
+      var rise = (16 - size / 7 + Math.random() * 8).toFixed(1) + 's';
+      var sway = (2.6 + Math.random() * 3.4).toFixed(1) + 's';
+      b.style.setProperty('--rise-d', rise);
+      b.style.setProperty('--sway-d', sway);
+      // Unrelated periods on purpose — a shared or harmonic period makes a
+      // column of bubbles bob in unison.
+      b.style.animationDuration = rise + ', ' + sway;
+      b.style.animationDelay =
+        (-Math.random() * 14).toFixed(1) + 's, ' +
+        (-Math.random() * 6).toFixed(1) + 's';
+      b.style.setProperty('--sway', (6 + Math.random() * 30 * (1 - size / 90)).toFixed(0) + 'px');
+      return b;
+    }
+    function makeBubble() {
+      var b = document.createElement('span');
+      b.className = 'bubble';
+      return dress(b);
+    }
+    dressAgain = dress;                    // the popper re-dresses what it bursts
+
+    var fields = [];
     document.querySelectorAll('.bubbles:empty').forEach(function (box) {
       var n = parseInt(box.dataset.count || '12', 10);
       var frag = document.createDocumentFragment();
-      for (var i = 0; i < n; i++) {
-        var b = document.createElement('span');
-        b.className = 'bubble';
-        var size = 6 + Math.random() * 30;
-        b.style.width = size + 'px';
-        b.style.height = size + 'px';
-        b.style.left = (Math.random() * 100).toFixed(2) + '%';
-        b.style.animationDuration = (9 + Math.random() * 12).toFixed(1) + 's';
-        b.style.animationDelay = (-Math.random() * 14).toFixed(1) + 's';
-        frag.appendChild(b);
-      }
+      for (var i = 0; i < n; i++) frag.appendChild(makeBubble());
       box.appendChild(frag);
+      fields.push(box);
     });
+
+    // A bubble must cross its own section, not a fixed slice of the viewport.
+    function measure() {
+      fields.forEach(function (box) {
+        box.style.setProperty('--travel', (box.offsetHeight + 140) + 'px');
+      });
+    }
+    measure();
+    var rt;
+    window.addEventListener('resize', function () {
+      clearTimeout(rt); rt = setTimeout(measure, 250);
+    }, { passive: true });
+
+    initPop(fields);
   }
+
+  // ==========================================================
+  // 9a. POP — the occasional bubble reaches the surface and bursts
+  //
+  // Only fields actually on screen are eligible: popping a bubble nobody can
+  // see spends a frame for nothing, and on a long page most fields are off
+  // screen most of the time. After the burst the bubble is re-dressed with a
+  // fresh size, lane and speed and sent back to the bottom, so a field never
+  // depletes and never repeats its arrangement.
+  // ==========================================================
+  function initPop(fields) {
+    if (!fields.length || reduce) return;
+
+    var onScreen = [];
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        var i = onScreen.indexOf(e.target);
+        if (e.isIntersecting && i < 0) onScreen.push(e.target);
+        else if (!e.isIntersecting && i >= 0) onScreen.splice(i, 1);
+      });
+    }, { rootMargin: '10% 0px' });
+    fields.forEach(function (f) { io.observe(f); });
+
+    function pop() {
+      if (!document.hidden && onScreen.length) {
+        var box = onScreen[(Math.random() * onScreen.length) | 0];
+        var all = box.querySelectorAll('.bubble:not(.pop)');
+        if (all.length) {
+          var b = all[(Math.random() * all.length) | 0];
+          b.classList.add('pop');
+          setTimeout(function () {
+            b.classList.remove('pop');
+            // re-dress, then restart the rise from the bottom. Reading
+            // offsetWidth between the two forces the restart; without it the
+            // browser coalesces the change and the animation simply continues.
+            b.style.animation = 'none';
+            void b.offsetWidth;
+            b.style.animation = '';
+            dressAgain(b);
+          }, 460);
+        }
+      }
+      // irregular spacing, so it never reads as a metronome
+      setTimeout(pop, 900 + Math.random() * 2600);
+    }
+    setTimeout(pop, 1200 + Math.random() * 2000);
+  }
+
 
   // ==========================================================
   // BOOT

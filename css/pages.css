@@ -149,16 +149,28 @@
 }
 .hero-swift img {
   width: 100%; height: auto; display: block;
-  filter: drop-shadow(0 10px 18px rgba(12, 20, 48, .28));
+  /* NO drop-shadow, deliberately. On this element the filter painted a visible
+     grey rectangle the size of the image box — the badge appeared to sit on a
+     plate. Proven by A/B with every animation frozen: `filter: none` removes
+     the rectangle and nothing else changes. The element is promoted (opacity +
+     a running animation) inside a `container-type: inline-size` ancestor, and
+     the filter region ends up rendered from the layer bounds rather than the
+     alpha. The badge carries its own metallic rim and internal shading, so it
+     reads as dimensional without one. */
   animation: swift-float 7.5s var(--ease-in-out) infinite;
 }
-@keyframes swift-in { to { opacity: 1; } }
+/* The artwork is fully saturated brand blue against an already-blue hero, which
+   is what made the badge shout. Backing it off lets the photograph read through
+   the mark instead of the mark punching a hole in the photograph. */
+.hero-swift { opacity: 0; }
+@keyframes swift-in { to { opacity: .84; } }
+
 @keyframes swift-float {
   0%, 100% { transform: translate3d(0, 0, 0) rotate(-1.5deg); }
   50%      { transform: translate3d(0, -9px, 0) rotate(1.5deg); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .hero-swift { opacity: 1; animation: none; }
+  .hero-swift { opacity: .84; animation: none; }
   .hero-swift img { animation: none; }
 }
 /* Stacked hero: the stage is centred and the belt sits lower, so the mark

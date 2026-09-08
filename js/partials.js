@@ -55,7 +55,7 @@
   // ---------------------------------------------------------
   var NAV = [
     ['index.html',      'home',       'Home'],
-    ['systems.html',    'systems',    'Our Systems'],
+    ['systems.html',    'systems',    'Our Range'],
     ['industries.html', 'industries', 'Industries'],
     ['about.html',      'about',      'About'],
     ['contact.html',    'contact',    'Contact']
@@ -105,19 +105,19 @@
             '<div class="brand-lockup__label">Our product brand</div>' +
             '<div class="footer-swift" style="margin-top:10px">' +
               '<span class="swift-badge">' +
-                window.vxPicture(co.productBrandLogo, co.productBrand + ' — ' + co.productBrandTagline, { w: 720, h: 361 }) +
+                window.vxPicture(co.productBrandLogo, co.productBrand + ' — ' + co.productBrandTagline, { w: 760, h: 425 }) +
               '</span>' +
               '<p>Every drum, bucket and jerrican we manufacture carries it.</p>' +
             '</div>' +
           '</div>' +
         '</div>' +
         '<div><h4>Explore</h4><ul>' +
-          '<li><a href="systems.html">Our Systems</a></li>' +
+          '<li><a href="systems.html">Our Range</a></li>' +
           '<li><a href="industries.html">Industries</a></li>' +
           '<li><a href="about.html">About</a></li>' +
           '<li><a href="contact.html">Contact</a></li>' +
         '</ul></div>' +
-        '<div><h4>Systems</h4><ul>' +
+        '<div><h4>Our Range</h4><ul>' +
           V.systems.map(function (s) {
             return '<li><a href="systems.html?system=' + s.key + '">' + esc(s.short) + '</a></li>';
           }).join('') +
@@ -322,7 +322,7 @@
           '<span class="drop">' + icon('bottle', 30) + '</span>' +
           '<span class="nm">' + esc(p.name) + '</span>' +
           '<span class="swift-badge swift-badge--sm sb-badge">' +
-            window.vxPicture(co.productBrandLogo, co.productBrand, { w: 720, h: 361 }) +
+            window.vxPicture(co.productBrandLogo, co.productBrand, { w: 760, h: 425 }) +
           '</span>' +
         '</div></div>';
 

@@ -81,7 +81,7 @@
           '<h2 class="h-section">' + esc(ind.headline) + '</h2>' +
           '<p class="lede">' + esc(ind.blurb) + '</p>' +
           '<ul class="feature-list">' + points + '</ul>' +
-          '<div class="row"><span class="label" style="margin-right:4px">Systems</span>' + sysChips + '</div>' +
+          '<div class="row"><span class="label" style="margin-right:4px">Ranges</span>' + sysChips + '</div>' +
           clients +
         '</div>' +
       '</div>' +
@@ -125,7 +125,7 @@
 
   // ---------- CTA links ----------
   $('indWa').href = V.wa(V.waText.advice);
-  $('indMail').href = V.mailto('Hygiene system advice', V.waText.advice);
+  $('indMail').href = V.mailto('Hygiene programme advice', V.waText.advice);
 
   if (window.VistexMotion) window.VistexMotion.refresh(document);
 })();
