@@ -4,7 +4,8 @@
 //
 // Product fields: id, system, name, code, image, pack, purpose
 //   optional →  form, dilution, temp, packs, features, applications, fabrics,
-//               cutout + vessel (hero conveyor), scents (colourway picker)
+//               cutout + vessel (hero conveyor), scents (colourway picker),
+//               docs: [{ label, file, kind }] — SDS / dosing guide downloads
 // Optional fields are only rendered when present, so the catalogue
 // can be filled in progressively without touching a template.
 //
@@ -81,10 +82,13 @@
     { icon: 'users',       title: 'A partner, not a supplier',   text: 'Products plus systems plus training plus ongoing performance checks — we stay after the delivery note is signed.' }
   ];
 
+  // Currently unrendered — the metrics band was removed from the home page and
+  // from mobile. Kept because the band may return; the product count is derived
+  // rather than typed so it cannot go stale again if it does.
   var stats = [
     { n: 2019, suffix: '',  label: 'Founded in Kenya', raw: '2019' },
     { n: 5,    suffix: '',  label: 'Complete systems' },
-    { n: 40,   suffix: '+', label: 'Professional products' },
+    { n: 0,    suffix: '+', label: 'Professional products', derive: 'products' },
     { n: 20,   suffix: '+', label: 'Hotels & hospitals served' }
   ];
 
@@ -418,6 +422,13 @@
       features:['Kills 99.9% of germs', 'Moisturises up to 8 hrs', 'Pump & refill packs'] },
 
   ];
+
+  // Resolve any derived stat against the live data, so a rendered figure can
+  // never contradict the catalogue it is counting.
+  stats.forEach(function (s) {
+    if (s.derive === 'products') s.n = products.length;
+    if (s.derive === 'systems')  s.n = systems.length;
+  });
 
   window.VISTEX = {
     company: company,

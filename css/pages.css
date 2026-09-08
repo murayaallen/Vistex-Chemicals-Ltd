@@ -1274,3 +1274,56 @@ a .contact-row:hover { border-color: var(--border-lit); transform: translateX(4p
   width: 6px; height: 6px; border-radius: 50%;
   background: color-mix(in srgb, var(--accent) 70%, transparent);
 }
+
+/* ---- Document downloads (product detail) --------------------------------
+   Renders only for products declaring `docs`. Files are plain static assets
+   under docs/, so no build step is involved. */
+.pd-docs { display: grid; gap: var(--s-3); }
+.pd-docs-row { display: flex; flex-wrap: wrap; gap: 10px; }
+.doc-chip {
+  display: inline-flex; align-items: center; gap: 9px;
+  min-height: 40px; padding: 8px 14px;
+  border: 1px solid var(--border); border-radius: var(--r-full);
+  background: var(--surface-2); color: var(--text-2);
+  font-size: var(--step--1); font-weight: 500;
+  transition: border-color var(--t-fast), background var(--t-fast), color var(--t-fast);
+}
+.doc-chip svg { width: 15px; height: 15px; flex: none; color: var(--accent); }
+.doc-chip:hover { border-color: var(--accent); background: var(--surface-3); color: var(--text); }
+.doc-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.doc-kind {
+  font-family: var(--font-mono); font-size: var(--step--2);
+  letter-spacing: var(--tr-mono); text-transform: uppercase; color: var(--text-3);
+}
+
+/* ============================================================
+   PRINT — procurement teams print product pages
+   Strip the chrome, keep the specification.
+   ============================================================ */
+@media print {
+  .site-header, .site-footer, .cart-drawer, .cart-fab, #vx-loader,
+  .scroll-cue-wrap, .aurora, .bubbles, .marquee, .pstage-dots,
+  .pd-buy, .doc-chip, .rec-rail, .cta-band, .skip-to-content { display: none !important; }
+
+  /* Backgrounds and shadows cost ink and hide text on paper. */
+  *, *::before, *::after {
+    background: transparent !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    color: #000 !important;
+    filter: none !important;
+    animation: none !important;
+    transition: none !important;
+  }
+  body { font-size: 11pt; }
+  .card, .glass, .pd-media { border: 1px solid #999 !important; }
+  .pd-grid, .uses { grid-template-columns: 1fr 1fr !important; }
+  /* reveal-on-scroll must not leave the page blank on paper */
+  [data-anim] { opacity: 1 !important; transform: none !important; }
+  .pd-media { max-height: 90mm; }
+  .pd-media img { max-height: 90mm; object-fit: contain; }
+  /* the URL is the only way back to the page from a printout */
+  .crumbs a[href]::after { content: ""; }
+  .pd-safety { border: 1px solid #999 !important; padding: 8pt !important; }
+  section, .card { break-inside: avoid; }
+}

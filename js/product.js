@@ -35,7 +35,12 @@
   meta('meta[name="description"]', 'content', p.purpose);
   meta('meta[property="og:title"]', 'content', fullName + ' — Vistex Chemicals');
   meta('meta[property="og:description"]', 'content', p.purpose);
-  meta('link[rel="canonical"]', 'href', co.origin + '/product.html?id=' + encodeURIComponent(p.id));
+  var self = co.origin + '/product.html?id=' + encodeURIComponent(p.id);
+  meta('link[rel="canonical"]', 'href', self);
+  // The hreflang alternates are static in the HTML and would otherwise point at
+  // the bare product.html, contradicting the canonical they sit beside.
+  document.head.querySelectorAll('link[rel="alternate"][hreflang]')
+    .forEach(function (l) { l.setAttribute('href', self); });
   if (p.image) {
     meta('meta[property="og:image"]', 'content', co.origin + '/' + p.image);
     meta('meta[name="twitter:image"]', 'content', co.origin + '/' + p.image);
@@ -53,15 +58,12 @@
     brand: { '@type': 'Brand', name: co.productBrand },
     manufacturer: { '@type': 'Organization', name: co.name, url: co.origin + '/' },
     image: p.image ? co.origin + '/' + p.image : co.origin + '/images/logo/vistex-logo-color-on-white.png',
-    offers: {
-      '@type': 'Offer',
-      availability: 'https://schema.org/InStock',
-      priceCurrency: 'KES',
-      price: '0',
-      priceValidUntil: new Date(new Date().getFullYear() + 1, 0, 1).toISOString().slice(0, 10),
-      url: co.origin + '/product.html?id=' + encodeURIComponent(p.id),
-      seller: { '@type': 'Organization', name: co.name }
-    }
+    url: co.origin + '/product.html?id=' + encodeURIComponent(p.id)
+    // No `offers`. Pricing is quoted per property, and Schema.org Offer requires
+    // a price — the previous `price: '0'` advertised every product as free, which
+    // Search Console flags and which could surface a "KSh 0" price in results.
+    // Omitting the block keeps a valid Product (brand, image, description, sku)
+    // and simply forgoes the price rich result, which there is no price for.
   });
   document.head.appendChild(ld);
 
@@ -126,6 +128,25 @@
       }).join('') + '</div>'
     : '';
 
+  // ---------- Documents ----------
+  // Generic and additive: a product declaring `docs: [{label, file, kind}]`
+  // gets a download row. Files live in docs/ and are plain static assets, so
+  // this needs no build step — the row simply does not render until one exists.
+  // Procurement for hospitals and food plants often gates on an SDS being
+  // available, so this is the slot it goes in.
+  var docs = (p.docs && p.docs.length)
+    ? '<div class="pd-docs">' +
+        '<span class="label">Documents</span>' +
+        '<div class="pd-docs-row">' + p.docs.map(function (d) {
+          return '<a class="doc-chip" href="' + esc(d.file) + '" download>' +
+            icon('download', 15) +
+            '<span class="doc-name">' + esc(d.label) + '</span>' +
+            '<span class="doc-kind">' + esc(d.kind || 'PDF') + '</span>' +
+          '</a>';
+        }).join('') + '</div>' +
+      '</div>'
+    : '';
+
   // ---------- Where it is used ----------
   // Generic: any product declaring `applications` (environments) or `fabrics`
   // (what it may be used on) gets this block. Only SP-021 carries them today,
@@ -182,10 +203,31 @@
 
         '<p class="pd-note">Pricing is quoted per property. Add what you need and our team will come back with a costed programme — usually the same working day.</p>' +
 
+        docs +
+
         '<div class="pd-safety">' + icon('alert', 18) +
           '<span><strong>Handling:</strong> ' + esc(co.safetyNote) + '</span></div>' +
       '</div>' +
     '</div>';
+
+  // ---------- Documents ----------
+  // Generic and additive: a product declaring `docs: [{label, file, kind}]`
+  // gets a download row. Files live in docs/ and are plain static assets, so
+  // this needs no build step — the row simply does not render until one exists.
+  // Procurement for hospitals and food plants often gates on an SDS being
+  // available, so this is the slot it goes in.
+  var docs = (p.docs && p.docs.length)
+    ? '<div class="pd-docs">' +
+        '<span class="label">Documents</span>' +
+        '<div class="pd-docs-row">' + p.docs.map(function (d) {
+          return '<a class="doc-chip" href="' + esc(d.file) + '" download>' +
+            icon('download', 15) +
+            '<span class="doc-name">' + esc(d.label) + '</span>' +
+            '<span class="doc-kind">' + esc(d.kind || 'PDF') + '</span>' +
+          '</a>';
+        }).join('') + '</div>' +
+      '</div>'
+    : '';
 
   // ---------- Where it is used ----------
   if (usesBlock) {
