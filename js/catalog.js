@@ -49,7 +49,8 @@
 
   // ---------- Body ----------
   function systemBand(s, list) {
-    return '<section class="syscat" id="sys-' + s.key + '">' +
+    // Same reasoning as the industry bands: built at runtime, decorated here.
+    return '<section class="syscat" id="sys-' + s.key + '" data-decor="bubbles glow" data-bubbles="6">' +
       '<header class="syscat-head" data-anim="up">' +
         '<div class="syscat-bg" style="background-image:url(\'' + s.img + '\')"></div>' +
         '<div class="syscat-head-top">' +

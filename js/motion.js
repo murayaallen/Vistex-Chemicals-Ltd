@@ -477,7 +477,92 @@
   // ==========================================================
   // 9. DECOR — aurora layers + drifting bubbles
   // ==========================================================
-  var dressAgain = function () {};        // set by initDecor, used by initPop
+  // Module state, not locals: the catalogue rebuilds its sections on every
+  // filter and search, so decoration has to be re-runnable against a subtree.
+  // Keeping the field list and the pop observer here lets refresh() top them up
+  // rather than leaving freshly-rendered sections undecorated.
+  var dressAgain = function () {};
+  var bubbleFields = [];
+  var popIO = null;
+  var glowN = 0;
+
+  // Size is drawn from a cubed random rather than a flat one: cubing pushes
+  // most draws small and leaves the occasional big one, which is how a real
+  // bubble field looks. A flat distribution gives a crowd of identical
+  // mid-size discs.
+  function dress(b) {
+    var t = Math.random();
+    var size = 4 + Math.pow(t, 3) * 62;               // 4px .. 66px, small-heavy
+    b.style.width = size.toFixed(1) + 'px';
+    b.style.height = size.toFixed(1) + 'px';
+    b.style.left = (Math.random() * 100).toFixed(2) + '%';
+    // Big bubbles rise faster and sway less, the way buoyancy actually works.
+    var rise = (16 - size / 7 + Math.random() * 8).toFixed(1) + 's';
+    var sway = (2.6 + Math.random() * 3.4).toFixed(1) + 's';
+    b.style.setProperty('--rise-d', rise);
+    b.style.setProperty('--sway-d', sway);
+    // Unrelated periods on purpose — a shared or harmonic period makes a
+    // column of bubbles bob in unison.
+    b.style.animationDuration = rise + ', ' + sway;
+    b.style.animationDelay =
+      (-Math.random() * 14).toFixed(1) + 's, ' +
+      (-Math.random() * 6).toFixed(1) + 's';
+    b.style.setProperty('--sway', (6 + Math.random() * 30 * (1 - size / 90)).toFixed(0) + 'px');
+    return b;
+  }
+  function makeBubble() {
+    var b = document.createElement('span');
+    b.className = 'bubble';
+    return dress(b);
+  }
+  dressAgain = dress;                  // the popper re-dresses what it bursts
+
+  function decorate(root) {
+    if (reduce) return;
+    root = root || document;
+
+    root.querySelectorAll('.aurora:empty').forEach(function (host) {
+      host.innerHTML = '<span class="a1"></span><span class="a2"></span><span class="a3"></span>';
+    });
+
+    function ensurePositioned(host) {
+      if (getComputedStyle(host).position === 'static') host.style.position = 'relative';
+    }
+
+    // Colour blooms, dealt in rotation so two sections running one after the
+    // other never carry the same arrangement.
+    root.querySelectorAll('[data-decor~="glow"]').forEach(function (host) {
+      if (host.querySelector(':scope > .sec-glow')) return;
+      ensurePositioned(host);
+      var g = document.createElement('div');
+      g.className = 'sec-glow sec-glow--' + (glowN++ % 4 + 1);
+      g.setAttribute('aria-hidden', 'true');
+      g.innerHTML = '<i></i><i></i>';
+      host.insertBefore(g, host.firstChild);
+    });
+
+    root.querySelectorAll('[data-decor~="bubbles"]').forEach(function (host) {
+      if (host.querySelector(':scope > .bubbles')) return;
+      var box = document.createElement('div');
+      box.className = 'bubbles bubbles--ambient';
+      box.setAttribute('aria-hidden', 'true');
+      box.dataset.count = host.dataset.bubbles || '8';
+      ensurePositioned(host);
+      var glow = host.querySelector(':scope > .sec-glow');
+      host.insertBefore(box, glow ? glow.nextSibling : host.firstChild);
+    });
+
+    root.querySelectorAll('.bubbles:empty').forEach(function (box) {
+      var n = parseInt(box.dataset.count || '12', 10);
+      var frag = document.createDocumentFragment();
+      for (var i = 0; i < n; i++) frag.appendChild(makeBubble());
+      box.appendChild(frag);
+      box.style.setProperty('--travel', (box.offsetHeight + 140) + 'px');
+      bubbleFields.push(box);
+      if (popIO) popIO.observe(box);
+    });
+  }
+
   function initDecor() {
     if (reduce) return;
 
@@ -485,71 +570,20 @@
       host.innerHTML = '<span class="a1"></span><span class="a2"></span><span class="a3"></span>';
     });
 
-    // Sections that asked for a field but have no markup for one get it here,
-    // so adding ambience to a section is a single attribute in the HTML.
-    document.querySelectorAll('[data-decor~="bubbles"]').forEach(function (host) {
-      if (host.querySelector(':scope > .bubbles')) return;
-      var box = document.createElement('div');
-      box.className = 'bubbles bubbles--ambient';
-      box.setAttribute('aria-hidden', 'true');
-      box.dataset.count = host.dataset.bubbles || '8';
-      if (getComputedStyle(host).position === 'static') host.style.position = 'relative';
-      host.insertBefore(box, host.firstChild);
-    });
 
-    // Size is drawn from a cubed random rather than a flat one: cubing pushes
-    // most draws small and leaves the occasional big one, which is how a real
-    // bubble field looks. A flat distribution gives a crowd of identical
-    // mid-size discs.
-    function dress(b) {
-      var t = Math.random();
-      var size = 4 + Math.pow(t, 3) * 62;               // 4px .. 66px, small-heavy
-      b.style.width = size.toFixed(1) + 'px';
-      b.style.height = size.toFixed(1) + 'px';
-      b.style.left = (Math.random() * 100).toFixed(2) + '%';
-      // Big bubbles rise faster and sway less, the way buoyancy actually works.
-      var rise = (16 - size / 7 + Math.random() * 8).toFixed(1) + 's';
-      var sway = (2.6 + Math.random() * 3.4).toFixed(1) + 's';
-      b.style.setProperty('--rise-d', rise);
-      b.style.setProperty('--sway-d', sway);
-      // Unrelated periods on purpose — a shared or harmonic period makes a
-      // column of bubbles bob in unison.
-      b.style.animationDuration = rise + ', ' + sway;
-      b.style.animationDelay =
-        (-Math.random() * 14).toFixed(1) + 's, ' +
-        (-Math.random() * 6).toFixed(1) + 's';
-      b.style.setProperty('--sway', (6 + Math.random() * 30 * (1 - size / 90)).toFixed(0) + 'px');
-      return b;
-    }
-    function makeBubble() {
-      var b = document.createElement('span');
-      b.className = 'bubble';
-      return dress(b);
-    }
-    dressAgain = dress;                    // the popper re-dresses what it bursts
-
-    var fields = [];
-    document.querySelectorAll('.bubbles:empty').forEach(function (box) {
-      var n = parseInt(box.dataset.count || '12', 10);
-      var frag = document.createDocumentFragment();
-      for (var i = 0; i < n; i++) frag.appendChild(makeBubble());
-      box.appendChild(frag);
-      fields.push(box);
-    });
+    initPop();
+    decorate(document);
 
     // A bubble must cross its own section, not a fixed slice of the viewport.
-    function measure() {
-      fields.forEach(function (box) {
-        box.style.setProperty('--travel', (box.offsetHeight + 140) + 'px');
-      });
-    }
-    measure();
     var rt;
     window.addEventListener('resize', function () {
-      clearTimeout(rt); rt = setTimeout(measure, 250);
+      clearTimeout(rt);
+      rt = setTimeout(function () {
+        bubbleFields.forEach(function (box) {
+          box.style.setProperty('--travel', (box.offsetHeight + 140) + 'px');
+        });
+      }, 250);
     }, { passive: true });
-
-    initPop(fields);
   }
 
   // ==========================================================
@@ -561,18 +595,18 @@
   // fresh size, lane and speed and sent back to the bottom, so a field never
   // depletes and never repeats its arrangement.
   // ==========================================================
-  function initPop(fields) {
-    if (!fields.length || reduce) return;
+  function initPop() {
+    if (reduce) return;
 
     var onScreen = [];
-    var io = new IntersectionObserver(function (entries) {
+    popIO = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
         var i = onScreen.indexOf(e.target);
         if (e.isIntersecting && i < 0) onScreen.push(e.target);
         else if (!e.isIntersecting && i >= 0) onScreen.splice(i, 1);
       });
     }, { rootMargin: '10% 0px' });
-    fields.forEach(function (f) { io.observe(f); });
+    bubbleFields.forEach(function (f) { popIO.observe(f); });
 
     function pop() {
       if (!document.hidden && onScreen.length) {
@@ -654,6 +688,9 @@
     refresh: function (root) {
       root = root || document;
       if (window.hydrateIcons) window.hydrateIcons(root);
+      // Re-rendered sections carry their data-decor attribute but none of the
+      // injected layers, so without this a filtered catalogue loses its glow.
+      decorate(root);
       if (reduce || !('IntersectionObserver' in window)) {
         root.querySelectorAll('[data-anim]').forEach(function (el) { el.classList.add('is-in'); });
         return;

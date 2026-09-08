@@ -68,7 +68,11 @@
         '</div>'
       : '';
 
-    return '<section id="ind-' + ind.key + '" class="section ind-band cv-auto' + (odd ? ' section--tint' : '') + '">' +
+    // Decorated here rather than in the HTML because these five bands are built
+    // at runtime; industries.js runs before motion.js, so they exist by the time
+    // the decorator sweeps for [data-decor].
+    return '<section id="ind-' + ind.key + '" data-decor="bubbles glow" data-bubbles="7"' +
+           ' class="section ind-band cv-auto' + (odd ? ' section--tint' : '') + '">' +
       '<div class="container split' + (odd ? ' reverse' : '') + '">' +
         '<div class="split-media" data-anim="' + (odd ? 'right' : 'left') + '">' +
           '<figure class="photo photo--parallax" style="--ar: 4/3">' +
