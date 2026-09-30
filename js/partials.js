@@ -119,7 +119,7 @@
         '</ul></div>' +
         '<div><h4>Our Range</h4><ul>' +
           V.systems.map(function (s) {
-            return '<li><a href="systems.html?system=' + s.key + '">' + esc(s.short) + '</a></li>';
+            return '<li><a href="' + V.rangeUrl(s) + '">' + esc(s.short) + '</a></li>';
           }).join('') +
         '</ul></div>' +
         '<div><h4>Get in touch</h4><ul>' +
@@ -183,10 +183,15 @@
     document.documentElement.setAttribute('data-theme', next);
     try { localStorage.setItem('vx-theme', next); } catch (e) {}
     paintThemeIcon();
+  });
+  paintThemeIcon();
 
   // Until the visitor picks a theme, the default keeps following the device:
   // light on phones/tablets, dark on laptops and desktops. Once they toggle,
   // their choice is stored and this stops interfering.
+  // (This used to sit inside the click handler above, so it never ran until
+  // the first click — by which point a choice was stored and it did nothing —
+  // and every further click stacked another listener.)
   (function () {
     var mq = window.matchMedia('(max-width: 820px)');
     function follow() {
@@ -199,8 +204,6 @@
     if (mq.addEventListener) mq.addEventListener('change', follow);
     else if (mq.addListener) mq.addListener(follow);
   })();
-  });
-  paintThemeIcon();
 
   // ---------------------------------------------------------
   // MOBILE NAV — aria-expanded, Escape, outside click
@@ -328,15 +331,15 @@
 
     return (
       '<article class="card card-hover card-glow pcard" data-anim="up" data-pid="' + p.id + '">' +
-        '<a href="product.html?id=' + encodeURIComponent(p.id) + '" tabindex="-1" aria-hidden="true">' + media + '</a>' +
+        '<a href="' + V.productUrl(p) + '" tabindex="-1" aria-hidden="true">' + media + '</a>' +
         '<div class="pcard-body">' +
           '<div class="pcard-top">' +
-            '<h3 class="pcard-name"><a href="product.html?id=' + encodeURIComponent(p.id) + '">' + esc(p.name) + '</a></h3>' +
+            '<h3 class="pcard-name"><a href="' + V.productUrl(p) + '">' + esc(p.name) + '</a></h3>' +
             (p.code ? '<span class="pcard-code">' + esc(p.code) + '</span>' : '') +
           '</div>' +
           '<p class="pcard-desc">' + esc(p.purpose) + '</p>' +
           '<div class="pcard-foot">' +
-            '<span class="pcard-pack">' + esc(p.pack) + '</span>' +
+            '<span class="pcard-pack">' + esc(V.packShort(p)) + '</span>' +
             '<button class="pcard-add" data-add="' + p.id + '" aria-label="Add ' + esc(p.name) + ' to enquiry">' +
               icon('plus', 14) + 'Add</button>' +
           '</div>' +

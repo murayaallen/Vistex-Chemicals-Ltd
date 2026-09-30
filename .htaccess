@@ -20,6 +20,18 @@ DirectoryIndex index.html
   RewriteRule ^ https://www.vistexchemicals.co.ke%{REQUEST_URI} [L,R=301]
 </IfModule>
 
+# ---------- Keep source material off the web ----------
+# The deploy instruction is "upload the whole folder", which also uploads the
+# client's source files, working artwork and build tooling. None of it is part
+# of the site; answer 404 so it is neither served nor indexed. docs/ (the
+# published data sheets) is deliberately not matched.
+<IfModule mod_alias.c>
+  RedirectMatch 404 ^/(Updates|new|jerricans|tools|Urinal\sMat\sScents)(/.*)?$
+  RedirectMatch 404 ^/[^/]+\.(pdf|docx|zip|md)$
+  RedirectMatch 404 ^/preview-[^/]*\.html$
+  RedirectMatch 404 ^/\.git(/.*)?$
+</IfModule>
+
 # ---------- Security headers ----------
 <IfModule mod_headers.c>
   Header always set X-Content-Type-Options "nosniff"

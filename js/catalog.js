@@ -1,7 +1,10 @@
 // ==========================================================
-// VISTEX — Catalogue (systems.html)
-// Live search + system filter over the full product list.
-// State lives in the URL (?system=…&q=…) so results are linkable.
+// VISTEX — Catalogue (systems.html + one static page per range)
+// Live search over the product list. Each range has its own
+// generated page (laundry-chemicals.html, …) with its own title and
+// canonical, so the range filter is a set of real links between
+// those pages rather than a query string Google cannot index.
+// The search term lives in the URL (?q=…) so results are linkable.
 // ==========================================================
 (function () {
   'use strict';
@@ -10,30 +13,42 @@
   var $ = function (id) { return document.getElementById(id); };
 
   var params = new URLSearchParams(location.search);
+  // The old systems.html?system=… address forwards to the range's own page.
+  var legacy = params.get('system');
+  if (legacy && V.getSystem(legacy) && !document.body.dataset.system) {
+    var q0 = params.get('q');
+    location.replace(V.rangeUrl(legacy) + (q0 ? '?q=' + encodeURIComponent(q0) : ''));
+    return;
+  }
   var state = {
-    system: params.get('system') || '',
+    system: document.body.dataset.system || '',
     q: (params.get('q') || '').trim()
   };
   if (state.system && !V.getSystem(state.system)) state.system = '';
 
   // ---------- Page heading reflects the active system ----------
+  // The heading is static HTML on every page (range pages get theirs from the
+  // generator); only the lede is filled here.
   function paintHead() {
     var s = state.system ? V.getSystem(state.system) : null;
-    $('catTitle').textContent = s ? s.name : 'Our complete hygiene range';
-    $('catLede').textContent = s ? s.tagline
-      : 'Our full range across laundry, housekeeping, kitchen, pool and guest care. Add what you need to your enquiry and we’ll send a quote.';
-    document.title = (s ? s.name : 'Our Hygiene Range') + ' — Vistex Chemicals Ltd';
+    // The tagline already heads the range band below, so the lede is the
+    // description alone.
+    $('catLede').textContent = s ? s.description
+      : 'Our full range across laundry, housekeeping, kitchen, pool, guest care and industrial hygiene. Add what you need to your enquiry and we’ll send a quote.';
   }
 
-  // ---------- Filter chips ----------
+  // ---------- Filter chips: links between the range pages ----------
   function paintFilters() {
-    var html = '<button class="chip ' + (!state.system ? 'chip--on' : '') + '" data-sys="">' +
-      'All <span class="mono" style="opacity:.7">' + V.products.length + '</span></button>';
+    var keep = state.q ? '?q=' + encodeURIComponent(state.q) : '';
+    var html = '<a class="chip ' + (!state.system ? 'chip--on' : '') + '" href="systems.html' + keep + '"' +
+      (!state.system ? ' aria-current="page"' : '') + '>' +
+      'All <span class="mono" style="opacity:.7">' + V.products.length + '</span></a>';
     html += V.systems.map(function (s) {
       var on = state.system === s.key;
-      return '<button class="chip ' + (on ? 'chip--on' : '') + '" data-sys="' + s.key + '">' +
+      return '<a class="chip ' + (on ? 'chip--on' : '') + '" href="' + V.rangeUrl(s) + keep + '"' +
+        (on ? ' aria-current="page"' : '') + '>' +
         icon(s.icon, 15) + esc(s.short) +
-        ' <span class="mono" style="opacity:.7">' + V.bySystem(s.key).length + '</span></button>';
+        ' <span class="mono" style="opacity:.7">' + V.bySystem(s.key).length + '</span></a>';
     }).join('');
     $('catFilters').innerHTML = html;
   }
@@ -42,7 +57,9 @@
   function matches(p) {
     if (state.system && p.system !== state.system) return false;
     if (!state.q) return true;
-    var hay = [p.name, p.code, p.purpose, p.pack, p.form, (p.features || []).join(' ')]
+    var hay = [p.name, p.code, p.subtitle, p.purpose, p.pack, p.form, p.active,
+               (p.features || []).join(' '), (p.applications || []).join(' '),
+               (p.surfaces || []).join(' '), V.getSystem(p.system).name]
       .filter(Boolean).join(' ').toLowerCase();
     return state.q.toLowerCase().split(/\s+/).every(function (t) { return hay.indexOf(t) > -1; });
   }
@@ -74,7 +91,8 @@
   function render() {
     var hits = V.products.filter(matches);
 
-    $('catMeta').textContent = hits.length + ' of ' + V.products.length + ' products' +
+    var pool = state.system ? V.bySystem(state.system).length : V.products.length;
+    $('catMeta').textContent = hits.length + ' of ' + pool + ' products' +
       (state.q ? ' matching “' + state.q + '”' : '');
 
     if (!hits.length) {
@@ -84,9 +102,10 @@
         '<p style="margin-top:8px">Try a product name, a code like <span class="mono">S-020</span>, or clear the filters.</p>' +
         '<button class="btn btn-ghost btn-sm" id="catReset" style="margin-top:20px">Reset filters</button></div>';
       $('catReset').addEventListener('click', function () {
-        state.q = ''; state.system = '';
+        if (state.system) { location.href = 'systems.html'; return; }
+        state.q = '';
         $('catSearch').value = '';
-        sync(); paintHead(); paintFilters(); render();
+        sync(); paintFilters(); render();
       });
       return;
     }
@@ -107,11 +126,7 @@
 
   // ---------- URL sync (no page reload) ----------
   function sync() {
-    var q = new URLSearchParams();
-    if (state.system) q.set('system', state.system);
-    if (state.q) q.set('q', state.q);
-    var s = q.toString();
-    history.replaceState(null, '', s ? '?' + s : location.pathname);
+    history.replaceState(null, '', state.q ? '?q=' + encodeURIComponent(state.q) : location.pathname);
   }
 
   // ---------- Wire up ----------
@@ -125,7 +140,7 @@
     debounce = setTimeout(function () {
       state.q = search.value.trim();
       $('catClear').hidden = !state.q;
-      sync(); render();
+      sync(); paintFilters(); render();
     }, 180);
   });
   search.addEventListener('keydown', function (e) {
@@ -133,14 +148,7 @@
   });
   $('catClear').addEventListener('click', function () {
     search.value = ''; state.q = ''; $('catClear').hidden = true;
-    sync(); render(); search.focus();
-  });
-
-  $('catFilters').addEventListener('click', function (e) {
-    var b = e.target.closest('[data-sys]');
-    if (!b) return;
-    state.system = b.dataset.sys;
-    sync(); paintHead(); paintFilters(); render();
+    sync(); paintFilters(); render(); search.focus();
   });
 
   document.getElementById('catWa').href = V.wa(V.waText.advice);

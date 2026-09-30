@@ -525,10 +525,12 @@
 /* ============================================================
    HOME — SYSTEMS SHOWCASE
    ============================================================ */
-.sys-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: var(--s-5); }
-/* 5 cards: 2 wide on the first row, 3 on the second */
-.sys-card:nth-child(1), .sys-card:nth-child(2) { grid-column: span 3; }
-.sys-card:nth-child(3), .sys-card:nth-child(4), .sys-card:nth-child(5) { grid-column: span 2; }
+.sys-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: var(--s-5); }
+/* 6 cards: 2 feature cards on the first row, 4 on the second */
+.sys-card { grid-column: span 3; }
+.sys-card:nth-child(1), .sys-card:nth-child(2) { grid-column: span 6; }
+/* four across gets too narrow for the copy — pairs below that */
+@media (max-width: 1180px) { .sys-card, .sys-card:nth-child(n) { grid-column: span 6; } }
 @media (max-width: 900px) {
   .sys-grid { grid-template-columns: repeat(2, 1fr); }
   .sys-card { grid-column: span 1 !important; }
@@ -578,6 +580,13 @@
 .sys-card p {
   margin-top: 9px; font-size: var(--step--1); line-height: 1.6;
   color: rgba(255,255,255,.8); max-width: 42ch;
+}
+/* The copy is bottom-anchored, so a long description grows upward. Reserve
+   the badge row at the top and clamp the narrow cards' copy, or a long
+   description (Kitchen) pushes its own title underneath the icon and count. */
+.sys-card { padding-top: calc(var(--s-6) + 62px); }
+.sys-card:nth-child(n+3) p {
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden;
 }
 .sys-more {
   margin-top: var(--s-5); display: inline-flex; align-items: center; gap: 8px;
@@ -1044,6 +1053,19 @@
 .mv-card h2 { font-size: var(--step-2); }
 .mv-card p { margin-top: var(--s-4); color: var(--text-2); }
 
+/* On-site support: ten services — two columns keeps ten cards even (5 + 5) */
+.svc-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-4); }
+@media (max-width: 640px) { .svc-grid { grid-template-columns: 1fr; } }
+.svc { display: flex; gap: var(--s-4); align-items: flex-start; padding: var(--s-5); }
+.svc-ico {
+  flex: none; width: 42px; height: 42px; display: grid; place-items: center;
+  border-radius: var(--r-sm); background: var(--accent-soft); color: var(--accent);
+}
+.svc-ico svg { width: 20px; height: 20px; }
+.svc h3 { font-family: var(--font-display); font-weight: 600; font-size: var(--step-0); letter-spacing: var(--tr-tight); }
+.svc p { margin-top: 6px; color: var(--text-3); font-size: var(--step--1); line-height: 1.6; }
+.markets { margin-top: var(--s-9); padding-top: var(--s-6); border-top: 1px solid var(--border); }
+
 .client-group h3 {
   font-family: var(--font-mono); font-size: var(--step--2);
   letter-spacing: var(--tr-label); text-transform: uppercase;
@@ -1258,15 +1280,120 @@ a .contact-row:hover { border-color: var(--border-lit); transform: translateX(4p
 .scent-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
 @media (prefers-reduced-motion: reduce) { .scent-chip:hover { transform: none; } }
 
+/* ---- Generated crawlable lists (tools/build-pages.js) -------------------
+   Seen by crawlers, link previews and no-JS visitors; catalog.js swaps it
+   for the interactive grid on load. */
+.gen-list {
+  margin-block: var(--s-8); columns: 2 280px; column-gap: var(--s-8);
+  font-size: var(--step--1); color: var(--text-3);
+}
+.gen-list li { break-inside: avoid; padding: 6px 0; border-bottom: 1px solid var(--border-2); }
+.gen-list a { color: var(--text); font-weight: 600; }
+.gen-list a:hover { color: var(--accent); }
+
+/* ---- Product detail: subtitle, gallery ---------------------------------- */
+.pd-sub {
+  margin-top: var(--s-3);
+  font-family: var(--font-mono); font-size: var(--step--1);
+  letter-spacing: var(--tr-mono); text-transform: uppercase; color: var(--text-3);
+}
+.pd-media-col { display: grid; gap: var(--s-4); min-width: 0; }
+.pd-thumbs { display: flex; gap: var(--s-3); flex-wrap: wrap; }
+.pd-thumb {
+  width: 76px; height: 76px; padding: 0; overflow: hidden; cursor: pointer;
+  border-radius: var(--r-md); border: 2px solid var(--border);
+  background: var(--surface-3); opacity: .72;
+  transition: opacity var(--t-fast), border-color var(--t-fast), transform var(--t-fast);
+}
+.pd-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pd-thumb:hover { opacity: 1; transform: translateY(-2px); }
+.pd-thumb.on { opacity: 1; border-color: var(--accent); }
+.pd-thumb:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+/* ---- Product detail: how to use + dosing -------------------------------- */
+.pd-tech { margin-top: var(--s-11); display: grid; gap: clamp(20px, 3vw, 32px); }
+.pd-tech--2 { grid-template-columns: 1.15fr 0.85fr; align-items: start; }
+@media (max-width: 900px) { .pd-tech--2 { grid-template-columns: 1fr; } }
+.pd-steps { margin-top: var(--s-5); display: grid; gap: var(--s-4); counter-reset: step; }
+.pd-steps li {
+  position: relative; padding-left: 46px; min-height: 30px;
+  color: var(--text-2); font-size: var(--step--1); line-height: 1.6;
+  counter-increment: step;
+}
+.pd-steps li::before {
+  content: counter(step, decimal-leading-zero);
+  position: absolute; left: 0; top: -2px;
+  width: 32px; height: 32px; display: grid; place-items: center;
+  border-radius: var(--r-full); background: var(--accent-soft); color: var(--accent);
+  font-family: var(--font-mono); font-size: var(--step--2); font-weight: 600;
+}
+.dose-table { width: 100%; margin-top: var(--s-5); border-collapse: collapse; font-size: var(--step--1); }
+.dose-table th, .dose-table td { padding: 11px 4px; border-bottom: 1px solid var(--border-2); text-align: left; }
+.dose-table thead th {
+  font-family: var(--font-mono); font-size: var(--step--2); font-weight: 500;
+  letter-spacing: var(--tr-label); text-transform: uppercase; color: var(--text-3);
+  border-bottom-color: var(--border);
+}
+.dose-table tbody th { font-weight: 500; color: var(--text-2); }
+.dose-table td {
+  text-align: right; white-space: nowrap;
+  font-family: var(--font-mono); font-weight: 600; color: var(--text);
+}
+
+/* ---- Product detail: hazard panel ---------------------------------------
+   The signal word is the one printed on the product's own label or TDS.
+   Red stays reserved for Danger; Warning and Caution use amber, tuned so the
+   heading clears AA on its own tint in both themes. */
+.pd-safety { --hz: var(--signal); --hz-ink: var(--red-600); --hz-soft: var(--signal-soft); }
+.pd-safety--warning, .pd-safety--caution { --hz: #d97706; --hz-ink: #9a4a05; --hz-soft: color-mix(in srgb, #f59e0b 12%, transparent); }
+[data-theme="dark"] .pd-safety { --hz-ink: var(--red-400); }
+[data-theme="dark"] .pd-safety--warning,
+[data-theme="dark"] .pd-safety--caution { --hz: #fbbf24; --hz-ink: #fcd34d; --hz-soft: color-mix(in srgb, #f59e0b 14%, transparent); }
+.pd-safety[class*="pd-safety--"] {
+  background: var(--hz-soft);
+  border-color: color-mix(in srgb, var(--hz) 34%, transparent);
+  border-left: 4px solid var(--hz);
+}
+.pd-safety[class*="pd-safety--"] > svg { color: var(--hz); }
+.hz-body { display: grid; gap: 8px; min-width: 0; }
+.hz-word {
+  font-family: var(--font-mono); font-size: var(--step--1); font-weight: 600;
+  letter-spacing: var(--tr-label); text-transform: uppercase; color: var(--hz-ink);
+}
+.hz-body p { color: var(--text-2); line-height: 1.6; }
+.hz-mix { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 2px; }
+.hz-mix-label {
+  font-family: var(--font-mono); font-size: var(--step--2); letter-spacing: var(--tr-label);
+  text-transform: uppercase; color: var(--text-3); margin-right: 4px;
+}
+.hz-chip {
+  padding: 3px 10px; border-radius: var(--r-full); font-size: var(--step--2); font-weight: 600;
+  color: var(--text); background: var(--surface);
+  border: 1px solid color-mix(in srgb, var(--hz) 40%, transparent);
+}
+.hz-foot { font-size: var(--step--2); color: var(--text-3) !important; }
+
 /* ---- "Where it is used" (product detail) --------------------------------
-   Two plain lists, side by side. Rendered only for products that declare
-   `applications` / `fabrics`, so the page never shows an empty shell. */
+   Up to three plain lists side by side — applications, suitable surfaces,
+   and what it must not touch. Rendered only for columns that have content,
+   so the page never shows an empty shell. */
 .uses {
   margin-top: var(--s-11);
   display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: clamp(24px, 4vw, 56px);
 }
+.uses--1 { grid-template-columns: minmax(0, 1fr); }
+.uses--1 .uses-list { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--s-7); }
+@media (max-width: 700px) { .uses--1 .uses-list { grid-template-columns: 1fr; } }
+.uses--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.pd-tech + .uses { margin-top: clamp(20px, 3vw, 32px); }
+@media (max-width: 900px) { .uses--3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 700px) { .uses { grid-template-columns: 1fr; gap: var(--s-7); } }
+.uses-col--no .uses-title svg { color: var(--signal); }
+.uses-col--no .uses-list li::before {
+  content: "×"; width: auto; height: auto; top: 0; background: none;
+  color: var(--signal); font-weight: 700; line-height: 1.5;
+}
 .uses-title {
   display: flex; align-items: center; gap: 9px;
   font-family: var(--font-display); font-weight: 600; font-size: var(--step-0);
@@ -1315,7 +1442,7 @@ a .contact-row:hover { border-color: var(--border-lit); transform: translateX(4p
 @media print {
   .site-header, .site-footer, .cart-drawer, .cart-fab, #vx-loader,
   .scroll-cue-wrap, .aurora, .bubbles, .marquee, .pstage-dots,
-  .pd-buy, .doc-chip, .rec-rail, .cta-band, .skip-to-content { display: none !important; }
+  .pd-buy, .doc-chip, .rec-rail, .cta-band, .skip-to-content, .pd-thumbs { display: none !important; }
 
   /* Backgrounds and shadows cost ink and hide text on paper. */
   *, *::before, *::after {
@@ -1329,7 +1456,8 @@ a .contact-row:hover { border-color: var(--border-lit); transform: translateX(4p
   }
   body { font-size: 11pt; }
   .card, .glass, .pd-media { border: 1px solid #999 !important; }
-  .pd-grid, .uses { grid-template-columns: 1fr 1fr !important; }
+  .pd-grid, .uses, .pd-tech--2 { grid-template-columns: 1fr 1fr !important; }
+  .pd-safety { border-left-width: 4px !important; }
   /* reveal-on-scroll must not leave the page blank on paper */
   [data-anim] { opacity: 1 !important; transform: none !important; }
   .pd-media { max-height: 90mm; }

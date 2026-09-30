@@ -22,6 +22,14 @@
     '</div>';
   }).join('');
 
+  // ---------- On-site support ----------
+  $('aboutServices').innerHTML = co.services.map(function (sv) {
+    return '<div class="svc card card-glow" data-anim="up">' +
+      '<span class="svc-ico">' + icon(sv.icon, 20) + '</span>' +
+      '<div><h3>' + esc(sv.title) + '</h3><p>' + esc(sv.text) + '</p></div>' +
+    '</div>';
+  }).join('');
+
   // ---------- Differentiators ----------
   $('diffGrid').innerHTML = V.differentiators.map(function (d) {
     return '<div class="card card-glow diff-card" data-anim="up">' +
@@ -40,6 +48,9 @@
     group('Hotels & Resorts', V.clients.hotels) +
     group('Hospitals & Clinics', V.clients.hospitals) +
     group('And more', V.clients.others);
+  $('aboutMarkets').innerHTML = co.markets.map(function (m) {
+    return '<span class="chip">' + esc(m) + '</span>';
+  }).join('');
 
   $('aboutWa').href = V.wa(V.waText.assessment);
 

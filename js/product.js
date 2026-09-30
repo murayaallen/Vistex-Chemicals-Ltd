@@ -1,16 +1,25 @@
 // ==========================================================
-// VISTEX — Product detail (product.html?id=…)
-// Renders the record, prints only the spec rows that exist,
-// and updates title / description / canonical / JSON-LD so the
-// page is meaningful when shared or crawled.
+// VISTEX — Product detail (product-<id>.html)
+// Renders the full interactive record over the static summary that
+// tools/build-pages.js bakes into each page. Title, description,
+// canonical, share tags and JSON-LD are all in that static HTML —
+// Google advises against rewriting a canonical with JavaScript, and
+// WhatsApp link previews never run it — so nothing here touches <head>.
 // ==========================================================
 (function () {
   'use strict';
 
   var V = window.VISTEX, co = V.company, icon = window.icon, esc = window.vxEsc;
   var root = document.getElementById('productRoot');
-  var id = new URLSearchParams(location.search).get('id');
+  var id = document.body.dataset.pid || new URLSearchParams(location.search).get('id');
   var p = id ? V.getProduct(id) : null;
+
+  // The old product.html?id=… address still works for links already shared
+  // on WhatsApp or saved in enquiries: it forwards to the real page.
+  if (p && !document.body.dataset.pid) {
+    location.replace(V.productUrl(p));
+    return;
+  }
 
   if (!p) {
     root.innerHTML =
@@ -25,62 +34,6 @@
 
   var s = V.getSystem(p.system);
   var fullName = p.name + (p.code ? ' ' + p.code : '');
-
-  // ---------- Head: title, description, canonical, JSON-LD ----------
-  document.title = fullName + ' — ' + s.short + ' — Vistex Chemicals Ltd';
-  function meta(sel, attr, val) {
-    var el = document.head.querySelector(sel);
-    if (el) el.setAttribute(attr, val);
-  }
-  // A purpose line is written for the page; a meta description has to survive
-  // Google's ~160 character truncation. Trim on a word boundary rather than
-  // letting the snippet end mid-word.
-  function clip(t, n) {
-    if (t.length <= n) return t;
-    var cut = t.slice(0, n);
-    var sp = cut.lastIndexOf(' ');
-    return (sp > n * 0.6 ? cut.slice(0, sp) : cut).replace(/[\s,;:.—-]+$/, '') + '…';
-  }
-  var metaDesc = clip(fullName + ' — ' + p.purpose, 155);
-  meta('meta[name="description"]', 'content', metaDesc);
-  meta('meta[property="og:title"]', 'content', fullName + ' — Vistex Chemicals');
-  meta('meta[property="og:description"]', 'content', p.purpose);
-  var self = co.origin + '/product.html?id=' + encodeURIComponent(p.id);
-  meta('link[rel="canonical"]', 'href', self);
-  // The hreflang alternates are static in the HTML and would otherwise point at
-  // the bare product.html, contradicting the canonical they sit beside.
-  document.head.querySelectorAll('link[rel="alternate"][hreflang]')
-    .forEach(function (l) { l.setAttribute('href', self); });
-  // The share card stays the branded 1200x630 one from the HTML. Swapping in
-  // the product photo would have been more specific but wrong-shaped: those
-  // packshots are square, and a summary_large_image card centre-crops to
-  // 1.91:1, which slices the product name off the bottom of the banner. It
-  // would also have contradicted the og:image:width/height declared in the
-  // markup. Only the alt text is made specific.
-  var shareAlt = fullName + ' — a Swift product manufactured by ' + co.name + ' in Nairobi';
-  meta('meta[property="og:image:alt"]', 'content', shareAlt);
-  meta('meta[name="twitter:image:alt"]', 'content', shareAlt);
-
-  var ld = document.createElement('script');
-  ld.type = 'application/ld+json';
-  ld.textContent = JSON.stringify({
-    '@context': 'https://schema.org',
-    '@type': 'Product',
-    name: fullName,
-    sku: p.code || p.id,
-    description: p.purpose,
-    category: s.name,
-    brand: { '@type': 'Brand', name: co.productBrand },
-    manufacturer: { '@type': 'Organization', name: co.name, url: co.origin + '/' },
-    image: p.image ? co.origin + '/' + p.image : co.origin + '/images/logo/vistex-logo-color-on-white.png',
-    url: co.origin + '/product.html?id=' + encodeURIComponent(p.id)
-    // No `offers`. Pricing is quoted per property, and Schema.org Offer requires
-    // a price — the previous `price: '0'` advertised every product as free, which
-    // Search Console flags and which could surface a "KSh 0" price in results.
-    // Omitting the block keeps a valid Product (brand, image, description, sku)
-    // and simply forgoes the price rich result, which there is no price for.
-  });
-  document.head.appendChild(ld);
 
   // ---------- Scent variants ----------
   // Only the urinal mat has these today, but the shape is generic: any product
@@ -103,6 +56,14 @@
     : '';
 
   // ---------- Media ----------
+  // A product with a `gallery` gets a thumbnail strip under the main image;
+  // the first thumb is the main image itself so the visitor can always get
+  // back to it. Thumbnails come from images/thumbs/, never the 800px files.
+  var views = p.image
+    ? [{ src: p.image, alt: fullName }].concat(p.gallery || [])
+    : [];
+  function thumbOf(src) { return src.replace(/^images\//, 'images/thumbs/'); }
+
   var media = p.image
     ? window.vxPicture(p.image, fullName, { w: 800, h: 800, eager: true })
     : '<div class="pcard-noimg" style="position:relative">' +
@@ -113,12 +74,25 @@
         '</span>' +
       '</div>';
 
+  var thumbs = views.length > 1
+    ? '<div class="pd-thumbs" role="group" aria-label="Product views">' + views.map(function (v, i) {
+        return '<button type="button" class="pd-thumb' + (i === 0 ? ' on' : '') + '"' +
+          ' aria-pressed="' + (i === 0) + '" data-view="' + i + '"' +
+          ' aria-label="View ' + (i + 1) + ' of ' + views.length + ': ' + esc(v.alt) + '">' +
+          window.vxPicture(thumbOf(v.src), '', { w: 360, h: 360 }) +
+        '</button>';
+      }).join('') + '</div>'
+    : '';
+
   // ---------- Spec table: only the rows that exist ----------
   var rows = [
     ['Pack size', p.pack, 'package'],
     ['Form', p.form, 'beaker'],
+    ['pH', p.ph, 'droplet'],
     ['Dilution', p.dilution, 'scale'],
     ['Temperature', p.temp, 'thermometer'],
+    ['Active ingredient', p.active, 'beaker'],
+    ['Shelf life', p.shelfLife, 'clock'],
     ['Range', s.name, s.icon],
     ['Brand', null, 'sparkle']       // rendered as the badge below, not text
   ].filter(function (r) { return r[1]; });
@@ -133,7 +107,7 @@
       '<span class="swift-badge swift-badge--md">' +
         window.vxPicture(co.productBrandLogo, co.productBrand + ' — ' + co.productBrandTagline, { w: 760, h: 425 }) +
       '</span>' +
-      '<span class="spec-brand-note">Made by ' + esc(co.name) + '</span>' +
+      '<span class="spec-brand-note">' + (p.supplied ? 'Supplied by ' : 'Made by ') + esc(co.name) + '</span>' +
     '</dd></div>' +
   '</dl>';
 
@@ -163,40 +137,99 @@
     : '';
 
   // ---------- Where it is used ----------
-  // Generic: any product declaring `applications` (environments) or `fabrics`
-  // (what it may be used on) gets this block. Only SP-021 carries them today,
-  // straight from the supplied product sheet.
-  function useList(title, items, ico) {
+  // Generic: any product declaring `applications` (environments), `fabrics` /
+  // `surfaces` (what it may be used on) or `notFor` gets this block. Columns
+  // only render when they have content, so the grid never shows a blank.
+  function useList(title, items, ico, mod) {
     if (!items || !items.length) return '';
-    return '<div class="uses-col">' +
+    return '<div class="uses-col' + (mod ? ' uses-col--' + mod : '') + '">' +
       '<h3 class="uses-title">' + icon(ico, 16) + esc(title) + '</h3>' +
       '<ul class="uses-list">' + items.map(function (t) {
         return '<li>' + esc(t) + '</li>';
       }).join('') + '</ul>' +
     '</div>';
   }
-  var usesBlock = (p.applications || p.fabrics)
-    ? '<section class="uses card card-pad" data-anim="up">' +
-        useList('Ideal applications', p.applications, 'building') +
-        useList('Suitable for', p.fabrics, 'washer') +
+  var suitable = (p.fabrics || []).concat(p.surfaces || []);
+  var useCols = [
+    useList('Ideal applications', p.applications, 'building'),
+    useList('Suitable for', suitable, p.fabrics ? 'washer' : 'check'),
+    useList('Not for use on', p.notFor, 'x', 'no')
+  ].filter(Boolean);
+  var usesBlock = useCols.length
+    ? '<section class="uses uses--' + useCols.length + ' card card-pad" data-anim="up">' +
+        useCols.join('') +
       '</section>'
     : '';
+
+  // ---------- How to use + dosing ----------
+  // Directions are numbered steps; `dilutions` is a two-column dosing table.
+  // Both come verbatim from a TDS or label — see the source note in data.js.
+  var howBlock = (p.directions && p.directions.length)
+    ? '<div class="card card-pad pd-how" data-anim="up">' +
+        '<h2 class="h-sub">How to use</h2>' +
+        '<ol class="pd-steps">' + p.directions.map(function (d) {
+          return '<li>' + esc(d) + '</li>';
+        }).join('') + '</ol>' +
+      '</div>'
+    : '';
+  var doseBlock = (p.dilutions && p.dilutions.length)
+    ? '<div class="card card-pad pd-dose" data-anim="up">' +
+        '<h2 class="h-sub">Dosing guide</h2>' +
+        '<table class="dose-table"><thead><tr><th scope="col">Application</th><th scope="col">Dilution</th></tr></thead><tbody>' +
+          p.dilutions.map(function (r) {
+            return '<tr><th scope="row">' + esc(r[0]) + '</th><td>' + esc(r[1]) + '</td></tr>';
+          }).join('') +
+        '</tbody></table>' +
+        '<p class="pd-note" style="margin-top:var(--s-4)">Product : water. Clean heavily soiled surfaces first, and allow full contact time before wiping.</p>' +
+      '</div>'
+    : '';
+  var techBlock = (howBlock || doseBlock)
+    ? '<section class="pd-tech' + (howBlock && doseBlock ? ' pd-tech--2' : '') + '">' + howBlock + doseBlock + '</section>'
+    : '';
+
+  // ---------- Safety ----------
+  // A product with a supplied hazard statement shows it with the signal word
+  // printed on its own label (Danger / Warning / Caution) and its "never mix"
+  // list. Everything else keeps the general handling note.
+  var hz = p.hazard;
+  var safety = hz
+    ? '<div class="pd-safety pd-safety--' + esc(hz.level) + '" role="note">' + icon('alert', 18) +
+        '<div class="hz-body">' +
+          '<strong class="hz-word">' + esc(hz.word || hz.level) + '</strong>' +
+          '<p>' + esc(hz.text) + '</p>' +
+          (p.neverMix && p.neverMix.length
+            ? '<div class="hz-mix"><span class="hz-mix-label">Never mix with</span>' +
+                p.neverMix.map(function (m) { return '<span class="hz-chip">' + esc(m) + '</span>'; }).join('') +
+              '</div>'
+            : '') +
+          '<p class="hz-foot">For trained staff. Keep out of reach of children.</p>' +
+        '</div>' +
+      '</div>'
+    // Guest amenities (slippers, dental kits, shower gel…) are not handled like
+    // chemicals, so the gloves-and-goggles note would be nonsense on them.
+    : p.system === 'toiletries' ? ''
+    : '<div class="pd-safety">' + icon('alert', 18) +
+        '<span><strong>Handling:</strong> ' + esc(co.safetyNote) + '</span></div>';
 
   // ---------- Render ----------
   root.innerHTML =
     '<nav class="crumbs" aria-label="Breadcrumb">' +
       '<a href="systems.html">Our Range</a><span class="sep">/</span>' +
-      '<a href="systems.html?system=' + s.key + '">' + esc(s.short) + '</a><span class="sep">/</span>' +
+      '<a href="' + V.rangeUrl(s) + '">' + esc(s.short) + '</a><span class="sep">/</span>' +
       '<span style="color:var(--text-2)">' + esc(p.name) + '</span>' +
     '</nav>' +
 
     '<div class="pd-grid" style="margin-top:var(--s-7)">' +
-      '<div class="pd-media" data-anim="left">' + media + '</div>' +
+      '<div class="pd-media-col" data-anim="left">' +
+        '<div class="pd-media">' + media + '</div>' +
+        thumbs +
+      '</div>' +
 
       '<div class="stack-6" data-anim="right">' +
         '<div>' +
           '<span class="eyebrow">' + esc(s.name) + '</span>' +
           '<h1 class="pd-title" style="margin-top:var(--s-4)">' + esc(p.name) + '</h1>' +
+          (p.subtitle ? '<p class="pd-sub">' + esc(p.subtitle) + '</p>' : '') +
           (p.code ? '<div style="margin-top:var(--s-4)"><span class="badge badge--signal">' +
             icon('clipboard', 14) + 'Code ' + esc(p.code) + '</span></div>' : '') +
         '</div>' +
@@ -219,36 +252,35 @@
         '<p class="pd-note">Pricing is quoted per property. Add what you need and our team will come back with a costed programme — usually the same working day.</p>' +
 
         docs +
-
-        '<div class="pd-safety">' + icon('alert', 18) +
-          '<span><strong>Handling:</strong> ' + esc(co.safetyNote) + '</span></div>' +
+        safety +
       '</div>' +
     '</div>';
 
-  // ---------- Documents ----------
-  // Generic and additive: a product declaring `docs: [{label, file, kind}]`
-  // gets a download row. Files live in docs/ and are plain static assets, so
-  // this needs no build step — the row simply does not render until one exists.
-  // Procurement for hospitals and food plants often gates on an SDS being
-  // available, so this is the slot it goes in.
-  var docs = (p.docs && p.docs.length)
-    ? '<div class="pd-docs">' +
-        '<span class="label">Documents</span>' +
-        '<div class="pd-docs-row">' + p.docs.map(function (d) {
-          return '<a class="doc-chip" href="' + esc(d.file) + '" download>' +
-            icon('download', 15) +
-            '<span class="doc-name">' + esc(d.label) + '</span>' +
-            '<span class="doc-kind">' + esc(d.kind || 'PDF') + '</span>' +
-          '</a>';
-        }).join('') + '</div>' +
-      '</div>'
-    : '';
+  // ---------- Technical detail + where it is used ----------
+  [techBlock, usesBlock].forEach(function (html) {
+    if (!html) return;
+    var host = document.createElement('div');
+    host.innerHTML = html;
+    root.appendChild(host.firstChild);
+  });
 
-  // ---------- Where it is used ----------
-  if (usesBlock) {
-    var uses = document.createElement('div');
-    uses.innerHTML = usesBlock;
-    root.appendChild(uses.firstChild);
+  // ---------- Gallery ----------
+  if (thumbs) {
+    var tBtns = [].slice.call(root.querySelectorAll('.pd-thumb'));
+    var gImg = root.querySelector('.pd-media img');
+    var gSrc = root.querySelector('.pd-media source');
+    tBtns.forEach(function (b) {
+      b.addEventListener('click', function () {
+        var v = views[+b.dataset.view];
+        tBtns.forEach(function (x) {
+          var on = x === b;
+          x.classList.toggle('on', on);
+          x.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+        if (gSrc) gSrc.srcset = v.src.replace(/\.(jpe?g|png)$/i, '.webp');
+        if (gImg) { gImg.src = v.src; gImg.alt = v.alt; }
+      });
+    });
   }
 
   // ---------- Scent picker ----------
@@ -307,7 +339,11 @@
   });
 
   // ---------- Related ----------
-  var related = V.bySystem(p.system).filter(function (x) { return x.id !== p.id; }).slice(0, 4);
+  // Photographed products first — a row of four placeholders sells nothing.
+  // Array.prototype.sort is stable, so catalogue order holds within each group.
+  var related = V.bySystem(p.system).filter(function (x) { return x.id !== p.id; })
+    .sort(function (a, b) { return (b.image ? 1 : 0) - (a.image ? 1 : 0); })
+    .slice(0, 4);
   if (related.length) {
     var rel = document.createElement('section');
     rel.style.marginTop = 'var(--s-11)';

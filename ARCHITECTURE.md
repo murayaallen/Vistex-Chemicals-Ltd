@@ -108,7 +108,7 @@ and cleared by `motion.js` reveals everything unconditionally after 2.5s if it n
 
 ## 4b. Home page order & the mobile split
 
-The home page runs: **hero → ticker → the five systems → "more than detergent"
+The home page runs: **hero → ticker → film band → the six ranges → "more than detergent"
 → problem/solution ledger → how we work → what makes us different → film band
 → clients → CTA.** Systems sit directly after the hero because that is what a
 buyer arriving cold actually wants to see.
@@ -159,13 +159,17 @@ gradient or photo bands rather than mis-measuring it.
 ```
 /
 ├── index.html            home        — the narrative arc
-├── systems.html          catalog     — 5 systems, 52 products, search + filter
-├── product.html          detail      — ?id=<productId>
+├── systems.html          catalog     — 6 ranges, 68 products, live search
+├── <range-slug>.html     GENERATED   — one landing page per range (laundry-chemicals.html …)
+├── product-<id>.html     GENERATED   — one page per product, full content in the HTML
+├── product.html          template for the above; as a page, a noindex forwarder for ?id= links
 ├── industries.html       5 sectors, alternating editorial bands
 ├── about.html            company, mission, clients
 ├── contact.html          WhatsApp + email fallback
 ├── 404.html
-├── sitemap.xml           50 URLs, generated from data.js
+├── sitemap.xml           GENERATED — 79 URLs + product images
+├── tools/build-pages.js  the generator: node tools/build-pages.js
+├── docs/tds/             published technical data sheets (PDF)
 ├── site.webmanifest
 ├── robots.txt  .htaccess  .nojekyll
 │
@@ -257,7 +261,7 @@ be filled in progressively without touching a template.
 - Every motion module honours `prefers-reduced-motion`.
 
 **Conversion**
-- Catalog gains live search + system filter + sort (52 products, previously unfiltered).
+- Catalog gains live search + range filter (now 68 products across 6 ranges).
 - Product pages show dilution, temperature, pH, pack options and safety notes.
 - Contact and the enquiry drawer both offer **WhatsApp primary + email fallback**,
   so a popup-blocked desktop visitor is no longer dead-ended.
@@ -318,3 +322,41 @@ for its scent picker but no vessel, because a flat disc cannot stand on a convey
 aurora. Over flat page background it reads as a slightly grey box, and where
 `backdrop-filter` is unsupported it opts out of translucency entirely rather than
 leaving unreadable text.
+
+## Revision 3 — September 2026 update
+
+### Static pages, generated from the data
+
+Product and range pages used to be one `product.html?id=…` / `systems.html?system=…`
+each, filled in by JavaScript. Two things made that a ceiling on growth:
+
+- Google advises against changing a canonical with JavaScript. The HTML said every
+  product page was `product.html`, so at most one could rank.
+- WhatsApp, Facebook and LinkedIn previews never run JavaScript. Every product link
+  shared in a chat previewed as "Product — Vistex Chemicals Ltd".
+
+`tools/build-pages.js` now writes a real page per product and per range from
+`data.js`: title, description, canonical, square share card with the packshot,
+JSON-LD, and a plain crawlable copy of the record in the body, which `product.js`
+replaces with the interactive version on load. It also writes `sitemap.xml` and
+stamps `?v=<content hash>` on every CSS/JS link, because `.htaccess` caches those for
+a month. Links are built through `V.productUrl()` / `V.rangeUrl()` only.
+
+Pages live at the root rather than in `products/`: a `<base href="../">` would have
+made the skip link and the catalogue's `history.replaceState` resolve against the
+root. Range filters are now links between range pages instead of in-page state.
+
+### Product page
+
+Renders, when the record has them: subtitle, pH, active ingredient, shelf life, a
+gallery strip, numbered directions, a dosing table, "Suitable for / Not for use on"
+and a hazard panel carrying the signal word printed on the product's own label
+(Danger red; Warning and Caution amber, AA in both themes) with a "never mix with"
+list. Guest amenities show no chemical-handling note, and `supplied: true` products
+say "supplied by", never "made by".
+
+### Sixth range
+
+"Industrial & Process Hygiene" (CIP, degreasers, sanitisers, water treatment) comes
+from the client's catalogue. It borrows the food-plant photograph until one is
+supplied. The home grid is a 12-column 2 + 4 layout, pairs below 1180px.

@@ -8,9 +8,19 @@
   var $ = function (id) { return document.getElementById(id); };
 
   // ---------- Marquee: product names, doubled for a seamless loop ----------
+  // Dealt round-robin across the ranges: in catalogue order the first twenty
+  // names were all laundry and housekeeping, so the ticker undersold the rest.
   (function () {
-    var names = V.products.map(function (p) { return p.name + (p.code ? ' ' + p.code : ''); });
-    var uniq = names.filter(function (n, i) { return names.indexOf(n) === i; }).slice(0, 20);
+    var queues = V.systems.map(function (s) { return V.bySystem(s.key).slice(); });
+    var names = [], more = true;
+    while (more) {
+      more = false;
+      queues.forEach(function (q) {
+        var p = q.shift();
+        if (p) { names.push(p.name + (p.code ? ' ' + p.code : '')); more = true; }
+      });
+    }
+    var uniq = names.filter(function (n, i) { return names.indexOf(n) === i; }).slice(0, 24);
     var run = uniq.map(function (n) { return '<span>' + esc(n) + '</span>'; }).join('');
     $('marquee').innerHTML = run + run;
   })();
@@ -34,7 +44,7 @@
 
   $('sysGrid').innerHTML = V.systems.map(function (s) {
     var n = V.bySystem(s.key).length;
-    return '<a class="sys-card" data-anim="up" href="systems.html?system=' + s.key + '">' +
+    return '<a class="sys-card" data-anim="up" href="' + V.rangeUrl(s) + '">' +
       window.vxPicture(s.img, '', { cls: 'sys-card-img', w: 640, h: 480, extra: ' onerror="this.remove()"' }) +
       '<div class="sys-wave">' + WAVE + '</div>' +
       '<div class="sys-card-top">' +
@@ -277,8 +287,8 @@
       if (k === shown) return;
       shown = k;
       var p = list[k];
-      capEl.innerHTML = '<b>' + esc(p.name) + '</b><span>' + esc(p.code || p.pack || 'Swift') + '</span>';
-      capEl.href = 'product.html?id=' + encodeURIComponent(p.id);
+      capEl.innerHTML = '<b>' + esc(p.name) + '</b><span>' + esc(p.code || V.packShort(p) || 'Swift') + '</span>';
+      capEl.href = V.productUrl(p);
       capEl.setAttribute('tabindex', '0');
       dotEls.forEach(function (n, i) { n.classList.toggle('on', i === k); });
       nodes.forEach(function (n, i) { n.classList.toggle('is-hero', i === k); });
@@ -373,7 +383,7 @@
     // content, not decoration — it names who Vistex serves. Under reduced motion
     // the CSS collapses the transition, so it becomes a plain instant swap
     // instead of a slide, which is the behaviour that setting actually asks for.
-    var words = ['Hotels', 'Hospitals', 'Schools', 'Kitchens', 'Laundries', 'Pools', 'Institutions'];
+    var words = ['Hotels', 'Hospitals', 'Schools', 'Kitchens', 'Laundries', 'Pools', 'Food Plants', 'Institutions'];
     var i = 0, busy = false;
 
     // Reserve the width of the longest word so the headline never reflows mid-swap.

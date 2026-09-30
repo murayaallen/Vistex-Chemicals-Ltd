@@ -15,7 +15,11 @@ package-lock.json
 # source artwork, not part of the deploy
 /jerricans/
 /new/
+/Updates/
 /Urinal Mat Scents/
 *.pdf
 *.docx
 *.zip
+# …except the published data sheets, which ARE the deploy. Without this the
+# download links on product pages would 404 on GitHub Pages.
+!/docs/**/*.pdf

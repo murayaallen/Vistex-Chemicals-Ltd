@@ -32,7 +32,7 @@
 
     var sysChips = ind.systems.map(function (k) {
       var s = V.getSystem(k);
-      return '<a class="chip" href="systems.html?system=' + k + '">' + icon(s.icon, 15) + esc(s.short) + '</a>';
+      return '<a class="chip" href="' + V.rangeUrl(k) + '">' + icon(s.icon, 15) + esc(s.short) + '</a>';
     }).join('');
 
     var clients = ind.clients.length
@@ -43,17 +43,19 @@
     // Cut-outs, not packshots: a transparent product floating on the glass
     // panel reads as a specification for this sector rather than a catalogue
     // tile, and it is the same artwork the hero conveyor uses.
+    // A product with neither a cut-out nor a photo has nothing to show on the
+    // glass, so it is skipped rather than rendering a broken image.
     var recs = (ind.recommend || []).map(function (id) { return V.getProduct(id); })
-      .filter(Boolean).map(function (p, n) {
+      .filter(function (p) { return p && (p.cutout || p.image); }).map(function (p, n) {
         var art = p.cutout
           ? '<span class="rec-cut">' + window.vxPicture(thumb(p.cutout), '', { w: 209, h: 240 }) + '</span>'
           : '<span class="rec-cut rec-cut--photo">' + window.vxPicture(thumb(p.image), '', { w: 360, h: 360 }) + '</span>';
-        return '<a class="rec-card glass" href="product.html?id=' + encodeURIComponent(p.id) + '"' +
+        return '<a class="rec-card glass" href="' + V.productUrl(p) + '"' +
                  ' style="--i:' + n + '" data-rec>' +
             '<span class="rec-glow" aria-hidden="true"></span>' +
             art +
             '<span class="rec-name">' + esc(p.name) + '</span>' +
-            '<span class="rec-meta">' + esc(p.code || p.pack || '') + '</span>' +
+            '<span class="rec-meta">' + esc(p.code || V.packShort(p)) + '</span>' +
           '</a>';
       }).join('');
 
@@ -68,7 +70,7 @@
         '</div>'
       : '';
 
-    // Decorated here rather than in the HTML because these five bands are built
+    // Decorated here rather than in the HTML because these bands are built
     // at runtime; industries.js runs before motion.js, so they exist by the time
     // the decorator sweeps for [data-decor].
     return '<section id="ind-' + ind.key + '" data-decor="bubbles glow" data-bubbles="7"' +
@@ -95,7 +97,7 @@
 
   // ---------- Scroll-linked drift on each recommendation rail ----------
   // The rail leans into the page as it comes past: a small, scroll-scrubbed
-  // parallax that stops the five bands feeling like five copies of one band.
+  // parallax that stops the bands feeling like copies of one band.
   // Driven by IntersectionObserver + rAF rather than a scroll listener, so
   // nothing is computed for a rail that is nowhere near the viewport.
   (function () {
