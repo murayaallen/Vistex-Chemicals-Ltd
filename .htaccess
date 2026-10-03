@@ -26,7 +26,7 @@ DirectoryIndex index.html
 # of the site; answer 404 so it is neither served nor indexed. docs/ (the
 # published data sheets) is deliberately not matched.
 <IfModule mod_alias.c>
-  RedirectMatch 404 ^/(Updates|new|jerricans|tools|Urinal\sMat\sScents)(/.*)?$
+  RedirectMatch 404 ^/(Updates|new|jerricans|tools|packaging|Urinal\sMat\sScents)(/.*)?$
   RedirectMatch 404 ^/[^/]+\.(pdf|docx|zip|md)$
   RedirectMatch 404 ^/preview-[^/]*\.html$
   RedirectMatch 404 ^/\.git(/.*)?$

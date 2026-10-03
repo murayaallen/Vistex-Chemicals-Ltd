@@ -23,3 +23,5 @@ package-lock.json
 # …except the published data sheets, which ARE the deploy. Without this the
 # download links on product pages would 404 on GitHub Pages.
 !/docs/**/*.pdf
+# packaging artwork is a deliverable we version; .htaccess 404s the folder
+!/packaging/**/*.pdf
