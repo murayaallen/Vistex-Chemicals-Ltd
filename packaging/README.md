@@ -1,85 +1,91 @@
-# Swift Toilet Blocks — 4 × 50 g folding carton
+# Swift Toilet Blocks — 4 × 50 g euro-slot hang card
 
-Print artwork for the Swift Toilet Blocks carton, rebuilt from scratch in
-October 2026. Not part of the website; `.htaccess` returns 404 for this folder
-so it is never served.
+Print artwork for the Swift Toilet Blocks pack, built October 2026. Not part of
+the website; `.htaccess` returns 404 for this folder so it is never served.
 
 | File | What it is |
 |---|---|
-| `Swift-Toilet-Blocks-4x50g-ARTWORK.pdf` | **Send this to the printer.** Artwork only, 261 × 216 mm. |
-| `Swift-Toilet-Blocks-4x50g-PROOF-dieline.pdf` | For checking and sign-off. Same artwork plus cut/crease lines, panel labels and a spec legend. **Do not print from this one** — the dieline marks would print. |
-| `preview/` | PNGs for quick viewing and for sending to the client. |
+| `Swift-Toilet-Blocks-4x50g-FRONT.pdf` | **To the printer.** Front face, 136 × 186 mm. |
+| `Swift-Toilet-Blocks-4x50g-BACK.pdf` | **To the printer.** Back face, same size. |
+| `Swift-Toilet-Blocks-4x50g-PROOF-dieline.pdf` | For checking and sign-off: both faces side by side with the cut line and a spec legend. **Do not print from this one** — the die marks would print. |
+| `preview/` | PNGs for viewing and for sending to the client. |
 | `src/` | The generator. Re-run it to make changes — see below. |
 
 ---
 
 ## Specification
 
-- **Carton:** straight tuck end (STE), **68 (w) × 118 (h) × 52 (d) mm**
-- **Flat:** 255 × 210 mm · **page:** 261 × 216 mm (3 mm bleed all round)
-- **Glue flap:** 15 mm, deliberately left unprinted — ink weakens the bond
-- **Tuck flaps:** 46 mm
-- **Colour:** RGB. The printer will convert to CMYK; ask them to match the
-  brand blue to **Pantone 2738 C** (nearest to `#2E3995`) if printing spot.
-- **Fonts:** Outfit and Plus Jakarta Sans, embedded as subsets. The same
-  faces the website uses, so pack and site match.
-- **Vector:** everything except the Vistex wordmark, which is a 755 px PNG
-  placed 27 mm wide — about 700 dpi, comfortably above the 300 dpi minimum.
-  The Swift oval is true vector, placed from `Swift Logo.pdf`.
+- **Format:** euro-slot hang card, **130 × 180 mm**, 6 mm corner radius
+- **Hanger:** sombrero euro punch — 34 × 6.2 mm slot with a 12.8 mm round hole,
+  centred, top of the punch 3.8 mm from the card edge
+- **Page:** 136 × 186 mm per face (3 mm bleed all round)
+- **Die matches the Blue-Drop card**, so one cutting tool serves both SKUs.
+- **Colour:** RGB. The printer converts to CMYK; ask them to match the brand
+  blue to **Pantone 2738 C** (nearest to `#2E3995`) if printing spot.
+- **Fonts:** Outfit and Plus Jakarta Sans, embedded as subsets — the same faces
+  the website uses, so pack and site match.
+- **Vector:** everything except the Vistex wordmark, a 755 px PNG placed 36 mm
+  wide (~530 dpi). The Swift oval is true vector, placed from `Swift Logo.pdf`.
 
-### Why the carton is this size
+### The premium devices
 
-Four 50 g cistern blocks, each roughly 50 mm across and 28 mm thick, stacked
-in a column: 4 × 28 = 112 mm, inside a 118 mm internal height, with 50 mm
-across fitting the 68 × 52 mm footprint. **Confirm against the real block
-dimensions before the die is cut** — if they differ, change `W_PANEL`,
-`H_PANEL` and `D_PANEL` at the top of `src/build.py` and re-run.
+- A double platinum keyline frame with corner diamonds, on both faces
+- Hairline-and-diamond ornament rules separating each block of content
+- A platinum roundel seal carrying `50 g × 4`
+- Concentric arcs behind the product, at 7 % opacity, for depth without pattern
+- Deep layered gradient with a vignette, rather than one flat blue
+
+> The platinum is printed CMYK — it reads as metal but is not metallic.
+> **If you want real metal, specify silver foil or a metallic spot ink** for the
+> frame, rules, seal ring and corner diamonds; they are already separate
+> elements, so the printer can pull them to a foil layer without redrawing.
 
 ---
 
 ## Two things the client must supply
 
-1. **The GTIN / barcode number.** The right side panel carries a correctly
-   sized EAN-13 area (37.29 × 25.93 mm at 100 % magnification) marked as a
-   placeholder. It cannot be filled in without the number.
-2. **Confirmation of the active ingredient.** The back panel currently states
-   *sodium dichloroisocyanurate, anionic & non-ionic surfactants, fragrance,
-   colourant*, carried over from the previous artwork. It has not been checked
-   against a formulation sheet or an SDS.
+1. **The GTIN / barcode number.** There is no barcode on the card yet. A euro
+   hang card normally carries an EAN-13 on the back, bottom-left; the space is
+   there, and it takes 37.3 × 25.9 mm at 100 % magnification.
+2. **Confirmation of the active ingredient.** The back states *sodium
+   dichloroisocyanurate, anionic & non-ionic surfactants, fragrance, colourant*,
+   carried over from the previous artwork. It has **not** been checked against a
+   formulation sheet or an SDS.
+
+## One thing to confirm with the printer
+
+If the blocks ship in a **clear blister** rather than loose behind the card, the
+blister footprint lands over the product illustration in the middle of the front.
+Tell the printer which it is: a blister means the illustration is covered by the
+real product and may be dropped.
 
 ---
 
-## What changed from the previous file
+## What changed from the file originally supplied
 
-The supplied `Swift_Toilet_Blocks_4PCS_Printable_Dieline.pdf` could not be
-printed. It was a single 1536 × 1024 pixel image stretched across 432 mm —
-about **90 dpi**, against the 300 dpi a printer needs. It had no vector paths,
-no live text and no actual dieline; the pink edges were decoration, not cut
-lines. Nothing in it could be corrected, so it was rebuilt rather than edited.
-
-Beyond that:
+`Swift_Toilet_Blocks_4PCS_Printable_Dieline.pdf` could not be printed. It was a
+single 1536 × 1024 pixel image stretched across 432 mm — about **90 dpi**, where
+a printer needs 300 — with no vector paths, no live text and no dieline; the pink
+edges were decoration, not cut lines. Nothing in it could be corrected, so it was
+rebuilt.
 
 - **The logos were wrong.** Both were invented: a green-and-blue starburst in
   place of the Swift oval, and a green tick in place of the Vistex VC mark.
-  Both are now the real artwork.
-- **Pack contents moved to the front**, as asked — `50 g × 4 · NET WT. 200 g`
-  on a white panel under the product, and repeated on the side and bottom flap.
-- **Typography rebuilt** in the brand faces, on a consistent scale, replacing
-  the mix of sizes and styles in the original.
-- **Decluttered.** The original repeated the same four benefits on the front
-  *and* the left panel. Benefits now appear once, on the left panel; the front
-  carries three short claims. "Ideal for" moved to the right panel.
-- **The QR code now works.** The original's was an AI-drawn pattern that does
-  not decode. This one resolves to `https://vistexchemicals.co.ke` and was
-  tested down to 150 dpi.
-- **Added:** proper bleed, a real dieline, a barcode area, batch/date fields,
-  and an unprinted glue flap.
+- **Format changed** from a tuck-end carton to this hang card, to match the
+  sample.
+- **Pack contents on the front** — in the seal, and again on the bottom bar.
+- **Batch / manufacture / expiry fields removed**, as asked.
+- **Typography rebuilt** in the brand faces on one consistent scale.
+- **Decluttered:** benefits appear once, not twice.
+- **The QR code works.** The original's was an AI-drawn pattern that does not
+  decode. This one resolves to `https://vistexchemicals.co.ke`, tested to 150 dpi.
 
 ---
 
 ## Making changes
 
-Needs Node and Python with `pymupdf`, `pillow` and `qrcode`.
+Needs Node and Python with `pymupdf`, `pillow`, `qrcode` (and `opencv-python-headless`
+only if you want to re-test the QR).
 
 ```bash
 cd src
@@ -87,16 +93,19 @@ python assets.py        # only after changing the QR target or the logos
 pwsh make.ps1           # build + render + stamp + verify + previews
 ```
 
-`make.ps1` does the whole pipeline and runs 23 checks: page size, flat
-geometry, that the artwork file carries no dieline marks, that every panel
-bleeds its own colour past the trim, that no text sits in the bleed, and that
-the stamped Swift logos do not land on type.
+`make.ps1` runs the whole pipeline and 242 checks: page size, bleed on all four
+sides of both faces, that the artwork files carry no die marks, that no type sits
+in the bleed or under the hanger punch, that type clears the die edge, and that
+the stamped Swift logo does not land on other type. It also reports the gap
+between the back's flowing copy and its pinned footer.
 
-Edit copy and layout in `src/build.py` — the panel functions (`front`, `back`,
-`side_left`, `side_right`, `flaps`) are laid out in millimetres from each
-panel's top-left corner.
+Edit copy and layout in `src/build.py`. The back is laid out in **normal document
+flow**, so adding a line pushes the rest down instead of overlapping it; the
+front is positioned absolutely in millimetres.
 
-> Two traps, both of which bit during the build and are now guarded by checks:
-> Chrome silently shrinks the page to 76 % if any element overflows the
-> viewport, and the Swift logo positions live in `meta.json` *and* in the HTML
-> — change one and you must change the other.
+> Three traps, all of which bit during the build and are now guarded:
+> Chrome silently shrinks the page to 76 % if any element overflows the viewport;
+> the Swift logo position lives in `meta.json` *as well as* the HTML, so changing
+> one means changing the other; and a `.card` only clips at its own edge, so the
+> back's copy could run into the footer without any clipping warning — hence the
+> explicit gap check.

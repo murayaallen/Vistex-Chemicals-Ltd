@@ -1,16 +1,16 @@
-"""Swift Toilet Blocks — 4 x 50 g folding carton artwork.
+"""Swift Toilet Blocks — 4 x 50 g euro-slot hang card.
 
-Builds a print-ready flat carton at true size (mm) as HTML that Chrome renders
-to vector PDF. Everything is vector except the Vistex wordmark (755 px PNG,
-~600 dpi at its printed size); the Swift oval is stamped in afterwards from the
-supplied vector PDF by stamp.py, because Chrome cannot carry its gradients
-through an <img> without rasterising them.
+Die matches the Blue-Drop sample supplied by the client: 130 x 180 mm rounded
+rectangle with a sombrero euro hanger, so one cutting die can serve both SKUs.
 
-Writes two files:
-  carton.html        artwork only, 261 x 216 mm  -> goes to plate
-  carton-proof.html  artwork + dieline + legend  -> for checking and approval
+Builds at true size (mm) as HTML that Chrome renders to vector PDF. Everything
+is vector except the Vistex wordmark (755 px PNG, ~600 dpi at printed size);
+the Swift oval is stamped afterwards from the supplied vector PDF by stamp.py,
+because Chrome rasterises its gradients through an <img>.
 
-Geometry: straight tuck end (STE) carton, 68 (w) x 118 (h) x 52 (d) mm.
+Writes:
+  card-front.html / card-back.html   artwork, 136 x 186 mm each (3 mm bleed)
+  card-proof.html                    both side by side, dieline + legend
 """
 import json, math, pathlib
 
@@ -18,72 +18,146 @@ HERE = pathlib.Path(__file__).parent
 A = json.loads((HERE / "assets.json").read_text(encoding="utf8"))
 
 # ---------------------------------------------------------------- geometry
-W_PANEL, H_PANEL, D_PANEL = 68.0, 118.0, 52.0
-GLUE, TUCK, BLEED = 15.0, 46.0, 3.0
-LEGEND = 19.0                                   # proof-only annotation band
+CARD_W, CARD_H = 130.0, 180.0
+BLEED = 3.0
+PAGE_W, PAGE_H = CARD_W + BLEED * 2, CARD_H + BLEED * 2     # 136 x 186
+CORNER = 6.0                 # die corner radius, measured off the sample
+# sombrero euro hanger
+HANG_SLOT_W, HANG_SLOT_H, HANG_SLOT_Y = 34.0, 6.2, 11.0     # slot centre line
+HANG_BUMP_R, HANG_BUMP_CY = 6.4, 10.2
+FRAME_TOP, FRAME_IN = 19.5, 6.5    # punch ends at 16.6 mm, so 2.9 mm clear    # keyline frame: below the hanger, inset
+PAD = 6.5                          # content padding inside the frame
 
-FLAT_W = GLUE + W_PANEL + D_PANEL + W_PANEL + D_PANEL   # 255
-FLAT_H = TUCK + H_PANEL + TUCK                          # 210
-PAGE_W = FLAT_W + BLEED * 2                             # 261
-PAGE_H = FLAT_H + BLEED * 2                             # 216
+PROOF_GAP = 14.0
+PROOF_W = PAGE_W * 2 + PROOF_GAP
+PROOF_LEGEND = 22.0
+PROOF_H = PAGE_H + PROOF_LEGEND
 
-X_GLUE  = BLEED
-X_BACK  = X_GLUE + GLUE
-X_SIDEL = X_BACK + W_PANEL
-X_FRONT = X_SIDEL + D_PANEL
-X_SIDER = X_FRONT + W_PANEL
-Y_TOP   = BLEED
-Y_BODY  = Y_TOP + TUCK
-Y_BOT   = Y_BODY + H_PANEL
+NAVY, DEEP, BLUE = "#04123A", "#071E5C", "#1340A8"
+BRAND, AQUA, PALE = "#2E3995", "#00A6E6", "#BFE6FA"
+RED, INK, MUTED = "#ED1E26", "#17203C", "#55608A"
+IVORY = "#FBFCFE"
 
-NAVY, BLUE, BRAND = "#061A4A", "#123A9E", "#2E3995"
-AQUA, PALE, RED   = "#00A6E6", "#BFE6FA", "#ED1E26"
-INK, MUTED        = "#1B2440", "#55608A"
+# platinum, echoing the chrome rim on the Swift oval
+PLAT = ["#FFFFFF", "#C6D2E4", "#8FA2BE", "#EAF1FA", "#7F93B2"]
 
 
 def mm(v):
     return f"{v:.3f}mm"
 
 
+# ---------------------------------------------------------------- die path
+def die_path(ox=0.0, oy=0.0):
+    """Outline of the card: rounded rect minus the sombrero hanger."""
+    x, y, w, h, r = ox, oy, CARD_W, CARD_H, CORNER
+    cx = x + w / 2
+    sw, sh = HANG_SLOT_W / 2, HANG_SLOT_H / 2
+    sy = y + HANG_SLOT_Y
+    br, bcy = HANG_BUMP_R, y + HANG_BUMP_CY
+    # outer rounded rectangle, clockwise from the top-left arc
+    outer = (f"M{x+r:.2f},{y:.2f} H{x+w-r:.2f} A{r},{r} 0 0 1 {x+w:.2f},{y+r:.2f} "
+             f"V{y+h-r:.2f} A{r},{r} 0 0 1 {x+w-r:.2f},{y+h:.2f} H{x+r:.2f} "
+             f"A{r},{r} 0 0 1 {x:.2f},{y+h-r:.2f} V{y+r:.2f} A{r},{r} 0 0 1 {x+r:.2f},{y:.2f} Z")
+    # hanger: horizontal slot with fully rounded ends, plus a circle on top.
+    # Drawn as two subpaths; even-odd fill makes them a hole in the card.
+    slot = (f"M{cx-sw+sh:.2f},{sy-sh:.2f} H{cx+sw-sh:.2f} "
+            f"A{sh},{sh} 0 0 1 {cx+sw-sh:.2f},{sy+sh:.2f} H{cx-sw+sh:.2f} "
+            f"A{sh},{sh} 0 0 1 {cx-sw+sh:.2f},{sy-sh:.2f} Z")
+    bump = (f"M{cx-br:.2f},{bcy:.2f} A{br},{br} 0 1 1 {cx+br:.2f},{bcy:.2f} "
+            f"A{br},{br} 0 1 1 {cx-br:.2f},{bcy:.2f} Z")
+    return outer, slot, bump
+
+
+def die_svg(ox, oy, cls_out="cut", cls_hole="cut"):
+    o, s, b = die_path(ox, oy)
+    return (f'<path class="{cls_out}" d="{o}"/>'
+            f'<path class="{cls_hole}" d="{s}"/><path class="{cls_hole}" d="{b}"/>')
+
+
+# ---------------------------------------------------------------- ornament
+def defs(uid=""):
+    return f'''<defs>
+  <linearGradient id="plat{uid}" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="{PLAT[0]}"/><stop offset=".22" stop-color="{PLAT[1]}"/>
+    <stop offset=".46" stop-color="{PLAT[2]}"/><stop offset=".62" stop-color="{PLAT[3]}"/>
+    <stop offset="1" stop-color="{PLAT[4]}"/></linearGradient>
+  <linearGradient id="platH{uid}" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="{PLAT[2]}" stop-opacity="0"/>
+    <stop offset=".18" stop-color="{PLAT[1]}"/><stop offset=".5" stop-color="{PLAT[0]}"/>
+    <stop offset=".82" stop-color="{PLAT[1]}"/>
+    <stop offset="1" stop-color="{PLAT[2]}" stop-opacity="0"/></linearGradient>
+  <linearGradient id="platD{uid}" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#9FB0C8" stop-opacity="0"/>
+    <stop offset=".2" stop-color="#7E90AE"/><stop offset=".5" stop-color="#C9D6E8"/>
+    <stop offset=".8" stop-color="#7E90AE"/>
+    <stop offset="1" stop-color="#9FB0C8" stop-opacity="0"/></linearGradient>
+</defs>'''
+
+
+def rule_plat(w, h=0.5, dark=False):
+    """A hairline that reads as brushed metal."""
+    g = "platD" if dark else "platH"
+    return (f'<svg viewBox="0 0 {w} {h}" preserveAspectRatio="none" '
+            f'style="width:{mm(w)};height:{mm(h)};display:block">{defs("r%d" % (w*10))}'
+            f'<rect width="{w}" height="{h}" fill="url(#{g}r{int(w*10)})"/></svg>')
+
+
+def diamond(size=2.6, dark=False):
+    c = "#7E90AE" if dark else "#DCE6F3"
+    return (f'<svg viewBox="0 0 10 10" style="width:{mm(size)};height:{mm(size)};display:block">'
+            f'<path d="M5 0 L10 5 L5 10 L0 5 Z" fill="{c}"/>'
+            f'<path d="M5 2.2 L7.8 5 L5 7.8 L2.2 5 Z" fill="{"#C9D6E8" if dark else "#9FB0C8"}"/></svg>')
+
+
+def ornament_rule(total_w, dark=False):
+    """hairline — diamond — hairline, centred."""
+    side = (total_w - 6.0) / 2
+    return (f'<div style="display:flex;align-items:center;justify-content:center;gap:{mm(1.6)};'
+            f'width:{mm(total_w)}">{rule_plat(side, dark=dark)}{diamond(2.6, dark)}'
+            f'{rule_plat(side, dark=dark)}</div>')
+
+
 # ---------------------------------------------------------------- product art
-def block_svg(uid, ridges=26):
-    cx, cy, rx, ry, depth = 100.0, 66.0, 88.0, 48.0, 23.0
-    o = ['<svg viewBox="0 0 200 150" xmlns="http://www.w3.org/2000/svg" '
-         'preserveAspectRatio="xMidYMid meet">']
+def block_svg(uid, ridges=30):
+    cx, cy, rx, ry, depth = 100.0, 64.0, 90.0, 49.0, 24.0
+    o = [f'<svg viewBox="0 0 200 150" preserveAspectRatio="xMidYMid meet">']
     o.append(f'''<defs>
       <linearGradient id="sd{uid}" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#1B50C8"/><stop offset=".55" stop-color="#0E2E86"/>
-        <stop offset="1" stop-color="#071E5C"/></linearGradient>
-      <radialGradient id="tp{uid}" cx=".38" cy=".30" r=".85">
-        <stop offset="0" stop-color="#4E8BEE"/><stop offset=".55" stop-color="#1E52C4"/>
-        <stop offset="1" stop-color="#0B2E88"/></radialGradient>
-      <linearGradient id="gl{uid}" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#FFF" stop-opacity=".55"/>
-        <stop offset=".45" stop-color="#FFF" stop-opacity=".06"/>
+        <stop offset="0" stop-color="#2A62D8"/><stop offset=".5" stop-color="#11359C"/>
+        <stop offset="1" stop-color="#06195A"/></linearGradient>
+      <radialGradient id="tp{uid}" cx=".36" cy=".26" r=".88">
+        <stop offset="0" stop-color="#7FB2F7"/><stop offset=".4" stop-color="#2E66DD"/>
+        <stop offset=".78" stop-color="#1340A8"/><stop offset="1" stop-color="#0B2A74"/></radialGradient>
+      <linearGradient id="gl{uid}" x1=".1" y1="0" x2=".8" y2="1">
+        <stop offset="0" stop-color="#FFF" stop-opacity=".62"/>
+        <stop offset=".38" stop-color="#FFF" stop-opacity=".08"/>
         <stop offset="1" stop-color="#FFF" stop-opacity="0"/></linearGradient></defs>''')
+    o.append(f'<ellipse cx="{cx}" cy="{cy+depth+6}" rx="{rx*.92:.1f}" ry="{ry*.26:.1f}" '
+             f'fill="#020A22" fill-opacity=".38"/>')
     o.append(f'<path d="M{cx-rx:.2f},{cy:.2f} v{depth:.2f} '
              f'a{rx:.2f},{ry:.2f} 0 0 0 {rx*2:.2f},0 v-{depth:.2f} '
              f'a{rx:.2f},{ry:.2f} 0 0 1 -{rx*2:.2f},0 z" fill="url(#sd{uid})"/>')
     for i in range(ridges):
         a = math.pi * (i + .5) / ridges
         x, y = cx - rx * math.cos(a), cy + ry * math.sin(a)
-        o.append(f'<path d="M{x:.2f},{y:.2f} v{depth:.2f}" stroke="#061A4A" '
-                 f'stroke-opacity="{.30 if i % 2 else .10}" stroke-width="2.6"/>')
+        o.append(f'<path d="M{x:.2f},{y:.2f} v{depth:.2f}" stroke="#03103A" '
+                 f'stroke-opacity="{.34 if i % 2 else .12}" stroke-width="2.4"/>')
     o.append(f'<ellipse cx="{cx}" cy="{cy}" rx="{rx}" ry="{ry}" fill="url(#tp{uid})"/>')
     for i in range(ridges):
         a = 2 * math.pi * i / ridges
-        o.append(f'<path d="M{cx+rx*.30*math.cos(a):.2f},{cy+ry*.30*math.sin(a):.2f} '
-                 f'L{cx+rx*.95*math.cos(a):.2f},{cy+ry*.95*math.sin(a):.2f}" '
-                 f'stroke="#9CC6FF" stroke-opacity=".40" stroke-width="2.2" stroke-linecap="round"/>')
-    o.append(f'<ellipse cx="{cx}" cy="{cy}" rx="{rx*.30:.2f}" ry="{ry*.30:.2f}" '
-             f'fill="#0A2C84" fill-opacity=".55"/>')
+        o.append(f'<path d="M{cx+rx*.26*math.cos(a):.2f},{cy+ry*.26*math.sin(a):.2f} '
+                 f'L{cx+rx*.94*math.cos(a):.2f},{cy+ry*.94*math.sin(a):.2f}" '
+                 f'stroke="#BBD8FF" stroke-opacity=".42" stroke-width="2.0" stroke-linecap="round"/>')
+    o.append(f'<ellipse cx="{cx}" cy="{cy}" rx="{rx*.26:.2f}" ry="{ry*.26:.2f}" fill="#0A2770"/>')
+    o.append(f'<ellipse cx="{cx}" cy="{cy}" rx="{rx*.26:.2f}" ry="{ry*.26:.2f}" fill="none" '
+             f'stroke="#9BC4FF" stroke-opacity=".5" stroke-width="1.4"/>')
     o.append(f'<ellipse cx="{cx}" cy="{cy}" rx="{rx}" ry="{ry}" fill="url(#gl{uid})"/>')
     o.append(f'<ellipse cx="{cx}" cy="{cy}" rx="{rx}" ry="{ry}" fill="none" '
-             f'stroke="#A9D4FF" stroke-opacity=".5" stroke-width="1.6"/></svg>')
+             f'stroke="#CFE4FF" stroke-opacity=".55" stroke-width="1.5"/></svg>')
     return "".join(o)
 
 
-def icon(name, col="#FFFFFF"):
+def icon(name, col="#FFFFFF", sw=1.8):
     p = {
       "flush":   '<path d="M5 4h14v5a7 7 0 0 1-14 0z"/><path d="M9 4V2h6v2"/><path d="M12 16v6"/>',
       "germ":    '<circle cx="12" cy="12" r="5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>',
@@ -91,378 +165,302 @@ def icon(name, col="#FFFFFF"):
       "fresh":   '<path d="M12 3c3 4 5 6 5 9a5 5 0 0 1-10 0c0-3 2-5 5-9z"/>',
       "tank":    '<rect x="4" y="5" width="16" height="9" rx="1.5"/><path d="M8 14v5h8v-5M12 8v3"/>',
       "sparkle": '<path d="M12 4l1.8 4.7L18.5 10l-4.7 1.8L12 16l-1.8-4.2L5.5 10l4.7-1.3z"/><path d="M18 16l.9 2.1L21 19l-2.1.9L18 22l-.9-2.1L15 19l2.1-.9z"/>',
+      "shield":  '<path d="M12 3l8 3v6c0 5-3.4 8.2-8 9-4.6-.8-8-4-8-9V6z"/>',
     }[name]
-    return (f'<svg viewBox="0 0 24 24" fill="none" stroke="{col}" stroke-width="1.9" '
+    return (f'<svg viewBox="0 0 24 24" fill="none" stroke="{col}" stroke-width="{sw}" '
             f'stroke-linecap="round" stroke-linejoin="round">{p}</svg>')
 
 
 # ---------------------------------------------------------------- copy
-DESC = ("Swift Toilet Blocks clean, freshen and protect the toilet bowl with every "
-        "flush. Each block dissolves gradually, helping prevent limescale and stains "
-        "while leaving a long-lasting fresh fragrance.")
-STEPS = [("tank",    "Lift the cistern lid and drop one block into the tank, clear of the inlet and float."),
-         ("flush",   "The block dissolves gradually, releasing cleaner with every flush."),
+DESC = ("Cleans, freshens and protects the toilet bowl with every flush. Each block "
+        "dissolves gradually, preventing limescale and leaving a fresh fragrance.")
+STEPS = [("tank", "Drop one block into the cistern, clear of the inlet and float."),
+         ("flush", "The block dissolves gradually, releasing cleaner with every flush."),
          ("sparkle", "Replace when fully dissolved — about one block per month.")]
 BENEFITS = [("flush", "Cleans with every flush"), ("germ", "Fights germs"),
             ("scale", "Prevents limescale & stains"), ("fresh", "Long-lasting freshness")]
-IDEAL = ["Homes", "Hotels & lodges", "Restaurants", "Schools",
-         "Hospitals", "Offices", "Public washrooms"]
+IDEAL = ["Homes", "Hotels", "Restaurants", "Schools",
+         "Hospitals", "Offices", "Washrooms"]
 CAUTION = ["Keep out of reach of children.", "Do not ingest.",
            "Avoid contact with skin and eyes.", "Wash hands after handling.",
            "Use only as directed."]
 
-CSS_T = """
-@page {{ size: {pw}mm {ph}mm; margin: 0; }}
-@font-face {{ font-family: Outfit; src: url(data:font/woff2;base64,{fo}) format('woff2');
+CSS = f"""
+@font-face {{ font-family: Outfit; src: url(data:font/woff2;base64,{A['font_outfit']}) format('woff2');
   font-weight: 100 900; font-display: block; }}
-@font-face {{ font-family: Outfit; src: url(data:font/woff2;base64,{foe}) format('woff2');
+@font-face {{ font-family: Outfit; src: url(data:font/woff2;base64,{A['font_outfit_ext']}) format('woff2');
   font-weight: 100 900; unicode-range: U+0100-024F; font-display: block; }}
-@font-face {{ font-family: Jakarta; src: url(data:font/woff2;base64,{fj}) format('woff2');
+@font-face {{ font-family: Jakarta; src: url(data:font/woff2;base64,{A['font_jakarta']}) format('woff2');
   font-weight: 200 800; font-display: block; }}
 * {{ margin:0; padding:0; box-sizing:border-box;
      -webkit-print-color-adjust:exact; print-color-adjust:exact; }}
-html,body {{ width:{pw}mm; height:{ph}mm; }}
 body {{ font-family: Jakarta, sans-serif; background:#fff; position:relative; overflow:hidden; }}
-.panel {{ position:absolute; overflow:hidden; }}
-.ink   {{ position:absolute; overflow:hidden; }}
+.card {{ position:absolute; overflow:hidden; }}
+.abs  {{ position:absolute; }}
+.ctr  {{ position:absolute; width:100%; text-align:center; }}
 
-.h-prod {{ font-family:Outfit; font-weight:900; letter-spacing:-.025em; line-height:.9;
+.deep {{ background:
+   radial-gradient(86% 46% at 50% 30%, #2F6FE0 0%, #16429F 38%, {DEEP} 72%, {NAVY} 100%); }}
+.sheen {{ position:absolute; inset:0; background:
+   radial-gradient(44% 24% at 50% 62%, rgba(150,205,255,.30), transparent 72%),
+   linear-gradient(180deg, rgba(255,255,255,.10), transparent 24%, transparent 72%, rgba(0,0,0,.26)); }}
+
+.h-prod {{ font-family:Outfit; font-weight:900; letter-spacing:-.028em; line-height:.9;
            text-transform:uppercase; color:#fff; white-space:nowrap; }}
-.kicker {{ font-family:Outfit; font-weight:700; letter-spacing:.14em; text-transform:uppercase; }}
+.sc {{ font-family:Outfit; font-weight:600; text-transform:uppercase; }}
 
-.blue {{ background: radial-gradient(118% 76% at 50% 15%, #2E6BD8 0%, #12399B 46%, {navy} 100%); }}
-.blue::after {{ content:""; position:absolute; inset:0;
-  background: radial-gradient(58% 32% at 50% 60%, rgba(140,200,255,.28), transparent 70%); }}
-
-.f-c   {{ position:absolute; width:100%; text-align:center; }}
-.f-rule{{ position:absolute; height:.45mm;
-          background:linear-gradient(90deg,transparent,{aqua},transparent); }}
-.chips {{ position:absolute; display:flex; justify-content:center; width:100%; }}
-.chip  {{ display:flex; flex-direction:column; align-items:center; width:17mm; }}
-.chip span {{ font-family:Outfit; font-weight:700; letter-spacing:.05em;
-              text-transform:uppercase; color:#fff; text-align:center; line-height:1.1; }}
-.badge {{ position:absolute; left:50%; transform:translateX(-50%); display:flex;
-          align-items:baseline; white-space:nowrap; background:#fff;
-          border-radius:1.8mm; box-shadow:0 .5mm 1.4mm rgba(0,0,0,.20); }}
-
-.white {{ background:#fff; }}
-.hdr {{ display:inline-block; background:{brand}; color:#fff; font-family:Outfit;
-        font-weight:700; letter-spacing:.10em; text-transform:uppercase; border-radius:1.1mm;
-        white-space:nowrap; line-height:1; }}
-.hdr.red {{ background:{red}; }}
-.li {{ display:flex; gap:1.6mm; align-items:flex-start; }}
-.li i {{ flex:none; border-radius:50%; background:{aqua}; }}
-.rule {{ height:.25mm; background:#D4DCEF; }}
-.qrbox {{ background:#fff; }}
+.hdr {{ display:inline-flex; align-items:center; gap:{mm(1.8)}; background:{BRAND}; color:#fff;
+        font-family:Outfit; font-weight:700; letter-spacing:.11em; text-transform:uppercase;
+        border-radius:1.2mm; white-space:nowrap; line-height:1; }}
+.hdr.red {{ background:{RED}; }}
+.li {{ display:flex; gap:{mm(1.7)}; align-items:flex-start; }}
+.li i {{ flex:none; border-radius:50%; background:{AQUA}; }}
+.qrbox {{ background:#fff; border-radius:1mm; }}
 .qrbox svg {{ width:100%; height:100%; display:block; }}
 .qrbox svg path {{ fill:#0A1430; }}
 
-.s-row {{ display:flex; align-items:center; }}
-.flap {{ background:{navy}; }}
-
-.die {{ position:absolute; left:0; top:0; pointer-events:none; }}
-.die line, .die rect, .die path {{ fill:none; }}
-.cut    {{ stroke:#E6007E; stroke-width:.35; }}
-.crease {{ stroke:#00AEEF; stroke-width:.35; stroke-dasharray:2.2 1.4; }}
-.bleedl {{ stroke:#9A9A9A; stroke-width:.3; stroke-dasharray:1.2 1.2; }}
-/* font-size is an SVG attribute in user units (1 unit = 1 mm); a CSS mm value
-   inside a viewBox resolves inconsistently and rendered about 4x too large. */
+.cut    {{ fill:none; stroke:#E6007E; stroke-width:.35; }}
+.crease {{ fill:none; stroke:#00AEEF; stroke-width:.35; stroke-dasharray:2.2 1.4; }}
+.bleedl {{ fill:none; stroke:#9A9A9A; stroke-width:.3; stroke-dasharray:1.2 1.2; }}
 .dlabel {{ font-family:Jakarta; fill:#E6007E; font-weight:700; }}
 .dnote  {{ font-family:Jakarta; fill:#2B3350; }}
-.dkey   {{ font-family:Jakarta; font-weight:700; }}
 """
 
 
-# ---------------------------------------------------------------- panels
-def front():
-    x, y, w, h = X_FRONT, Y_BODY, W_PANEL, H_PANEL
-    lay = [(0.0, 6.0, 25.0, ".92"), (17.0, 1.5, 31.0, "1"), (36.0, 6.5, 23.0, ".88")]
-    blocks = f'<div style="position:absolute;left:{mm(5)};top:{mm(68.8)};width:{mm(w-10)};height:{mm(23)}">'
-    for i, (bx, by, bw, op) in enumerate(lay):
-        blocks += (f'<div style="position:absolute;left:{mm(bx)};top:{mm(by)};width:{mm(bw)};'
-                   f'opacity:{op}">{block_svg("f%d" % i)}</div>')
-    blocks += "</div>"
-    chips = "".join(
-        f'<div class="chip"><div style="width:{mm(5.0)};height:{mm(5.0)};margin-bottom:{mm(1.1)}">'
-        f'{icon(k)}</div><span style="font-size:{mm(2.45)}">{t}</span></div>'
-        for k, t in [("flush", "Cleans"), ("fresh", "Freshens"), ("germ", "Protects")])
-
-    return f"""
-<div class="panel blue" style="left:{mm(x)};top:{mm(y)};width:{mm(w)};height:{mm(h)}"></div>
-<div class="ink" style="left:{mm(x)};top:{mm(y)};width:{mm(w)};height:{mm(h)}">
-  <div id="swift-front" style="position:absolute;left:{mm((w-36)/2)};top:{mm(7)};
-       width:{mm(36)};height:{mm(18)}"></div>
-  <div class="f-c h-prod" style="top:{mm(30.0)};font-size:{mm(12.6)}">TOILET</div>
-  <div class="f-c h-prod" style="top:{mm(41.2)};font-size:{mm(12.6)}">BLOCKS</div>
-  <div class="f-rule" style="left:{mm(w/2-13)};top:{mm(55.7)};width:{mm(26)}"></div>
-  <div class="f-c" style="top:{mm(58.5)};font-family:Outfit;font-weight:600;
-       font-size:{mm(3.35)};letter-spacing:.05em;color:{PALE}">AUTOMATIC TOILET BOWL CLEANER</div>
-  <div class="f-c" style="top:{mm(62.9)};font-size:{mm(2.75)};font-weight:500;
-       letter-spacing:.02em;color:rgba(255,255,255,.74)">Cleans &middot; Freshens &middot; Prevents limescale</div>
-  {blocks}
-  <div class="chips" style="top:{mm(95.3)}">{chips}</div>
-  <div class="badge" style="top:{mm(105.2)};padding:{mm(1.7)} {mm(4.0)};gap:{mm(2.6)}">
-    <span style="font-family:Outfit;font-weight:900;font-size:{mm(6.4)};color:{BRAND};
-          letter-spacing:-.01em">50 g &times; 4</span>
-    <span style="font-family:Outfit;font-weight:700;font-size:{mm(2.5)};color:{BLUE};
-          letter-spacing:.05em">NET WT. 200 g</span>
-  </div>
-</div>"""
-
-
-def back():
-    x, y, w, h = X_BACK, Y_BODY, W_PANEL, H_PANEL
-    pad, iw = 5.0, W_PANEL - 10.0
-    o = [f'<div class="panel white" style="left:{mm(x)};top:{mm(y)};width:{mm(w)};height:{mm(h)}"></div>',
-         f'<div class="ink" style="left:{mm(x)};top:{mm(y)};width:{mm(w)};height:{mm(h)}">']
-    cy = 6.0
-
-    def at(top, html):
-        return f'<div style="position:absolute;left:{mm(pad)};top:{mm(top)};width:{mm(iw)}">{html}</div>'
-
-    o.append(at(cy, f'<span style="font-family:Outfit;font-weight:800;font-size:{mm(4.4)};'
-                    f'color:{BRAND};letter-spacing:-.012em">Swift Toilet Blocks</span>'))
-    cy += 5.3
-    o.append(at(cy, f'<span style="font-family:Outfit;font-weight:600;font-size:{mm(2.6)};'
-                    f'color:{AQUA};letter-spacing:.075em;text-transform:uppercase;line-height:1.05">'
-                    f'Automatic toilet bowl cleaner</span>'))
-    cy += 5.2
-    o.append(at(cy, '<div class="rule"></div>'))
-    cy += 2.6
-    o.append(at(cy, f'<div style="font-size:{mm(2.5)};line-height:1.44;color:{INK}">{DESC}</div>'))
-    cy += 14.8
-
-    o.append(at(cy, f'<span class="hdr" style="font-size:{mm(2.7)};padding:{mm(1.0)} {mm(2.3)}">How to use</span>'))
-    cy += 6.4
-    for i, (ic, t) in enumerate(STEPS):
-        o.append(f'<div style="position:absolute;left:{mm(pad)};top:{mm(cy)};width:{mm(iw)};'
-                 f'display:flex;gap:{mm(1.9)};align-items:flex-start">'
-                 f'<div style="flex:none;width:{mm(5.2)};height:{mm(5.2)};border-radius:50%;'
-                 f'background:{BRAND};display:flex;align-items:center;justify-content:center">'
-                 f'<div style="width:{mm(3.0)};height:{mm(3.0)}">{icon(ic)}</div></div>'
-                 f'<div style="font-size:{mm(2.45)};line-height:1.34;color:{INK};padding-top:{mm(.45)}">'
-                 f'<b style="color:{BRAND}">{i+1}.</b> {t}</div></div>')
-        cy += 7.0
-    cy += 1.6
-
-    o.append(at(cy, f'<span class="hdr red" style="font-size:{mm(2.7)};padding:{mm(1.0)} {mm(2.3)}">Caution</span>'))
-    cy += 6.4
-    for t in CAUTION:
-        o.append(f'<div class="li" style="position:absolute;left:{mm(pad)};top:{mm(cy)};width:{mm(iw)}">'
-                 f'<i style="width:{mm(1.0)};height:{mm(1.0)};margin-top:{mm(.9)};background:{RED}"></i>'
-                 f'<div style="font-size:{mm(2.4)};line-height:1.3;color:{INK}">{t}</div></div>')
-        cy += 3.4
-    cy += 1.2
-    o.append(at(cy, '<div class="rule"></div>'))
-    cy += 2.0
-    o.append(at(cy, f'<div style="font-size:{mm(2.2)};line-height:1.32;color:{MUTED}">'
-                    f'<b style="color:{BRAND}">Active ingredients:</b> sodium dichloroisocyanurate, '
-                    f'anionic &amp; non-ionic surfactants, fragrance, colourant.</div>'))
-
-    # footer
-    fy = h - 20.5
-    qr = 15.5
-    o.append(f'<img src="data:image/png;base64,{A["vistex"]}" style="position:absolute;'
-             f'left:{mm(pad)};top:{mm(fy)};width:{mm(27)};height:auto">')
-    o.append(f'<div style="position:absolute;left:{mm(pad)};top:{mm(fy+9.4)};width:{mm(w-pad*2-qr-1.0)};'
-             f'font-size:{mm(1.9)};line-height:1.40;color:{MUTED}">'
-             f'P.O. Box 218 &ndash; 00606, Industrial Area, Nairobi<br>'
-             f'0739 446 655 &middot; info@vistexchemicals.co.ke<br>www.vistexchemicals.co.ke</div>')
-    o.append(f'<div class="qrbox" style="position:absolute;left:{mm(w-pad-qr-1)};top:{mm(fy)};'
-             f'width:{mm(qr)};height:{mm(qr)};padding:{mm(.9)}">{A["qr_svg"]}</div>')
-    o.append(f'<div style="position:absolute;left:{mm(w-pad-qr-4)};top:{mm(fy+qr+1.2)};'
-             f'width:{mm(qr+5)};text-align:center;font-size:{mm(1.85)};color:{MUTED};'
-             f'letter-spacing:.01em;line-height:1.25">Scan for more info</div>')
-    o.append("</div>")
-    return "".join(o)
-
-
-def side_left():
-    x, y, w, h = X_SIDEL, Y_BODY, D_PANEL, H_PANEL
-    pad = 5.5
-    o = [f'<div class="panel blue" style="left:{mm(x)};top:{mm(y)};width:{mm(w)};height:{mm(h)}"></div>',
-         f'<div class="ink" style="left:{mm(x)};top:{mm(y)};width:{mm(w)};height:{mm(h)}">']
-    o.append(f'<div id="swift-sidel" style="position:absolute;left:{mm((w-30)/2)};top:{mm(8)};'
-             f'width:{mm(30)};height:{mm(15)}"></div>')
-    o.append(f'<div class="kicker" style="position:absolute;left:0;top:{mm(26.5)};width:100%;'
-             f'text-align:center;font-size:{mm(2.5)};color:{PALE}">Why it works</div>')
-    cy = 34.0
-    for ic, t in BENEFITS:
-        o.append(f'<div class="s-row" style="position:absolute;left:{mm(pad)};top:{mm(cy)};'
-                 f'width:{mm(w-pad*2)};gap:{mm(2.2)}">'
-                 f'<div style="flex:none;width:{mm(6.0)};height:{mm(6.0)};border-radius:{mm(1.5)};'
-                 f'background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center">'
-                 f'<div style="width:{mm(3.6)};height:{mm(3.6)}">{icon(ic)}</div></div>'
-                 f'<div style="font-family:Outfit;font-weight:600;font-size:{mm(2.7)};color:#fff;'
-                 f'line-height:1.2">{t}</div></div>')
-        cy += 12.8
-    o.append(f'<div style="position:absolute;left:{mm(pad)};top:{mm(h-26)};width:{mm(w-pad*2)};'
-             f'height:.4mm;background:rgba(255,255,255,.22)"></div>')
-    o.append(f'<div style="position:absolute;left:0;top:{mm(h-21.5)};width:100%;text-align:center;'
-             f'font-family:Outfit;font-weight:800;font-size:{mm(4.2)};color:#fff;white-space:nowrap">'
-             f'50 g &times; 4</div>')
-    o.append(f'<div style="position:absolute;left:0;top:{mm(h-15.6)};width:100%;text-align:center;'
-             f'font-size:{mm(2.25)};color:{PALE};letter-spacing:.07em">NET WT. 200 g</div>')
-    o.append("</div>")
-    return "".join(o)
-
-
-def side_right():
-    x, y, w, h = X_SIDER, Y_BODY, D_PANEL, H_PANEL
-    pad, iw = 5.5, D_PANEL - 11.0
-    o = [f'<div class="panel white" style="left:{mm(x)};top:{mm(y)};width:{mm(w)};height:{mm(h)}"></div>',
-         f'<div class="ink" style="left:{mm(x)};top:{mm(y)};width:{mm(w)};height:{mm(h)}">']
-    o.append(f'<div style="position:absolute;left:0;top:0;width:100%;height:{mm(8)};background:{BRAND}"></div>')
-    o.append(f'<div class="kicker" style="position:absolute;left:0;top:{mm(2.6)};width:100%;'
-             f'text-align:center;font-size:{mm(2.5)};color:#fff">Ideal for</div>')
-    cy = 12.5
-    for t in IDEAL:
-        o.append(f'<div class="li" style="position:absolute;left:{mm(pad)};top:{mm(cy)};width:{mm(iw)}">'
-                 f'<i style="width:{mm(1.2)};height:{mm(1.2)};margin-top:{mm(1.0)}"></i>'
-                 f'<div style="font-size:{mm(2.55)};color:{INK};font-weight:500">{t}</div></div>')
-        cy += 5.0
-    cy += 2.2
-    o.append(f'<div class="rule" style="position:absolute;left:{mm(pad)};top:{mm(cy)};width:{mm(iw)}"></div>')
-    cy += 3.0
-    o.append(f'<div style="position:absolute;left:{mm(pad)};top:{mm(cy)};width:{mm(iw)};'
-             f'font-family:Outfit;font-weight:700;font-size:{mm(2.35)};color:{BRAND};'
-             f'letter-spacing:.08em;text-transform:uppercase">Storage</div>')
-    cy += 3.9
-    o.append(f'<div style="position:absolute;left:{mm(pad)};top:{mm(cy)};width:{mm(iw)};'
-             f'font-size:{mm(2.25)};line-height:1.38;color:{MUTED}">'
-             f'Store in a cool, dry place away from direct sunlight.</div>')
-    cy += 9.0
-    o.append(f'<div style="position:absolute;left:{mm(pad)};top:{mm(cy)};width:{mm(iw)};'
-             f'font-size:{mm(2.15)};line-height:1.5;color:{MUTED}">'
-             f'Batch no. ___________<br>Mfg ______ &nbsp; Exp ______</div>')
-
-    bw, bh = 37.29, 25.93          # EAN-13 at 100% magnification
-    bx, by = (w - bw) / 2, h - bh - 5.5
-    o.append(f'<div id="barcode-zone" style="position:absolute;left:{mm(bx)};top:{mm(by)};'
-             f'width:{mm(bw)};height:{mm(bh)};border:.3mm dashed #B6BFD6;border-radius:.8mm;'
-             f'display:flex;flex-direction:column;align-items:center;justify-content:center;'
-             f'gap:{mm(1.0)};background:#fff">'
-             f'<div style="font-family:Outfit;font-weight:700;font-size:{mm(2.3)};color:#8C97B4;'
-             f'letter-spacing:.06em">EAN-13</div>'
-             f'<div style="font-size:{mm(1.95)};color:#A3ACC6;text-align:center;line-height:1.3">'
-             f'Barcode area 37.3 &times; 25.9 mm<br>client to supply GTIN</div></div>')
-    o.append("</div>")
-    return "".join(o)
-
-
-def flaps():
-    o = []
-    o.append(f'<div class="panel flap" style="left:{mm(X_FRONT)};top:{mm(Y_TOP)};'
-             f'width:{mm(W_PANEL)};height:{mm(TUCK)}"></div>')
-    o.append(f'<div id="swift-top" style="position:absolute;left:{mm(X_FRONT+(W_PANEL-28)/2)};'
-             f'top:{mm(Y_TOP+12)};width:{mm(28)};height:{mm(14)}"></div>')
-    o.append(f'<div style="position:absolute;left:{mm(X_FRONT)};top:{mm(Y_TOP+28.5)};'
-             f'width:{mm(W_PANEL)};text-align:center;font-family:Outfit;font-weight:800;'
-             f'font-size:{mm(4.0)};color:#fff;letter-spacing:.03em;text-transform:uppercase;'
-             f'white-space:nowrap">Toilet Blocks</div>')
-    o.append(f'<div class="panel flap" style="left:{mm(X_FRONT)};top:{mm(Y_BOT)};'
-             f'width:{mm(W_PANEL)};height:{mm(TUCK)}"></div>')
-    o.append(f'<div style="position:absolute;left:{mm(X_FRONT)};top:{mm(Y_BOT+6.0)};'
-             f'width:{mm(W_PANEL)};text-align:center;font-family:Outfit;font-weight:800;'
-             f'font-size:{mm(4.8)};color:#fff;white-space:nowrap">50 g &times; 4</div>')
-    o.append(f'<div style="position:absolute;left:{mm(X_FRONT)};top:{mm(Y_BOT+12.4)};'
-             f'width:{mm(W_PANEL)};text-align:center;font-size:{mm(2.35)};color:{PALE};'
-             f'letter-spacing:.08em">NET WT. 200 g</div>')
-    for yy in (Y_TOP, Y_BOT):
-        o.append(f'<div class="panel" style="left:{mm(X_BACK)};top:{mm(yy)};width:{mm(W_PANEL)};'
-                 f'height:{mm(TUCK)};background:{BRAND}"></div>')
-    for xx in (X_SIDEL, X_SIDER):
-        for yy in (Y_TOP, Y_BOT):
-            o.append(f'<div class="panel" style="left:{mm(xx)};top:{mm(yy)};width:{mm(D_PANEL)};'
-                     f'height:{mm(TUCK)};background:{BRAND}"></div>')
-    # glue flap left unprinted — ink there weakens the bond
-    o.append(f'<div class="panel white" style="left:{mm(X_GLUE)};top:{mm(Y_BODY)};'
-             f'width:{mm(GLUE)};height:{mm(H_PANEL)}"></div>')
-    return "".join(o)
-
-
-def bleed_fill():
-    # Each strip must carry the colour of the panel it adjoins, not the front
-    # panel's: above and below the front column sit the navy tuck flaps.
-    o = []
-    for yy in (0, PAGE_H - BLEED - .3):
-        o.append(f'<div class="panel flap" style="left:{mm(X_FRONT)};top:{mm(yy)};'
-                 f'width:{mm(W_PANEL)};height:{mm(BLEED+.3)}"></div>')
-    for xx, ww in ((X_BACK, W_PANEL + D_PANEL), (X_SIDER, D_PANEL + BLEED)):
-        o.append(f'<div class="panel" style="left:{mm(xx)};top:0;width:{mm(ww)};height:{mm(BLEED+.3)};background:{BRAND}"></div>')
-        o.append(f'<div class="panel" style="left:{mm(xx)};top:{mm(PAGE_H-BLEED-.3)};width:{mm(ww)};height:{mm(BLEED+.3)};background:{BRAND}"></div>')
-    o.append(f'<div class="panel white" style="left:{mm(PAGE_W-BLEED-.3)};top:{mm(Y_BODY)};width:{mm(BLEED+.3)};height:{mm(H_PANEL)}"></div>')
-    for yy in (Y_TOP, Y_BOT):
-        o.append(f'<div class="panel" style="left:{mm(PAGE_W-BLEED-.3)};top:{mm(yy)};'
-                 f'width:{mm(BLEED+.3)};height:{mm(TUCK)};background:{BRAND}"></div>')
-    return "".join(o)
-
-
-def dieline(page_h):
-    s = [f'<svg class="die" viewBox="0 0 {PAGE_W} {page_h}" width="{PAGE_W}mm" height="{page_h}mm">']
-    s.append(f'<rect class="cut" x="{X_GLUE}" y="{Y_BODY}" width="{FLAT_W}" height="{H_PANEL}"/>')
-    for xx, ww in ((X_BACK, W_PANEL), (X_SIDEL, D_PANEL), (X_FRONT, W_PANEL), (X_SIDER, D_PANEL)):
-        s.append(f'<rect class="cut" x="{xx}" y="{Y_TOP}" width="{ww}" height="{TUCK}"/>')
-        s.append(f'<rect class="cut" x="{xx}" y="{Y_BOT}" width="{ww}" height="{TUCK}"/>')
-    for xx in (X_BACK, X_SIDEL, X_FRONT, X_SIDER):
-        s.append(f'<line class="crease" x1="{xx}" y1="{Y_TOP}" x2="{xx}" y2="{Y_BOT+TUCK}"/>')
-    for yy in (Y_BODY, Y_BOT):
-        s.append(f'<line class="crease" x1="{X_GLUE}" y1="{yy}" x2="{X_SIDER+D_PANEL}" y2="{yy}"/>')
-    s.append(f'<rect class="bleedl" x="0.15" y="0.15" width="{PAGE_W-.3}" height="{PAGE_H-.3}"/>')
-    for cx, t in [(X_GLUE + GLUE/2, "GLUE"), (X_BACK + W_PANEL/2, "BACK"),
-                  (X_SIDEL + D_PANEL/2, "SIDE"), (X_FRONT + W_PANEL/2, "FRONT"),
-                  (X_SIDER + D_PANEL/2, "SIDE")]:
-        s.append(f'<text class="dlabel" font-size="2.6" x="{cx}" y="{Y_BODY-2.0}" '
-                 f'text-anchor="middle">{t}</text>')
-    # legend band, below the artwork so nothing sits in the bleed
-    ly = PAGE_H + 4.6
-    s.append(f'<line class="bleedl" x1="0" y1="{PAGE_H}" x2="{PAGE_W}" y2="{PAGE_H}"/>')
-    s.append(f'<text class="dkey" font-size="3.0" fill="#2B3350" x="{X_GLUE}" y="{ly}">'
-             f'Swift Toilet Blocks &#8212; 4 &#215; 50 g &#8212; folding carton, proof</text>')
-    s.append(f'<text class="dnote" font-size="2.5" x="{X_GLUE}" y="{ly+4.3}">'
-             f'Straight tuck end carton {W_PANEL:.0f} &#215; {H_PANEL:.0f} &#215; {D_PANEL:.0f} mm '
-             f'(w &#215; h &#215; d) &#183; flat {FLAT_W:.0f} &#215; {FLAT_H:.0f} mm '
-             f'&#183; {BLEED:.0f} mm bleed all round &#183; page {PAGE_W:.0f} &#215; {PAGE_H:.0f} mm</text>')
-    s.append(f'<text class="dnote" font-size="2.5" x="{X_GLUE}" y="{ly+8.2}">'
-             f'Magenta = cut &#183; cyan dashed = crease &#183; grey dashed = bleed. '
-             f'Dieline marks are for position only and must not print &#8212; '
-             f'they are absent from the artwork file.</text>')
-    s.append(f'<text class="dnote" font-size="2.5" x="{X_GLUE}" y="{ly+12.1}">'
-             f'Glue flap is intentionally unprinted. Barcode area on the right side panel '
-             f'awaits the client&#8217;s GTIN.</text>')
+# ---------------------------------------------------------------- frame
+def frame(dark=True):
+    """Double platinum keyline with corner diamonds — the premium device."""
+    x0, y0 = FRAME_IN, FRAME_TOP
+    x1, y1 = CARD_W - FRAME_IN, CARD_H - FRAME_IN
+    w, h, r = x1 - x0, y1 - y0, 3.2
+    op = ".85" if dark else ".9"
+    g = "plat" if dark else "platDk"
+    stops = (f'<stop offset="0" stop-color="{PLAT[0]}"/><stop offset=".25" stop-color="{PLAT[1]}"/>'
+             f'<stop offset=".5" stop-color="{PLAT[2]}"/><stop offset=".75" stop-color="{PLAT[3]}"/>'
+             f'<stop offset="1" stop-color="{PLAT[4]}"/>') if dark else (
+             f'<stop offset="0" stop-color="#B9C7DC"/><stop offset=".3" stop-color="#8295B4"/>'
+             f'<stop offset=".55" stop-color="#C9D6E8"/><stop offset="1" stop-color="#8295B4"/>')
+    s = [f'<svg class="abs" style="left:0;top:0;width:{mm(CARD_W)};height:{mm(CARD_H)}" '
+         f'viewBox="0 0 {CARD_W} {CARD_H}">',
+         f'<defs><linearGradient id="{g}" x1="0" y1="0" x2="1" y2="1">{stops}</linearGradient></defs>',
+         f'<rect x="{x0}" y="{y0}" width="{w}" height="{h}" rx="{r}" fill="none" '
+         f'stroke="url(#{g})" stroke-width=".55" opacity="{op}"/>',
+         f'<rect x="{x0+1.5}" y="{y0+1.5}" width="{w-3}" height="{h-3}" rx="{max(0,r-1.2)}" '
+         f'fill="none" stroke="url(#{g})" stroke-width=".3" opacity="{float(op)*0.65:.2f}"/>']
+    for cx, cy in ((x0, y0), (x1, y0), (x0, y1), (x1, y1)):
+        s.append(f'<path d="M{cx},{cy-1.7} L{cx+1.7},{cy} L{cx},{cy+1.7} L{cx-1.7},{cy} Z" '
+                 f'fill="url(#{g})" opacity="{op}"/>')
     s.append("</svg>")
     return "".join(s)
 
 
-def build(proof):
-    page_h = PAGE_H + (LEGEND if proof else 0)
-    css = CSS_T.format(pw=PAGE_W, ph=page_h, fo=A["font_outfit"],
-                       foe=A["font_outfit_ext"], fj=A["font_jakarta"],
-                       navy=NAVY, aqua=AQUA, brand=BRAND, red=RED)
-    body = bleed_fill() + flaps() + back() + side_left() + front() + side_right()
-    if proof:
-        body += dieline(page_h)
-    html = (f'<!doctype html><html><head><meta charset="utf-8"><style>{css}</style></head>'
+def seal(size=21.0):
+    """Roundel: platinum ring, 50 g x 4 inside. Sits on the hero, premium cue."""
+    return (f'<svg viewBox="0 0 100 100" style="width:{mm(size)};height:{mm(size)};display:block">'
+            f'{defs("s")}'
+            f'<circle cx="50" cy="50" r="48" fill="#06173F"/>'
+            f'<circle cx="50" cy="50" r="48" fill="none" stroke="url(#plats)" stroke-width="3.2"/>'
+            f'<circle cx="50" cy="50" r="41" fill="none" stroke="url(#plats)" stroke-width="1.0" opacity=".8"/>'
+            f'<text x="50" y="40" text-anchor="middle" font-family="Outfit" font-weight="900" '
+            f'font-size="27" fill="#FFFFFF" letter-spacing="-1">50g</text>'
+            f'<path d="M26 50 H74" stroke="url(#plats)" stroke-width="1.4"/>'
+            f'<text x="50" y="75" text-anchor="middle" font-family="Outfit" font-weight="900" '
+            f'font-size="27" fill="#FFFFFF">&#215;4</text></svg>')
+
+
+# ---------------------------------------------------------------- front
+def front_card(ox=0.0, oy=0.0):
+    IX, IW = FRAME_IN + PAD, CARD_W - (FRAME_IN + PAD) * 2
+    o = [f'<div class="card deep" style="left:{mm(ox)};top:{mm(oy)};'
+         f'width:{mm(CARD_W)};height:{mm(CARD_H)}">', '<div class="sheen"></div>']
+
+    # faint concentric arcs behind the product — texture, not pattern
+    o.append(f'<svg class="abs" style="left:0;top:0;width:{mm(CARD_W)};height:{mm(CARD_H)}" '
+             f'viewBox="0 0 {CARD_W} {CARD_H}">' +
+             "".join(f'<circle cx="{CARD_W/2}" cy="124" r="{18+i*7.5}" fill="none" '
+                     f'stroke="#9FD0FF" stroke-opacity=".07" stroke-width=".4"/>' for i in range(7)) +
+             "</svg>")
+    o.append(frame(dark=True))
+
+    o.append(f'<div class="abs" id="swift-front" style="left:{mm((CARD_W-50)/2)};top:{mm(29)};'
+             f'width:{mm(50)};height:{mm(24)}"></div>')
+    # corner seal, level with the logo and clear of it
+    o.append(f'<div class="abs" style="left:{mm(CARD_W-FRAME_IN-PAD-21)};top:{mm(29.5)}">{seal(21)}</div>')
+
+    o.append(f'<div class="abs" style="left:{mm(IX)};top:{mm(57.0)};">{ornament_rule(IW)}</div>')
+    o.append(f'<div class="ctr h-prod" style="top:{mm(61.0)};font-size:{mm(15.6)};'
+             f'text-shadow:0 {mm(.5)} {mm(1.6)} rgba(0,0,0,.35)">TOILET</div>')
+    o.append(f'<div class="ctr h-prod" style="top:{mm(75.0)};font-size:{mm(15.6)};'
+             f'text-shadow:0 {mm(.5)} {mm(1.6)} rgba(0,0,0,.35)">BLOCKS</div>')
+    o.append(f'<div class="ctr sc" style="top:{mm(92.0)};font-size:{mm(3.4)};letter-spacing:.20em;'
+             f'color:{PALE}">Automatic Toilet Bowl Cleaner</div>')
+    o.append(f'<div class="abs" style="left:{mm(IX)};top:{mm(99.0)};">{ornament_rule(IW)}</div>')
+
+    # Four blocks: two set back, two in front. Each SVG is 4:3, so a block w mm
+    # wide stands 0.75 w tall — the heights below are what keep them inside the
+    # 38 mm band and off the benefit icons underneath.
+    lay = [(6.0, 0.0, 32.0, ".76"), (56.0, 1.0, 32.0, ".76"),
+           (22.0, 11.0, 36.0, "1"), (48.0, 11.0, 36.0, "1")]
+    o.append(f'<div class="abs" style="left:{mm(IX)};top:{mm(102.0)};width:{mm(IW)};height:{mm(38)}">')
+    for i, (bx, by, bw, op) in enumerate(lay):
+        o.append(f'<div class="abs" style="left:{mm(bx)};top:{mm(by)};width:{mm(bw)};'
+                 f'opacity:{op}">{block_svg("f%d" % i)}</div>')
+    o.append("</div>")
+
+    chips = "".join(
+        f'<div style="display:flex;flex-direction:column;align-items:center;width:{mm(26)}">'
+        f'<div style="width:{mm(5.4)};height:{mm(5.4)};margin-bottom:{mm(1.3)}">{icon(k, PALE)}</div>'
+        f'<span class="sc" style="font-size:{mm(2.65)};letter-spacing:.14em;color:#fff">{t}</span></div>'
+        for k, t in [("flush", "Cleans"), ("fresh", "Freshens"), ("shield", "Protects")])
+    o.append(f'<div class="abs" style="left:{mm(IX)};top:{mm(143.0)};width:{mm(IW)};'
+             f'display:flex;justify-content:center;gap:{mm(5)}">{chips}</div>')
+
+    o.append(f'<div class="abs" style="left:{mm(IX)};top:{mm(155.5)};">{ornament_rule(IW)}</div>')
+    o.append(f'<div class="ctr" style="top:{mm(159.0)};font-family:Outfit;font-weight:800;'
+             f'font-size:{mm(5.0)};color:#fff;letter-spacing:.01em;white-space:nowrap">'
+             f'50 g &times; 4 <span style="color:{PALE};font-weight:600;font-size:{mm(3.0)};'
+             f'letter-spacing:.10em">&nbsp;&middot;&nbsp; NET WT. 200 g</span></div>')
+    o.append("</div>")
+    return "".join(o)
+
+# ---------------------------------------------------------------- back
+def back_card(ox=0.0, oy=0.0):
+    """Laid out in normal document flow, not absolute positions: the carton
+    version drifted into overlaps every time a line count changed."""
+    IX, IW = FRAME_IN + PAD, CARD_W - (FRAME_IN + PAD) * 2
+    o = [f'<div class="card" style="left:{mm(ox)};top:{mm(oy)};width:{mm(CARD_W)};'
+         f'height:{mm(CARD_H)};background:{IVORY}">']
+    o.append(f'<div class="abs" style="left:0;top:0;width:{mm(CARD_W)};height:{mm(CARD_H)};'
+             f'background:radial-gradient(70% 40% at 50% 0%, #EEF4FD, transparent 70%)"></div>')
+    o.append(frame(dark=False))
+
+    hdr = (f'font-size:{mm(2.75)};padding:{mm(1.2)} {mm(2.6)}')
+    steps = "".join(
+        f'<div style="display:flex;gap:{mm(2.1)};align-items:flex-start;margin-top:{mm(2.9)}">'
+        f'<div style="flex:none;width:{mm(5.6)};height:{mm(5.6)};border-radius:50%;background:{BRAND};'
+        f'display:flex;align-items:center;justify-content:center">'
+        f'<div style="width:{mm(3.2)};height:{mm(3.2)}">{icon(ic)}</div></div>'
+        f'<div style="font-size:{mm(2.5)};line-height:1.38;color:{INK}">'
+        f'<b style="color:{BRAND}">{i+1}.</b> {t}</div></div>'
+        for i, (ic, t) in enumerate(STEPS))
+    bens = "".join(
+        f'<div style="display:flex;gap:{mm(2.0)};align-items:center;margin-top:{mm(2.8)}">'
+        f'<div style="flex:none;width:{mm(4.4)};height:{mm(4.4)}">{icon(ic, AQUA)}</div>'
+        f'<div style="font-size:{mm(2.6)};color:{INK};font-weight:600">{t}</div></div>'
+        for ic, t in BENEFITS)
+    cautions = "".join(
+        f'<div class="li" style="break-inside:avoid;margin-top:{mm(1.8)}">'
+        f'<i style="width:{mm(1.1)};height:{mm(1.1)};margin-top:{mm(1.0)};background:{RED}"></i>'
+        f'<div style="font-size:{mm(2.45)};line-height:1.32;color:{INK}">{t}</div></div>'
+        for t in CAUTION)
+
+    o.append(f'''<div class="abs" id="backflow" style="left:{mm(IX)};top:{mm(23.5)};width:{mm(IW)}">
+  <div style="text-align:center;font-family:Outfit;font-weight:800;font-size:{mm(7.0)};
+       color:{BRAND};letter-spacing:-.015em;line-height:1.05">Swift Toilet Blocks</div>
+  <div class="sc" style="text-align:center;font-size:{mm(2.85)};letter-spacing:.20em;
+       color:{AQUA};margin-top:{mm(1.3)}">Automatic Toilet Bowl Cleaner</div>
+  <div style="margin-top:{mm(2.6)}">{ornament_rule(IW, dark=True)}</div>
+  <div style="margin-top:{mm(3.2)};font-size:{mm(2.75)};line-height:1.5;color:{INK};
+       text-align:center">{DESC}</div>
+
+  <div style="display:flex;gap:{mm(6.0)};margin-top:{mm(5.0)};align-items:flex-start">
+    <div style="flex:1 1 0;min-width:0">
+      <span class="hdr" style="{hdr}">How to use</span>{steps}
+      <div style="margin-top:{mm(5.0)}"><span class="hdr red" style="{hdr}">Caution</span></div>
+      <div style="margin-top:{mm(.4)}">{cautions}</div>
+    </div>
+    <div style="flex:1 1 0;min-width:0">
+      <span class="hdr" style="{hdr}">Key benefits</span>{bens}
+      <div style="margin-top:{mm(4.0)}"><span class="hdr" style="{hdr}">Ideal for</span></div>
+      <div style="margin-top:{mm(2.4)};font-size:{mm(2.5)};line-height:1.55;color:{INK}">
+        {" &middot; ".join(IDEAL)}</div>
+    </div>
+  </div>
+
+
+  <div style="margin-top:{mm(5.0)};font-size:{mm(2.4)};line-height:1.42;color:{MUTED}">
+    <b style="color:{BRAND}">Active ingredients:</b> sodium dichloroisocyanurate,
+    anionic &amp; non-ionic surfactants, fragrance, colourant.</div>
+</div>''')
+
+    # footer pinned to the frame's bottom, so it never floats with copy length
+    fy, qr = 147.5, 16.0
+    o.append(f'<div class="abs" id="backfoot" style="left:{mm(IX)};top:{mm(fy-4.5)}">{ornament_rule(IW, dark=True)}</div>')
+    o.append(f'<img src="data:image/png;base64,{A["vistex"]}" class="abs" '
+             f'style="left:{mm(IX)};top:{mm(fy)};width:{mm(36)};height:auto">')
+    o.append(f'<div class="abs" style="left:{mm(IX)};top:{mm(fy+13.4)};width:{mm(IW-qr-5)};'
+             f'font-size:{mm(2.3)};line-height:1.46;color:{MUTED}">'
+             f'P.O. Box 218 &ndash; 00606, Industrial Area, Nairobi, Kenya<br>'
+             f'0739 446 655 &nbsp;&middot;&nbsp; info@vistexchemicals.co.ke<br>'
+             f'www.vistexchemicals.co.ke</div>')
+    o.append(f'<div class="qrbox abs" style="left:{mm(CARD_W-FRAME_IN-PAD-qr)};top:{mm(fy)};'
+             f'width:{mm(qr)};height:{mm(qr)};padding:{mm(1.1)}">{A["qr_svg"]}</div>')
+    o.append(f'<div class="abs sc" style="left:{mm(CARD_W-FRAME_IN-PAD-qr-4)};top:{mm(fy+qr+1.4)};'
+             f'width:{mm(qr+4)};text-align:center;font-size:{mm(1.95)};letter-spacing:.06em;'
+             f'color:{MUTED}">Scan for more</div>')
+    o.append("</div>")
+    return "".join(o)
+
+# ---------------------------------------------------------------- bleed
+def bleed_under(kind):
+    """Colour behind the card so the die cut never reveals white paper."""
+    if kind == "front":
+        return (f'<div class="card deep" style="left:{mm(-BLEED)};top:{mm(-BLEED)};'
+                f'width:{mm(CARD_W+BLEED*2)};height:{mm(CARD_H+BLEED*2)}"></div>')
+    return (f'<div class="card" style="left:{mm(-BLEED)};top:{mm(-BLEED)};'
+            f'width:{mm(CARD_W+BLEED*2)};height:{mm(CARD_H+BLEED*2)};background:{IVORY}"></div>')
+
+
+def page(kind):
+    inner = front_card() if kind == "front" else back_card()
+    return (f'<div class="abs" style="left:{mm(BLEED)};top:{mm(BLEED)};'
+            f'width:{mm(CARD_W)};height:{mm(CARD_H)}">{bleed_under(kind)}{inner}</div>')
+
+
+def html(body, w, h, extra=""):
+    return (f'<!doctype html><html><head><meta charset="utf-8"><style>'
+            f'@page {{ size:{w}mm {h}mm; margin:0; }}'
+            f'html,body {{ width:{w}mm; height:{h}mm; }}{CSS}{extra}</style></head>'
             f'<body>{body}</body></html>')
-    name = "carton-proof.html" if proof else "carton.html"
-    (HERE / name).write_text(html, encoding="utf8")
-    return name, page_h
 
 
-meta = {"PAGE_W": PAGE_W, "PAGE_H": PAGE_H, "PAGE_H_PROOF": PAGE_H + LEGEND,
-        "FLAT_W": FLAT_W, "FLAT_H": FLAT_H, "W": W_PANEL, "H": H_PANEL,
-        "D": D_PANEL, "BLEED": BLEED,
-        "swift_slots": [
-            {"id": "front", "x": X_FRONT + (W_PANEL - 36) / 2, "y": Y_BODY + 7, "w": 36, "h": 18},
-            {"id": "side",  "x": X_SIDEL + (D_PANEL - 30) / 2, "y": Y_BODY + 8, "w": 30, "h": 15},
-            # Must match the #swift-tuck placeholder in flaps() exactly — these
-            # coordinates are where stamp.py places the vector logo, and the two
-            # drifted apart once before, overlapping the flap's wordmark.
-            {"id": "tuck",  "x": X_FRONT + (W_PANEL - 28) / 2, "y": Y_TOP + 12, "w": 28, "h": 14},
-        ]}
+def proof():
+    lx, rx = 0.0, PAGE_W + PROOF_GAP
+    b = [f'<div class="abs" style="left:{mm(lx)};top:0;width:{mm(PAGE_W)};height:{mm(PAGE_H)}">{page("front")}</div>',
+         f'<div class="abs" style="left:{mm(rx)};top:0;width:{mm(PAGE_W)};height:{mm(PAGE_H)}">{page("back")}</div>']
+    s = [f'<svg class="abs" style="left:0;top:0;width:{mm(PROOF_W)};height:{mm(PROOF_H)}" '
+         f'viewBox="0 0 {PROOF_W} {PROOF_H}">']
+    for ox, lab in ((lx + BLEED, "FRONT"), (rx + BLEED, "BACK")):
+        s.append(die_svg(ox, BLEED))
+        s.append(f'<rect class="bleedl" x="{ox-BLEED+.15}" y="{.15}" '
+                 f'width="{PAGE_W-.3}" height="{PAGE_H-.3}"/>')
+        s.append(f'<text class="dlabel" font-size="3.0" x="{ox+CARD_W/2}" y="{PAGE_H+5.5}" '
+                 f'text-anchor="middle">{lab}</text>')
+    ly = PAGE_H + 11.0
+    s.append(f'<text class="dnote" font-size="3.0" font-weight="700" fill="#2B3350" x="{lx}" y="{ly}">'
+             f'Swift Toilet Blocks &#8212; 4 &#215; 50 g &#8212; euro-slot hang card, proof</text>')
+    s.append(f'<text class="dnote" font-size="2.5" x="{lx}" y="{ly+4.4}">'
+             f'Card {CARD_W:.0f} &#215; {CARD_H:.0f} mm, {CORNER:.0f} mm corner radius, '
+             f'sombrero euro hanger &#183; {BLEED:.0f} mm bleed &#183; page {PAGE_W:.0f} &#215; {PAGE_H:.0f} mm each. '
+             f'Die matches the Blue-Drop card, so one tool can cut both.</text>')
+    s.append(f'<text class="dnote" font-size="2.5" x="{lx}" y="{ly+8.4}">'
+             f'Magenta = cut (outline and hanger). For position only &#8212; absent from the artwork files. '
+             f'Platinum rules and frame are printed CMYK; specify silver foil if a metallic finish is wanted.</text>')
+    s.append("</svg>")
+    return html("".join(b) + "".join(s), PROOF_W, PROOF_H)
+
+
+for kind in ("front", "back"):
+    (HERE / f"card-{kind}.html").write_text(html(page(kind), PAGE_W, PAGE_H), encoding="utf8")
+(HERE / "card-proof.html").write_text(proof(), encoding="utf8")
+
+meta = {"PAGE_W": PAGE_W, "PAGE_H": PAGE_H, "CARD_W": CARD_W, "CARD_H": CARD_H,
+        "BLEED": BLEED, "CORNER": CORNER, "PROOF_W": PROOF_W, "PROOF_H": PROOF_H,
+        "PROOF_GAP": PROOF_GAP,
+        # x,y are relative to the card; pages add BLEED, the proof adds its offset
+        "swift_slots": [{"id": "front", "x": (CARD_W - 50) / 2, "y": 30, "w": 50, "h": 25}],
+        "die": {"slot_w": HANG_SLOT_W, "slot_h": HANG_SLOT_H, "slot_y": HANG_SLOT_Y,
+                "bump_r": HANG_BUMP_R, "bump_cy": HANG_BUMP_CY}}
 (HERE / "meta.json").write_text(json.dumps(meta, indent=1), encoding="utf8")
-
-for pf in (False, True):
-    n, ph = build(pf)
-    print(f"{n:20s} page {PAGE_W:.0f} x {ph:.0f} mm")
-print(f"carton {W_PANEL:.0f}(w) x {H_PANEL:.0f}(h) x {D_PANEL:.0f}(d) mm, flat {FLAT_W:.0f} x {FLAT_H:.0f} mm")
+print(f"card {CARD_W:.0f} x {CARD_H:.0f} mm, page {PAGE_W:.0f} x {PAGE_H:.0f} mm, "
+      f"proof {PROOF_W:.0f} x {PROOF_H:.0f} mm")
