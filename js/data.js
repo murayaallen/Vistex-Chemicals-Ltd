@@ -556,7 +556,39 @@
     { id:'blue-drop-wc', system:'housekeeping', name:'Blue-Drop Flush-Activated WC Cleaner', code:null,
       image:IMG+'blue-drop-wc.jpeg', pack:'50 g × 4 (200 g)', form:'Tablet',
       purpose:'Automatic toilet bowl cleaner. One tablet in the cistern releases cleaner with every flush, fighting hard-water stains and leaving lasting freshness.',
-      features:['Fights hard-water stains', 'Cleans every flush', 'Long-lasting freshness'] },
+      features:['Fights hard-water stains', 'Cleans every flush', 'Long-lasting freshness'],
+      directions:[
+        'Lift the cistern lid and take one block from its wrapper.',
+        'Drop the block into the tank, clear of the inlet and the float ball so it cannot block either.',
+        'Replace the lid. The block dissolves gradually, releasing cleaner with every flush.'
+      ],
+      applications:['Homes and offices', 'Hotels and lodges', 'Restaurants',
+                    'Schools and hospitals', 'Public and staff washrooms'],
+      notFor:['The bowl — the block goes in the cistern, not the pan'],
+      hazard:{ level:'caution', word:'Caution', text:'Keep out of reach of children. Do not ingest; this is not a hand-held toilet freshener. Avoid contact with skin and eyes and wash hands after handling.' },
+      /* Printable data sheet behind the QR on the carton. Figures Vistex has
+         not supplied say "On request" — per the note at the top of this
+         file, blanks are requested, never invented. */
+      sheet:{
+        spec:[
+          ['Form', 'Compressed solid block'],
+          ['Colour', 'Blue'],
+          ['Odour', 'Fresh, perfumed'],
+          ['Application', 'Cistern (tank), not the bowl'],
+          ['Dose', 'One block per cistern'],
+          ['Service life', 'Up to 30 days per block, varies with flush frequency and tank volume'],
+          ['Net weight', '50 g per block, 200 g per carton'],
+          ['Pack', '4 blocks per carton; 12 cartons per case'],
+          ['Case net', '2.4 kg'],
+          ['pH (1% solution)', 'On request'],
+          ['Solubility', 'Slowly soluble in water by design'],
+          ['Shelf life', 'On request'],
+          ['Septic systems', 'On request']
+        ],
+        composition:'Anionic surfactants, dissolution modifiers, anti-redeposition agents, colourant, perfume.',
+        storage:'Store upright in a cool, dry place out of direct sunlight. Keep the wrapper sealed until use.',
+        note:'Figures marked “On request” have not been supplied by Vistex and are available on enquiry. This sheet is a product summary and does not replace a Safety Data Sheet.'
+      } },
     { id:'scouring-powder', system:'housekeeping', name:'Sparkle Clean Scouring Powder', code:null,
       image:IMG+'scouring-powder.jpeg', pack:'500 g', cutout:'images/cutouts/scouring-powder.png', vessel:'bottle', form:'Powder',
       purpose:'Abrasive scouring powder for kitchens, bathrooms, sinks and tiles. Lifts burnt-on stains and grease while leaving a fresh lemon scent.',

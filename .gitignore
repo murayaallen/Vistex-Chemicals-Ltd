@@ -12,6 +12,26 @@ package-lock.json
 /preview-effects.html
 /preview-stage.html
 
+# generated packaging output - the script in packaging/ rebuilds it
+/packaging/dist/
+__pycache__/
+*.pyc
+
+# Supplied imagery - client photography and sourced stock. This repo is
+# public and deploys via Pages, so none of it is ours to republish. The
+# packaging build needs these in the project root; see packaging/README.md.
+/WhatsApp Image*
+/flower.jpg
+/fresh.jpg
+/fresh blue.avif
+/images.jfif
+/recycle.avif
+/cHJ*.jfif
+/_*.png
+
+# Derived packaging art. Rebuild with: python packaging/make_cutouts.py
+/packaging/art/
+
 # source artwork, not part of the deploy
 /jerricans/
 /new/

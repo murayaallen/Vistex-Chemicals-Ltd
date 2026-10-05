@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Theme default follows the device: light on phones/tablets, dark on
+     laptops and desktops. An explicit choice always wins. Runs before
+     paint, so there is no flash of the wrong theme. -->
+<script>(function(){try{var d=document.documentElement,t=localStorage.getItem('vx-theme');if(!t)t=window.matchMedia('(max-width: 820px)').matches?'light':'dark';d.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();</script>
+
+<title>Product data sheet — Vistex Chemicals Ltd</title>
+<meta name="description" content="Technical data sheet for a Vistex Chemicals hygiene product: directions for use, specification, composition, storage and safety.">
+<link rel="canonical" href="https://www.vistexchemicals.co.ke/datasheet.html">
+<meta name="theme-color" content="#2E3995" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#070a16" media="(prefers-color-scheme: dark)">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Vistex Chemicals Ltd">
+<meta property="og:title" content="Product data sheet — Vistex Chemicals Ltd">
+<meta property="og:description" content="Directions for use, specification, composition, storage and safety.">
+<meta property="og:image" content="https://www.vistexchemicals.co.ke/images/logo/vistex-logo-color-on-white.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://www.vistexchemicals.co.ke/images/logo/vistex-logo-color-on-white.png">
+
+<link rel="icon" type="image/png" href="images/favicon.png">
+<link rel="manifest" href="site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'" onerror="this.remove()">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/motion.css">
+<link rel="stylesheet" href="css/pages.css">
+<link rel="stylesheet" href="css/responsive.css">
+
+<style>
+  /* The sheet is reached by scanning a QR off a carton, so it is built to be
+     read on a phone in a store room and then printed on A4 without a second
+     stylesheet fighting it. */
+  .ds-wrap { max-width: 920px; margin-inline: auto; }
+  .ds-head {
+    display: grid; grid-template-columns: 1fr auto; gap: var(--s-6);
+    align-items: start; padding-bottom: var(--s-5);
+    border-bottom: 2px solid var(--accent);
+  }
+  .ds-brand { font: 600 .82rem/1 var(--font-head); letter-spacing: .14em;
+              text-transform: uppercase; color: var(--accent); }
+  .ds-title { font: 800 clamp(1.9rem, 4.4vw, 2.9rem)/1.04 var(--font-head);
+              margin-top: var(--s-2); }
+  .ds-strap { color: var(--text-2); margin-top: var(--s-2); }
+  .ds-code  { font-family: var(--font-mono); font-size: .8rem;
+              color: var(--text-2); }
+  .ds-sec { margin-top: var(--s-8); }
+  .ds-sec h2 {
+    font: 700 1.02rem/1.2 var(--font-head); letter-spacing: .04em;
+    text-transform: uppercase; color: var(--accent);
+    padding-bottom: var(--s-2); border-bottom: 1px solid var(--border);
+  }
+  .ds-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-7); }
+  @media (max-width: 760px) { .ds-grid { grid-template-columns: 1fr; } }
+  .ds-steps { counter-reset: ds; list-style: none; padding: 0;
+              margin: var(--s-4) 0 0; }
+  .ds-steps li { counter-increment: ds; position: relative;
+                 padding-left: 34px; margin-top: var(--s-4); }
+  .ds-steps li::before {
+    content: counter(ds); position: absolute; left: 0; top: -1px;
+    width: 23px; height: 23px; border-radius: 50%;
+    background: var(--accent); color: #fff;
+    font: 700 .78rem/23px var(--font-head); text-align: center;
+  }
+  .ds-list { list-style: none; padding: 0; margin: var(--s-4) 0 0; }
+  .ds-list li { position: relative; padding-left: 20px;
+                margin-top: var(--s-3); }
+  .ds-list li::before {
+    content: ""; position: absolute; left: 2px; top: .52em;
+    width: 7px; height: 7px; border-radius: 50%; background: var(--accent);
+  }
+  .ds-table { width: 100%; border-collapse: collapse; margin-top: var(--s-4); }
+  .ds-table th, .ds-table td {
+    text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--border);
+    font-size: .92rem; vertical-align: top;
+  }
+  .ds-table th { width: 40%; font-weight: 600; color: var(--text-2); }
+  .ds-care { border-left: 3px solid var(--red-500);
+             background: color-mix(in srgb, var(--red-500) 6%, transparent);
+             padding: var(--s-4) var(--s-5); border-radius: var(--r-md);
+             margin-top: var(--s-4); }
+  .ds-care h2 { color: var(--red-600); border: 0; padding: 0; }
+  .ds-note { color: var(--text-2); font-size: .86rem; margin-top: var(--s-5); }
+  .ds-actions { display: flex; flex-wrap: wrap; gap: var(--s-3);
+                margin-top: var(--s-8); }
+  @media print {
+    .site-header, .site-footer, .ds-actions, .scroll-cue-wrap { display: none !important; }
+    .ds-wrap { max-width: none; }
+    a[href]::after { content: ""; }
+  }
+</style>
+</head>
+
+<body data-page="datasheet">
+<noscript>
+  <div style="background:#2E3995;color:#fff;padding:16px 20px;text-align:center;font:15px/1.5 system-ui,sans-serif">
+    This data sheet needs JavaScript. Reach us directly on
+    <a href="tel:+254739446655" style="color:#99dff9;font-weight:600">0739 446 655</a>
+    or <a href="mailto:info@vistexchemicals.co.ke" style="color:#99dff9;font-weight:600">info@vistexchemicals.co.ke</a>.
+  </div>
+</noscript>
+
+<main id="main" class="section page-fade">
+  <div class="container"><div class="ds-wrap" id="dsRoot"></div></div>
+</main>
+
+<script src="js/data.js"></script>
+<script src="js/icons.js"></script>
+<script src="js/partials.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/datasheet.js"></script>
+<script src="js/motion.js"></script>
+</body>
+</html>
