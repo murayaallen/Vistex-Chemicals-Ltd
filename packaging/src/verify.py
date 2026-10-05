@@ -1,4 +1,4 @@
-"""Geometry and print-readiness checks on the generated hang-card PDFs."""
+"""Geometry and print-readiness checks on the generated carton PDFs."""
 import json, pathlib, sys
 import pymupdf
 
@@ -17,108 +17,77 @@ def chk(cond, msg):
         print("  FAIL", msg)
 
 
-def magenta(drawings):
-    out = []
-    for dr in drawings:
-        c = dr.get("color")
-        if c and abs(c[0] - .902) < .06 and c[1] < .15 and abs(c[2] - .494) < .12:
-            out.append(dr)
-    return out
-
-
 def run(pdf):
     name = pathlib.Path(pdf).name
     is_proof = "proof" in name
-    is_front = "front" in name
-    is_back = "back" in name
     d = pymupdf.open(pdf)
     pg = d[0]
     print(f"\n{name}")
+    want_h = M["PAGE_H_PROOF"] if is_proof else M["PAGE_H"]
     w, h = pg.rect.width * MM, pg.rect.height * MM
-    wantw = M["PROOF_W"] if is_proof else M["PAGE_W"]
-    wanth = M["PROOF_H"] if is_proof else M["PAGE_H"]
-    print(f"  page {w:.2f} x {h:.2f} mm  (want {wantw:.2f} x {wanth:.2f})")
-    chk(abs(w - wantw) < 0.4, f"page width {w:.2f}")
-    chk(abs(h - wanth) < 0.4, f"page height {h:.2f}")
+    print(f"  page {w:.2f} x {h:.2f} mm  (want {M['PAGE_W']:.2f} x {want_h:.2f})")
+    chk(abs(w - M["PAGE_W"]) < 0.4, f"page width {w:.2f}")
+    chk(abs(h - want_h) < 0.4, f"page height {h:.2f}")
 
-    # The front is nearly all artwork, the back nearly all copy, so each is
-    # held to its own floor rather than one threshold that suits neither.
-    min_paths, min_text = (60, 50) if is_front else (20, 800) if is_back else (150, 900)
     drawings = pg.get_drawings()
-    chk(len(drawings) >= min_paths, f"vector paths only {len(drawings)} (want >= {min_paths})")
+    chk(len(drawings) > 150, f"vector paths only {len(drawings)}")
     chk(len(pg.get_images()) <= 1, f"{len(pg.get_images())} raster images (want <=1)")
-    chk(len(pg.get_text().strip()) >= min_text,
-        f"live text {len(pg.get_text().strip())} chars (want >= {min_text})")
+    chk(len(pg.get_text().strip()) > 1000, f"live text {len(pg.get_text().strip())} chars")
 
-    mg = magenta(drawings)
+    mag = [dr for dr in drawings if (c := dr.get("color")) and
+           abs(c[0] - .902) < .06 and c[1] < .15 and abs(c[2] - .494) < .12]
     if is_proof:
-        # outline + hanger slot + hanger bump, on each of the two cards
-        chk(len(mg) >= 6, f"dieline incomplete: {len(mg)} magenta paths (want >= 6)")
-        xs = sorted(r["rect"].x0 * MM for r in mg)
-        chk(min(xs) < M["PAGE_W"] and max(xs) > M["PAGE_W"], "dieline missing on one card")
+        chk(len(mag) >= 9, f"dieline incomplete: {len(mag)} magenta paths")
+        best = max(mag, key=lambda r: r["rect"].width * r["rect"].height)["rect"]
+        bw, bh = best.width * MM, best.height * MM
+        bx, by = best.x0 * MM, best.y0 * MM
+        print(f"  flat outline {bw:.2f} x {bh:.2f} mm at ({bx:.2f}, {by:.2f})")
+        chk(abs(bw - M["FLAT_W"]) < 0.6, f"flat width {bw:.2f} want {M['FLAT_W']}")
+        chk(abs(bh - M["H"]) < 0.6, f"body height {bh:.2f} want {M['H']}")
+        chk(abs(bx - M["BLEED"]) < 0.6, f"flat x {bx:.2f} want {M['BLEED']}")
     else:
-        chk(not mg, f"artwork file carries {len(mg)} dieline marks")
+        chk(not mag, f"artwork file carries {len(mag)} dieline marks")
 
-    # Bleed: the card colour must continue past the trim on all four sides, so a
-    # die-cut tolerance never reveals white board.
-    if not is_proof:
-        dpi = 100
-        pix = pg.get_pixmap(dpi=dpi)
-        p = lambda x, y: pix.pixel(min(pix.width - 1, int(x / 25.4 * dpi)),
-                                   min(pix.height - 1, int(y / 25.4 * dpi)))
-        B, G = M["BLEED"], 1.2
-        mid_x, mid_y = M["PAGE_W"] / 2, M["PAGE_H"] / 2
-        for label, out_pt, in_pt in [
-                ("top", (mid_x, B - G), (mid_x, B + G)),
-                ("bottom", (mid_x, M["PAGE_H"] - B + G), (mid_x, M["PAGE_H"] - B - G)),
-                ("left", (B - G, mid_y), (B + G, mid_y)),
-                ("right", (M["PAGE_W"] - B + G, mid_y), (M["PAGE_W"] - B - G, mid_y))]:
-            a, b = p(*out_pt), p(*in_pt)
-            chk(max(abs(x - y) for x, y in zip(a, b)) < 28,
-                f"bleed {label}: outside {a} != inside {b}")
+    # Bleed: each strip must carry its own panel's colour past the trim, so a
+    # cutting tolerance never exposes white board.
+    dpi = 100
+    pix = pg.get_pixmap(dpi=dpi)
+    p = lambda x, y: pix.pixel(min(pix.width - 1, int(x / 25.4 * dpi)),
+                               min(pix.height - 1, int(y / 25.4 * dpi)))
+    B, G = M["BLEED"], 1.2
+    mid_y = M["PAGE_H"] / 2
+    panels = [("front", 70 + M["W"] / 2), ("sideA", 18 + M["D"] / 2),
+              ("sideB", 138 + M["D"] / 2), ("back", 190 + M["W"] / 2)]
+    for label, cx in panels:
+        for edge, out_y, in_y in (("top", B - G, B + G),
+                                  ("bottom", M["PAGE_H"] - B + G, M["PAGE_H"] - B - G)):
+            a, b = p(cx, out_y), p(cx, in_y)
+            chk(max(abs(u - v) for u, v in zip(a, b)) < 28,
+                f"bleed {label} {edge}: outside {a} != inside {b}")
+    a, b = p(M["PAGE_W"] - B + G, mid_y), p(M["PAGE_W"] - B - G, mid_y)
+    chk(max(abs(u - v) for u, v in zip(a, b)) < 28, f"bleed right: {a} != {b}")
 
-        # nothing may be trimmed off: no text in the bleed, none under the hanger
-        die = M["die"]
-        cx = M["BLEED"] + M["CARD_W"] / 2
-        hang = pymupdf.Rect(cx - die["slot_w"] / 2, M["BLEED"] + die["bump_cy"] - die["bump_r"],
-                            cx + die["slot_w"] / 2,
-                            M["BLEED"] + die["slot_y"] + die["slot_h"] / 2)
-        for b in pg.get_text("words"):
-            tb = pymupdf.Rect(*[v * MM for v in b[:4]])
-            if not b[4].strip():
+    # no type in the bleed of the artwork area (the proof legend sits below it)
+    for bk in pg.get_text("blocks"):
+        x0, y0, x1, y1 = [v * MM for v in bk[:4]]
+        if not bk[4].strip() or y0 > M["PAGE_H"]:
+            continue
+        if x1 < B or x0 > M["PAGE_W"] - B or y1 < B or y0 > M["PAGE_H"] - B:
+            chk(False, f"text in bleed: {bk[4].strip()[:46]!r}")
+
+    # The stamped logos are placed from meta.json, independently of the HTML,
+    # so a slot can drift onto type without anything else noticing.
+    for s in M["swift_slots"]:
+        sl = pymupdf.Rect(s["x"], s["y"], s["x"] + s["w"], s["y"] + s["h"])
+        for bk in pg.get_text("words"):
+            if not bk[4].strip():
                 continue
-            if (tb.x1 < B or tb.x0 > M["PAGE_W"] - B or
-                    tb.y1 < B or tb.y0 > M["PAGE_H"] - B):
-                chk(False, f"text in bleed: {b[4]!r}")
-            i = tb & hang
-            if i.is_valid and i.width > 0.4 and i.height > 0.4:
-                chk(False, f"text under the hanger punch: {b[4]!r}")
-
-        # type must clear the die edge by a safety margin, allowing for cutting
-        # tolerance on a rounded corner
-        SAFE = M["BLEED"] + 3.0
-        for b in pg.get_text("words"):
-            if not b[4].strip():
-                continue
-            tb = pymupdf.Rect(*[v * MM for v in b[:4]])
-            chk(tb.x0 > SAFE - 0.6 and tb.x1 < M["PAGE_W"] - SAFE + 0.6 and
-                tb.y0 > SAFE - 0.6 and tb.y1 < M["PAGE_H"] - SAFE + 0.6,
-                f"text too close to the die edge: {b[4]!r}")
-
-    # The stamped logo is positioned from meta.json, independently of the HTML.
-    # Only the front carries it; the back's heading is live type in that area.
-    for s in (M["swift_slots"] if (is_front or is_proof) else []):
-        sl = pymupdf.Rect(M["BLEED"] + s["x"], M["BLEED"] + s["y"],
-                          M["BLEED"] + s["x"] + s["w"], M["BLEED"] + s["y"] + s["h"])
-        for b in pg.get_text("words"):
-            if not b[4].strip():
-                continue
-            tb = pymupdf.Rect(*[v * MM for v in b[:4]])
+            tb = pymupdf.Rect(*[v * MM for v in bk[:4]])
             if tb in sl:
                 continue          # the logo's own "Usafi Halisi"
             i = tb & sl
             if i.is_valid and i.width > 0.5 and i.height > 0.5:
-                chk(False, f"Swift logo overlaps text {b[4]!r}")
+                chk(False, f"Swift logo slot {s['id']!r} overlaps text {bk[4]!r}")
     d.close()
 
 
