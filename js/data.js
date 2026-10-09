@@ -70,8 +70,12 @@
   };
 
   // Pre-built enquiry openers, so links stay consistent site-wide.
+  // `assessment` is the general opener used by the home and about CTAs. Vistex
+  // asked (7 Oct 2026) for the wording to be broader than a site visit, so it
+  // now invites any product or programme enquiry; the key name is kept because
+  // four files reference it.
   var waText = {
-    assessment: 'Hello Vistex — I would like a free hygiene assessment for my property.',
+    assessment: 'Hello Vistex — I would like to know more about your cleaning and hygiene products and solutions.',
     advice: 'Hello Vistex — I would like advice on the right hygiene programme for my facility.',
     quote: 'Hello Vistex — I would like a quote.'
   };
@@ -780,6 +784,92 @@
 
   ];
 
+  // ----------------------------------------------------------------
+  // What people actually type into Google.
+  //
+  // Kenyan buyers search the generic name, not the brand: "in-cistern
+  // blocks", "WC block", "washing powder", "pool chlorine". The retail
+  // competition (Safisha, Harpic, Blue Bubble) ranks on exactly those words
+  // while our pages only carried the Swift name, so none of that demand
+  // reached us. tools/build-pages.js folds these into each product page's
+  // keywords and the catalogue search.
+  //
+  // Only terms that TRUTHFULLY describe the product belong here. A term that
+  // wins a click and then disappoints raises bounce rate, which costs more
+  // ranking than it buys.
+  // ----------------------------------------------------------------
+  var AKA = {
+    'blue-drop-wc':        ['toilet blocks', 'in-cistern blocks', 'WC block', 'cistern block', 'toilet block cleaner'],
+    'toilet-balls':        ['toilet balls', 'washroom deodoriser'],
+    'urinal-mat':          ['urinal mat', 'urinal screen', 'urinal deodoriser', 'anti-splash urinal screen'],
+    'germguard':           ['disinfectant', 'pine disinfectant', 'surface disinfectant', 'hospital disinfectant'],
+    'germguard-light':     ['disinfectant', 'surface disinfectant'],
+    'glass-cleaner':       ['glass cleaner', 'window cleaner', 'mirror cleaner'],
+    'drain-care':          ['drain opener', 'blocked drain cleaner', 'caustic soda drain cleaner'],
+    'descaler-ticosta':    ['limescale remover', 'kettle descaler', 'equipment descaler'],
+    'rust-away-sp064':     ['rust stain remover', 'limescale remover'],
+    'rust-away-spray':     ['rust stain remover', 'rust remover spray'],
+    'toilet-cleaner':      ['toilet cleaner', 'toilet bowl cleaner', 'thick toilet cleaner'],
+    'bowl-shine':          ['toilet cleaner', 'tile cleaner', 'bathroom cleaner', 'descaling toilet cleaner'],
+    'terrazol-care':       ['terrazzo cleaner', 'cement residue remover', 'acid floor cleaner'],
+    'oxaclean':            ['pavement cleaner', 'outdoor hard surface cleaner'],
+    'steelclean':          ['stainless steel cleaner', 'washroom cleaner'],
+    'mop-and-shine':       ['floor cleaner', 'floor polish'],
+    'stone-polish':        ['stone floor polish', 'marble polish'],
+    'carpet-shampoo':      ['carpet cleaner', 'carpet shampoo', 'upholstery cleaner'],
+    'scouring-powder':     ['scouring powder', 'abrasive cleaner', 'sink cleaner'],
+    'multiclean':          ['multipurpose cleaner', 'all purpose cleaner', 'degreaser'],
+    'multipurpose-cleaner':['multipurpose cleaner', 'all purpose cleaner'],
+    'multi-surface-cleaner':['multi surface cleaner', 'all purpose cleaner'],
+    'air-freshener':       ['air freshener', 'room spray'],
+    'degreaser':           ['kitchen degreaser', 'heavy duty degreaser', 'oven degreaser'],
+    'grease-buster-floor': ['kitchen floor degreaser', 'grease remover'],
+    'oven-grill-cleaner':  ['oven cleaner', 'grill cleaner'],
+    'dishwash-liquid':     ['dishwashing liquid', 'dish soap', 'washing up liquid'],
+    'machine-dishwasher':  ['dishwasher detergent', 'commercial dishwasher detergent'],
+    'rinse-aid':           ['rinse aid', 'dishwasher rinse aid'],
+    'food-safe-sanitizer': ['food safe sanitiser', 'food contact surface sanitiser'],
+    'hand-wash-sanitizer': ['hand wash', 'hand sanitiser'],
+    'fuel-gel':            ['chafing fuel', 'gel fuel', 'buffet burner fuel'],
+    'laundry-powder-sp021':['washing powder', 'bulk washing powder', 'commercial laundry powder'],
+    'laundry-powder-s020': ['washing powder', 'bulk washing powder', 'institutional laundry powder'],
+    'laundry-powder-sp015hd':['heavy duty washing powder', 'industrial laundry powder'],
+    'power-plus':          ['liquid laundry detergent', 'washing liquid'],
+    'booster-plus':        ['laundry booster', 'stain booster'],
+    'oxygen-bleach-s045':  ['oxygen bleach', 'colour safe bleach', 'oxy bleach'],
+    'liquid-bleach-s040':  ['bleach', 'liquid bleach', 'chlorine bleach'],
+    'powder-bleach-sp040': ['powder bleach', 'bleaching powder'],
+    'regular-bleach':      ['bleach', 'household bleach'],
+    'brightener-sp062':    ['fabric brightener', 'linen whitener', 'optical brightener'],
+    'fabric-softener-s070':['fabric softener', 'fabric conditioner'],
+    'neutralizer':         ['laundry sour', 'laundry neutraliser'],
+    'pre-spotter':         ['stain remover', 'laundry pre-treatment'],
+    'ink-remover':         ['ink stain remover'],
+    'lye-plus-powder':     ['caustic cleaning powder', 'alkaline cleaner'],
+    'pool-chlorine':       ['pool chlorine', 'swimming pool chlorine', 'chlorine granules'],
+    'ph-balance':          ['pool pH increaser', 'pool pH reducer', 'pH balancer'],
+    'algaecide':           ['pool algaecide', 'algae remover'],
+    'clarifier':           ['pool clarifier', 'water clarifier'],
+    'palm-fresh-handwash': ['hand wash', 'liquid hand soap', 'handwash refill'],
+    'palm-fresh-clear':    ['hand wash', 'liquid hand soap'],
+    'liquid-hand-soap':    ['liquid hand soap', 'hand wash'],
+    'hand-sanitizer':      ['hand sanitiser', 'alcohol hand sanitiser', 'hand rub'],
+    'shower-gel':          ['hotel shower gel', 'guest bath gel'],
+    'shampoo':             ['hotel shampoo', 'guest shampoo'],
+    'guest-soap':          ['hotel soap', 'guest soap'],
+    'dental-kit':          ['hotel dental kit', 'guest toothbrush kit'],
+    'shower-cap':          ['hotel shower cap'],
+    'sanitary-bag':        ['sanitary bags', 'hygiene bags'],
+    'guest-slippers':      ['hotel slippers', 'disposable slippers'],
+    'tissue-paper':        ['toilet tissue', 'washroom tissue'],
+    'lotion':              ['hotel body lotion', 'guest lotion'],
+    'cip-solutions':       ['CIP chemicals', 'clean in place chemicals', 'dairy CIP'],
+    'industrial-degreaser':['industrial degreaser', 'workshop degreaser'],
+    'industrial-sanitizer':['industrial sanitiser', 'food plant sanitiser'],
+    'water-treatment':     ['water treatment chemicals', 'process water treatment']
+  };
+  products.forEach(function (p) { if (AKA[p.id]) p.aka = AKA[p.id]; });
+
   // Resolve any derived stat against the live data, so a rendered figure can
   // never contradict the catalogue it is counting.
   stats.forEach(function (s) {
@@ -815,6 +905,9 @@
     // tools/build-pages.js. Build every link through these two so no page
     // points at the old ?id= / ?system= URLs, which only redirect.
     productUrl: function (p) { return 'product-' + (typeof p === 'string' ? p : p.id) + '.html'; },
+    // Printable sheet behind the carton QR. Only products declaring `sheet`
+    // get one generated.
+    datasheetUrl: function (p) { return 'datasheet-' + (typeof p === 'string' ? p : p.id) + '.html'; },
     rangeUrl:   function (s) {
       var sys = typeof s === 'string' ? systems.filter(function (x) { return x.key === s; })[0] : s;
       return sys ? sys.slug + '.html' : 'systems.html';

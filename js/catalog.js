@@ -57,7 +57,10 @@
   function matches(p) {
     if (state.system && p.system !== state.system) return false;
     if (!state.q) return true;
+    // `aka` carries the generic names — someone searching the catalogue for
+    // "toilet blocks" should find Blue-Drop, same as on Google.
     var hay = [p.name, p.code, p.subtitle, p.purpose, p.pack, p.form, p.active,
+               (p.aka || []).join(' '),
                (p.features || []).join(' '), (p.applications || []).join(' '),
                (p.surfaces || []).join(' '), V.getSystem(p.system).name]
       .filter(Boolean).join(' ').toLowerCase();

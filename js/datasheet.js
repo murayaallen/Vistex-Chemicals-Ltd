@@ -21,8 +21,18 @@
   var root = document.getElementById('dsRoot');
   if (!root) return;
 
-  var id = new URLSearchParams(location.search).get('id') || 'blue-drop-wc';
+  // Each sheet has its own generated page (datasheet-<id>.html) carrying its
+  // own title and canonical, so Google can index them separately and a QR
+  // link previews correctly. This file also still answers the old
+  // datasheet.html?id=… address, which forwards.
+  var id = document.body.dataset.pid ||
+           new URLSearchParams(location.search).get('id') || 'blue-drop-wc';
   var p = V.getProduct(id);
+
+  if (p && !document.body.dataset.pid && V.datasheetUrl) {
+    location.replace(V.datasheetUrl(p));
+    return;
+  }
 
   if (!p) {
     root.innerHTML =

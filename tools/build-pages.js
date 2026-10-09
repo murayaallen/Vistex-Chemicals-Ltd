@@ -49,6 +49,20 @@ function clip(t, n) {
   return (sp > n * 0.6 ? cut.slice(0, sp) : cut).replace(/[\s,;:.—-]+$/, '') + '…';
 }
 const fullName = (p) => p.name + (p.code ? ' ' + p.code : '');
+// Generic search terms the product's own name does not already cover. Matching
+// is on normalised words so "Pool Chlorine" swallows "pool chlorine", and
+// "Window Cleaner" swallows "window cleaner" but keeps "mirror cleaner".
+function akaTerms(p) {
+  if (!p.aka) return [];
+  const own = (p.name + ' ' + (p.subtitle || '')).toLowerCase();
+  return p.aka.filter((a) => !own.includes(a.toLowerCase()));
+}
+function alsoKnownAs(p) {
+  const t = akaTerms(p);
+  if (!t.length) return '';
+  return t.length === 1 ? t[0] : t.slice(0, -1).join(', ') + ' and ' + t[t.length - 1];
+}
+
 const SMALL = /^(a|an|and|or|for|of|the|to|with|in|on|&|—)$/i;
 const titleCase = (t) => t.split(' ').map((w, i) =>
   i && SMALL.test(w) ? w.toLowerCase() : w.replace(/(^|-)([a-z])/g, (m, a, b) => a + b.toUpperCase())).join(' ');
@@ -112,6 +126,13 @@ function productStatic(p, s) {
   const list = (title, items) => items && items.length
     ? '<h2 class="h-sub" style="margin-top:32px">' + esc(title) + '</h2><ul class="uses-list">' +
       items.map((t) => '<li>' + esc(t) + '</li>').join('') + '</ul>' : '';
+  // Generic names, in the body copy where a search engine actually weighs them
+  // — a <meta keywords> tag is ignored by Google. Terms already contained in
+  // the product's own name or subtitle are dropped, so this never reads as
+  // "Pool Chlorine, also called pool chlorine".
+  const akaLine = alsoKnownAs(p);
+  const aka = akaLine
+    ? '<p class="pd-aka" style="margin-top:14px">Also searched for as: ' + esc(akaLine) + '.</p>' : '';
   return (
     '<nav class="crumbs" aria-label="Breadcrumb"><a href="systems.html">Our Range</a><span class="sep">/</span>' +
       '<a href="' + V.rangeUrl(s) + '">' + esc(s.short) + '</a><span class="sep">/</span><span>' + esc(p.name) + '</span></nav>' +
@@ -120,7 +141,7 @@ function productStatic(p, s) {
       '<h1 class="pd-title" style="margin-top:16px">' + esc(p.name) + '</h1>' +
       (p.subtitle ? '<p class="pd-sub">' + esc(p.subtitle) + '</p>' : '') +
       (p.image ? '<img src="' + p.image + '" alt="' + esc(fullName(p)) + '" width="800" height="800" style="max-width:320px;height:auto;margin-top:24px;border-radius:16px">' : '') +
-      '<p class="lede" style="margin-top:24px">' + esc(p.purpose) + '</p>' +
+      '<p class="lede" style="margin-top:24px">' + esc(p.purpose) + '</p>' + aka +
       '<dl class="spec" style="margin-top:24px">' + rows.map((r) =>
         '<div class="spec-row"><dt>' + esc(r[0]) + '</dt><dd>' + esc(r[1]) + '</dd></div>').join('') + '</dl>' +
       list('Features', p.features) +
@@ -159,14 +180,34 @@ V.products.forEach((p) => {
   // Name + what it is + the first sentence of the purpose + where it is made,
   // so the snippet ends on the Kenyan-manufacturer line rather than an ellipsis.
   // The subtitle is the first thing dropped when the sentence needs the room.
-  const first = p.purpose.split(/(?<=[.!?])\s+/)[0];
+  // Fill the snippet rather than stopping at one sentence: a 103-character
+  // description wastes a third of what Google will show. Sentences are added
+  // while they fit, and whichever opening (with or without the subtitle)
+  // leaves room for more of them wins.
+  const sentences = p.purpose.split(/(?<=[.!?])\s+/);
   const tail = p.supplied ? ' Supplied across Kenya by Vistex Chemicals.' : ' Made in Kenya by Vistex Chemicals.';
-  const desc = [
-    p.subtitle && name + ': ' + p.subtitle + '. ' + first + tail,
-    name + '. ' + first + tail
-  ].filter((d) => d && d.length <= 160)[0] || clip(name + '. ' + first, 158 - tail.length) + tail;
-  const keywords = [p.name, p.subtitle, p.name + ' Kenya', (p.subtitle || s.short) + ' Nairobi',
-    s.short.toLowerCase() + ' chemicals Kenya', 'Swift ' + p.name, 'Vistex Chemicals'].filter(Boolean).join(', ');
+  const fill = (withSub) => {
+    let s = name + (withSub && p.subtitle ? ': ' + p.subtitle + '.' : '.');
+    for (const sn of sentences) {
+      if ((s + ' ' + sn + tail).length <= 160) s += ' ' + sn; else break;
+    }
+    return s + tail;
+  };
+  // Where the next sentence is too long to fit whole, a naturally truncated
+  // description that uses the space beats a short tidy one — Google truncates
+  // anyway, and the "made in Kenya" tail is worth less than the product words.
+  const whole = [fill(true), fill(false)].filter((d) => d.length <= 160)
+    .sort((a, b) => b.length - a.length)[0];
+  const full = clip(name + (p.subtitle ? ': ' + p.subtitle + '.' : '.') + ' ' + p.purpose, 158);
+  const desc = (whole && whole.length >= 130) ? whole
+    : (full.length > (whole ? whole.length : 0) ? full : whole)
+    || clip(name + '. ' + sentences[0], 158 - tail.length) + tail;
+  // The generic terms lead: they are what gets typed. Brand terms follow.
+  const keywords = [].concat(
+    (p.aka || []), (p.aka || []).slice(0, 2).map((a) => a + ' Kenya'),
+    [p.name, p.subtitle, p.name + ' Kenya', (p.subtitle || s.short) + ' Nairobi',
+     s.short.toLowerCase() + ' chemicals Kenya', 'Swift ' + p.name, 'Vistex Chemicals']
+  ).filter(Boolean).join(', ');
   // Square packshots go out as a square "summary" card; the 1200x630 branded
   // banner is kept for products without a photograph.
   const img = p.image
@@ -177,6 +218,8 @@ V.products.forEach((p) => {
     '@graph': [
       {
         '@type': 'Product', '@id': url + '#product', name, url,
+        // the names a buyer may know it by, for entity matching
+        ...(akaTerms(p).length ? { alternateName: akaTerms(p) } : {}),
         sku: p.code || p.id,
         description: p.purpose,
         category: s.name,
@@ -204,6 +247,58 @@ V.products.forEach((p) => {
   html = html.replace(/<div class="container" id="productRoot">[\s\S]*?<\/div>\n<\/main>/,
     '<div class="container" id="productRoot">' + productStatic(p, s) + '</div>\n</main>');
   wr(file, html);
+  written.push(file);
+});
+
+// ---------- data sheet pages ----------
+// One per product declaring `sheet`. These are what the carton QR codes point
+// at, so each needs its own title and canonical: sharing datasheet.html meant
+// Google saw a single generic "Product data sheet" and the page was in no
+// sitemap at all.
+const dsTpl = rd('datasheet.html');
+const dsWritten = [];
+V.products.filter((p) => p.sheet).forEach((p) => {
+  const s = V.getSystem(p.system);
+  const file = V.datasheetUrl(p);
+  const url = abs(file);
+  const name = fullName(p);
+  // First candidate that fits — clipping a title leaves a broken-looking "|…"
+  const title = [
+    name + ' — Data Sheet & Directions | Vistex Kenya',
+    name + ' — Data Sheet & Directions | Vistex',
+    name + ' — Data Sheet | Vistex Kenya',
+    name + ' — Data Sheet | Vistex',
+    name + ' — Data Sheet'
+  ].filter((t) => t.length <= 68)[0] || name + ' Data Sheet';
+  const desc = clip('Data sheet for ' + name + ': directions for use, specification, '
+    + 'composition, storage and safety. ' + (p.subtitle || s.name) + ', made in Kenya.', 158);
+  const ld = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      { '@type': 'TechArticle', '@id': url + '#sheet', url, headline: title,
+        name: name + ' data sheet', description: desc,
+        inLanguage: 'en-KE', isPartOf: { '@id': ORIGIN + '/#site' },
+        publisher: ORG, about: { '@id': abs(V.productUrl(p)) + '#product' } },
+      crumbs([['Home', ORIGIN + '/'], ['Our Range', abs('systems.html')],
+              [p.name, abs(V.productUrl(p))], ['Data sheet', url]])
+    ]
+  };
+  let html = setHead(dsTpl, {
+    title, desc,
+    keywords: [].concat((p.aka || []).map((a) => a + ' data sheet'),
+      [name + ' data sheet', name + ' directions for use', name + ' specification',
+       'safety data sheet Kenya', 'Vistex Chemicals']).join(', '),
+    url, ogType: 'article',
+    ogTitle: name + ' — data sheet', ogDesc: desc,
+    img: p.image ? abs(p.image) : abs('images/share/share-range.jpg'),
+    imgW: p.image ? 800 : 1200, imgH: p.image ? 800 : 630,
+    card: p.image ? 'summary' : 'summary_large_image',
+    imgAlt: name + ' — ' + co.productBrand + ' by ' + co.name, ld
+  });
+  html = html.replace('<body data-page="datasheet">',
+                      '<body data-page="datasheet" data-pid="' + p.id + '">');
+  wr(file, html);
+  dsWritten.push(file);
   written.push(file);
 });
 
@@ -278,6 +373,9 @@ V.systems.forEach((s) => {
   V.systems.forEach((s) => out.push(url(abs(V.rangeUrl(s)), '0.8', 'monthly')));
   V.products.forEach((p) => out.push(url(abs(V.productUrl(p)), p.image ? '0.7' : '0.5', 'monthly',
     p.image ? [abs(p.image)].concat((p.gallery || []).map((g) => abs(g.src))) : [])));
+  // data sheets: high intent, rarely change
+  V.products.filter((p) => p.sheet).forEach((p) =>
+    out.push(url(abs(V.datasheetUrl(p)), '0.6', 'yearly')));
   out.push('</urlset>', '');
   wr('sitemap.xml', out.join('\n'));
 }
@@ -302,7 +400,7 @@ V.systems.forEach((s) => {
 }
 
 // ---------- tidy: remove pages for products that no longer exist ----------
-fs.readdirSync(ROOT).filter((f) => /^product-.+\.html$/.test(f) && written.indexOf(f) < 0)
+fs.readdirSync(ROOT).filter((f) => /^(product|datasheet)-.+\.html$/.test(f) && written.indexOf(f) < 0)
   .forEach((f) => { fs.unlinkSync(path.join(ROOT, f)); console.log('removed stale', f); });
 
 console.log('wrote', written.length, 'pages +', 'systems.html, sitemap.xml —', V.products.length, 'products,', V.systems.length, 'ranges');

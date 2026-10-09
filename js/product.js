@@ -35,6 +35,19 @@
   var s = V.getSystem(p.system);
   var fullName = p.name + (p.code ? ' ' + p.code : '');
 
+  // The generic names people search for, minus any the product's own name
+  // already contains. Mirrors tools/build-pages.js so the interactive page
+  // and the crawlable one say the same thing.
+  var akaLine = (function () {
+    if (!p.aka) return '';
+    var own = (p.name + ' ' + (p.subtitle || '')).toLowerCase();
+    var t = p.aka.filter(function (a) { return own.indexOf(a.toLowerCase()) < 0; });
+    if (!t.length) return '';
+    var phrase = t.length === 1 ? t[0]
+      : t.slice(0, -1).join(', ') + ' and ' + t[t.length - 1];
+    return '<p class="pd-aka">Also searched for as: ' + esc(phrase) + '.</p>';
+  })();
+
   // ---------- Scent variants ----------
   // Only the urinal mat has these today, but the shape is generic: any product
   // that ships in several colourways can declare `scents` and get the picker.
@@ -234,7 +247,7 @@
             icon('clipboard', 14) + 'Code ' + esc(p.code) + '</span></div>' : '') +
         '</div>' +
 
-        '<p class="lede">' + esc(p.purpose) + '</p>' +
+        '<p class="lede">' + esc(p.purpose) + '</p>' + akaLine +
         features +
         picker +
         spec +
