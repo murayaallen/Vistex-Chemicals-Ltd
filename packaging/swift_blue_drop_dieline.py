@@ -667,10 +667,23 @@ def cistern_diagram(c, x, y, w, colour=INK, lw=0.30):
              (x + w * 0.20 + w * 0.045, y + h * 0.61)], colour)
 
 
-# The address the carton QR resolves to. The site declares this as its
-# canonical host, and datasheet.html?id=<product> is a real page in the repo -
-# a QR that lands on a 404 is worse than no QR at all.
-QR_BASE = "https://www.vistexchemicals.co.ke/datasheet.html?id="
+# The address the carton QR resolves to.
+#
+# tools/build-pages.js generates one static data sheet per product declaring
+# `sheet`, and says plainly that those pages are what the carton QR points
+# at: the shared datasheet.html?id= form gave Google a single generic title
+# and appeared in no sitemap. The static page carries its own title,
+# canonical and sitemap entry, needs no JavaScript to render, and matches
+# V.datasheetUrl() in js/data.js.
+#
+# A QR is printed matter. It cannot be corrected after plates, so it points
+# at the canonical page, not the template.
+QR_BASE = "https://www.vistexchemicals.co.ke/datasheet-"
+QR_SUFFIX = ".html"
+
+
+def qr_url(product_id):
+    return QR_BASE + product_id + QR_SUFFIX
 
 
 def qr_code(c, x, y, size, data, dark=NAVY, plate=WHITE, quiet=1.6):

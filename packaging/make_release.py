@@ -116,9 +116,28 @@ def audit_clean(path):
     return bad
 
 
+def clear(d):
+    """Empty a directory without removing it.
+
+    rmtree on the release folder fails whenever a file manager has it open,
+    which on Windows is most of the time once someone has looked at it. The
+    files are what need replacing, not the directory."""
+    if not os.path.isdir(d):
+        return
+    for name in os.listdir(d):
+        f = os.path.join(d, name)
+        try:
+            if os.path.isdir(f):
+                shutil.rmtree(f, ignore_errors=True)
+            else:
+                os.remove(f)
+        except OSError as e:
+            print("  could not remove %s (%s)" % (name, e.strerror))
+
+
 def main():
-    if os.path.exists(OUT):
-        shutil.rmtree(OUT)
+    for d in (PRINT, REF, OUT):
+        clear(d)
     print("print-ready")
     pf = copy(PRINT_FILES, PRINT)
     print("reference")

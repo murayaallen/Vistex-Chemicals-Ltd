@@ -16,6 +16,7 @@ import sys
 
 import pymupdf
 
+import swift_blue_drop_dieline as B
 from swift_blue_drop_dieline import (MM, DIST, ROOT, W_GLUE, W_FACE, W_SIDE,
                                      H_BODY, H_TUCK, H_DUST, H_HANG, TAB_W,
                                      TAB_CH, SLOT_R, SLOT_W, SLOT_RISE,
@@ -226,6 +227,46 @@ def main():
         check("Shipper interior clears carton height", SH.CASE_H - H_BODY,
               5.0, tol=0.01)
         check("RSC flaps meet at centre", SH.FLAP * 2, SH.CASE_W, tol=0.01)
+
+    # ---- 6. the QR actually encodes the page that exists ------------------
+    # Decoded out of the finished artwork, not read from the source constant.
+    # A QR is printed matter: it cannot be corrected after plates, and a
+    # wrong URL is invisible to every other check in this file.
+    art = os.path.join(DIST, "integrated", "Concept_F_Vortex.pdf")
+    want = B.qr_url("blue-drop-wc")
+    page = os.path.join(ROOT, "datasheet-blue-drop-wc.html")
+    rows.append(("QR target page exists in repo",
+                 "yes" if os.path.exists(page) else "NO",
+                 "yes", "", "OK" if os.path.exists(page) else "FAIL"))
+    if not os.path.exists(page):
+        fails[0] += 1
+    try:
+        import cv2
+        doc = pymupdf.open(art)
+        pg = doc[0]
+        H = pg.rect.height
+        r = pymupdf.Rect((X_BACK + 60 + BLEED) * MM,
+                         H - (Y_BODY + 28 + BLEED) * MM,
+                         (X_BACK + 90 + BLEED) * MM,
+                         H - (Y_BODY + 5 + BLEED) * MM)
+        px = pg.get_pixmap(dpi=600, clip=r)
+        tmp = os.path.join(DIST, "_qrcheck.png")
+        px.save(tmp)
+        doc.close()
+        img = cv2.imread(tmp)
+        got, _, _ = cv2.QRCodeDetector().detectAndDecode(img)
+        os.remove(tmp)
+        ok = (got == want)
+        if not ok:
+            fails[0] += 1
+        rows.append(("QR decodes to the data sheet",
+                     "read" if got else "unread", "match", "",
+                     "OK" if ok else "FAIL"))
+        if not ok and got:
+            print("    QR encodes: %s" % got)
+            print("    expected  : %s" % want)
+    except ImportError:
+        rows.append(("QR decode (needs opencv)", "skipped", "-", "", "SKIP"))
 
     # ---- report -----------------------------------------------------------
     w0 = max(len(r[0]) for r in rows)

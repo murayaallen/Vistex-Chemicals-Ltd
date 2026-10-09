@@ -458,7 +458,7 @@ def back(c, key):
     # QR to the live product data sheet
     qs = 17.0
     qx = x + w - m - qs - 17.0
-    B.qr_code(c, qx, y + 9.0, qs, B.QR_BASE + "blue-drop-wc")
+    B.qr_code(c, qx, y + 9.0, qs, B.qr_url("blue-drop-wc"))
     txt(c, qx + qs / 2, y + 4.8, "SCAN FOR", F["bodysemi"], 5.0, CYAN_LT, "c")
     txt(c, qx + qs / 2, y + 1.4, "DATA SHEET", F["bodysemi"], 5.0, CYAN_LT,
         "c")
