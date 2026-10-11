@@ -291,7 +291,7 @@
 /* ripple texture — the same asset as the systems band, tying the two together */
 .vx-tex {
   position: absolute; inset: 0; pointer-events: none;
-  background-image: url("../images/photos/ripple.webp"), url("../images/photos/ripple.jpg");
+  background-image: image-set(url("../images/photos/ripple.webp") type("image/webp"), url("../images/photos/ripple.jpg") type("image/jpeg"));
   background-size: cover; background-position: center;
   opacity: .26; mix-blend-mode: soft-light;
   animation: tex-drift 18s var(--ease-in-out) infinite alternate;

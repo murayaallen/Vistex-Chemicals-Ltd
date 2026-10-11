@@ -111,18 +111,18 @@
             '</div>' +
           '</div>' +
         '</div>' +
-        '<div><h4>Explore</h4><ul>' +
+        '<div><h3>Explore</h3><ul>' +
           '<li><a href="systems.html">Our Range</a></li>' +
           '<li><a href="industries.html">Industries</a></li>' +
           '<li><a href="about.html">About</a></li>' +
           '<li><a href="contact.html">Contact</a></li>' +
         '</ul></div>' +
-        '<div><h4>Our Range</h4><ul>' +
+        '<div><h3>Our Range</h3><ul>' +
           V.systems.map(function (s) {
             return '<li><a href="' + V.rangeUrl(s) + '">' + esc(s.short) + '</a></li>';
           }).join('') +
         '</ul></div>' +
-        '<div><h4>Get in touch</h4><ul>' +
+        '<div><h3>Get in touch</h3><ul>' +
           '<li>' + icon('phone', 16) + '<a href="tel:+' + co.phoneIntl + '">' + esc(co.phoneDisplay) + '</a></li>' +
           '<li>' + icon('chat', 16) + '<a href="' + V.wa(V.waText.quote) + '" target="_blank" rel="noopener">WhatsApp us</a></li>' +
           '<li>' + icon('mail', 16) + '<a href="mailto:' + esc(co.email) + '">' + esc(co.email) + '</a></li>' +
