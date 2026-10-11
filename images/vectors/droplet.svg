@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 80">
+  <defs>
+    <radialGradient id="dg" cx="38%" cy="42%" r="62%">
+      <stop offset="0%"  stop-color="#ffffff" stop-opacity=".9"/>
+      <stop offset="34%" stop-color="#7ed6f7"/>
+      <stop offset="72%" stop-color="#2E3995"/>
+      <stop offset="100%" stop-color="#070a16"/>
+    </radialGradient>
+    <radialGradient id="caustic" cx="50%" cy="88%" r="28%">
+      <stop offset="0%"  stop-color="#9dd8f6" stop-opacity=".9"/>
+      <stop offset="100%" stop-color="#9dd8f6" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="drop-clip">
+      <path d="M32 4 C41.6 16 53.4 25.6 53.4 44.4 C53.4 57.4 43.8 66.4 32 66.4 C20.2 66.4 10.6 57.4 10.6 44.4 C10.6 25.6 22.4 16 32 4Z"/>
+    </clipPath>
+  </defs>
+  <!-- drop shadow -->
+  <ellipse cx="33.5" cy="68" rx="18" ry="5" fill="#070a16" fill-opacity=".18"/>
+  <!-- body -->
+  <g clip-path="url(#drop-clip)">
+    <rect x="0" y="0" width="64" height="80" fill="url(#dg)"/>
+    <!-- caustic pool at base -->
+    <ellipse cx="32" cy="62" rx="16" ry="8" fill="url(#caustic)"/>
+    <!-- dark rim — surface turning away -->
+    <path d="M32 4 C41.6 16 53.4 25.6 53.4 44.4 C53.4 57.4 43.8 66.4 32 66.4 C20.2 66.4 10.6 57.4 10.6 44.4 C10.6 25.6 22.4 16 32 4Z"
+          fill="none" stroke="#070a16" stroke-width="3" stroke-opacity=".22"/>
+  </g>
+  <!-- soft specular highlight -->
+  <ellipse cx="26" cy="32" rx="6" ry="9" fill="#ffffff" fill-opacity=".35" clip-path="url(#drop-clip)"/>
+  <!-- tight glint -->
+  <circle cx="24" cy="28" r="2.5" fill="#ffffff" fill-opacity=".72" clip-path="url(#drop-clip)"/>
+</svg>

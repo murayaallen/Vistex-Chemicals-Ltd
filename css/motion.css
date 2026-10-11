@@ -460,3 +460,54 @@ body.is-leaving main { opacity: 0; transform: translateY(-8px); transition: opac
   .sec-glow i { opacity: .72; }
   .sec-glow--1 i:nth-child(1), .sec-glow--3 i:nth-child(1) { width: 68%; }
 }
+
+/* ============================================================
+   WATER VECTORS — packaging shapes, adapted for the web
+   Droplet watermark floats behind section headlines.
+   Wave divider rides the bottom of dark full-bleed bands.
+   ============================================================ */
+
+/* Droplet watermark — absolute-positioned sibling, inserted by JS */
+.water-drop {
+  position: absolute; pointer-events: none; user-select: none;
+  width: clamp(120px, 18vw, 240px); aspect-ratio: 64 / 80;
+  opacity: .10; z-index: 0;
+}
+.water-drop img { width: 100%; height: 100%; display: block; }
+
+/* Hero placement — top-right corner, partially off-canvas */
+.hero-drop {
+  top: -4%; right: -6%;
+}
+
+/* Section placement — bottom-left accent */
+.section-drop-bl { bottom: -8%; left: -4%; }
+.section-drop-br { bottom: -8%; right: -4%; transform: scaleX(-1); }
+
+/* Wave divider — bottom edge of any .has-wave section */
+.has-wave {
+  position: relative;
+}
+.has-wave::after {
+  content: "";
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: clamp(40px, 5vw, 70px);
+  background-image: url("../images/vectors/wave-divider.svg");
+  background-size: 100% 100%;
+  pointer-events: none; z-index: 2;
+}
+
+/* Water swirl — floats as a faded accent in product cards */
+.water-swirl-decor {
+  position: absolute; pointer-events: none; user-select: none;
+  width: clamp(80px, 12vw, 160px); aspect-ratio: 1;
+  opacity: .12; z-index: 0;
+}
+.water-swirl-decor img { width: 100%; height: 100%; display: block; }
+
+@media (prefers-reduced-motion: reduce) {
+  .water-drop, .water-swirl-decor { opacity: .06; }
+}
+@media (max-width: 700px) {
+  .water-drop { width: clamp(80px, 22vw, 140px); opacity: .08; }
+}
