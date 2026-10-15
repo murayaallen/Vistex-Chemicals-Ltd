@@ -1,0 +1,75 @@
+SWIFT BLUE-DROP  -  PACKAGING RELEASE
+Vistex Chemicals Ltd  -  2026-10-09
+
+CARTON   105 W x 48 D x 155 H mm, straight tuck end,
+         euro hang tab 62 x 26 mm (7.8 mm headroom),
+         5 scent vents per side panel.
+         Blank 321 x 245 mm plus 3 mm bleed.
+SHIPPER  319 x 196 x 160 mm internal, regular slotted
+         container, holds 12 cartons (3 x 4), net 2.4 kg.
+         Blank 1070 x 356 mm plus 3 mm bleed.
+COLOUR   CMYK process, no spot colours. Total ink < 300%.
+TYPE     Live text, embedded subsets. Outfit and Plus
+         Jakarta Sans, both SIL OFL 1.1.
+SAFE     Live copy 5 mm inside every cut and crease.
+
+------------------------------------------------------------------------
+PRINT-READY  -  artwork only, safe to output
+------------------------------------------------------------------------
+01_Carton_Blue-Drop_4x50g_ARTWORK.pdf   (7.4 MB)
+    Retail carton, concept F. Artwork only, 327 x 251 mm incl. 3 mm bleed.
+02_Carton_ALT_Immersion_ARTWORK.pdf   (7.1 MB)
+    Retail carton, alternative concept D.
+03_Carton_ALT_Cascade_ARTWORK.pdf   (7.1 MB)
+    Retail carton, alternative concept E.
+04_Shipper_12ct_ARTWORK.pdf   (3.9 MB)
+    12-count outer case. Artwork only, 1076 x 362 mm incl. 3 mm bleed.
+
+------------------------------------------------------------------------
+REFERENCE  -  NOT for printing; guide layers are live
+------------------------------------------------------------------------
+Document_Carton_F_Vortex.pdf   (18.7 MB)
+    Presentation document, 8 pp.
+Document_Carton_D_Immersion.pdf   (18.1 MB)
+    Presentation document, 8 pp.
+Document_Carton_E_Cascade.pdf   (18.2 MB)
+    Presentation document, 8 pp.
+Document_Shipper_12ct.pdf   (12.1 MB)
+    Presentation document, 5 pp.
+Drawing_Carton_DIE_1to1_A2.pdf   (0.0 MB)
+    Dimensioned production drawing, 1:1 at A2.
+Drawing_Shipper_DIE_1to2_A2.pdf   (0.0 MB)
+    Dimensioned production drawing, 1:2 at A2.
+PrintPlan_Carton_F_1to1_A1.pdf   (7.4 MB)
+    Artwork, die and content schedule on one sheet, 1:1 at A1.
+Plan_Carton_F_cut_and_fold.pdf   (7.4 MB)
+    Cut and fold plan.
+Plan_Shipper_cut_and_fold.pdf   (3.9 MB)
+    Cut, slot and fold plan.
+Views_Carton_six_angles.png   (1.8 MB)
+    Six rendered angles of the carton.
+Views_Shipper_six_angles.png   (1.7 MB)
+    Six rendered angles of the case.
+Views_Family_case_and_cartons.png   (0.9 MB)
+    Case with retail cartons, one camera.
+
+------------------------------------------------------------------------
+CHECKS AT BUILD
+------------------------------------------------------------------------
+Dimensions measured back out of the PDFs: 34 checks, 0 failed
+Guide-layer audit, 01_Carton_Blue-Drop_4x50g_ARTWORK.pdf      clean
+Guide-layer audit, 02_Carton_ALT_Immersion_ARTWORK.pdf        clean
+Guide-layer audit, 03_Carton_ALT_Cascade_ARTWORK.pdf          clean
+Guide-layer audit, 04_Shipper_12ct_ARTWORK.pdf                clean
+
+------------------------------------------------------------------------
+BEFORE PLATES
+------------------------------------------------------------------------
+  - Replace the product photography. The blocks are ~160 dpi at
+    pack size, lifted from the client card.
+  - Barcode: removed on request. Most retailers require an EAN-13.
+  - Regulatory copy is drafted, not legally reviewed.
+  - Carton and case dimensions are design intent, not measured
+    dies. Confirm with the converter before tooling.
+  - QR resolves to vistexchemicals.co.ke/datasheet.html. Confirm
+    the domain is live before the artwork is committed.
